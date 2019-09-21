@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN,ja,en,default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="自定义View的套路包括以下四种。 绘制效果型直接使用 Canvas 添加绘制效果是最简单的一种套路。例如BaiduWave的效果不过是通过截断 Canvas 来实现的。  又比如SubmitButton的动画效果看起来很华丽，但可以将其过程拆成几段分别进行绘制。  PatternLockView PatternLockView 的绘制效果还与触摸事件有关，属于此类型中较为复杂的。 偷梁换柱型偷梁">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一些有意思的 View">
+<meta property="og:url" content="http://yoursite.com/2017/08/24/android/View/一些有意思的 View/index.html">
+<meta property="og:site_name" content="lxt">
+<meta property="og:description" content="自定义View的套路包括以下四种。 绘制效果型直接使用 Canvas 添加绘制效果是最简单的一种套路。例如BaiduWave的效果不过是通过截断 Canvas 来实现的。  又比如SubmitButton的动画效果看起来很华丽，但可以将其过程拆成几段分别进行绘制。  PatternLockView PatternLockView 的绘制效果还与触摸事件有关，属于此类型中较为复杂的。 偷梁换柱型偷梁">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/baidu.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/submitbutton.gif">
+<meta property="og:image" content="https://github.com/aritraroy/PatternLockView/raw/master/screenshots/pattern_lock_view_small.gif?raw=true">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/version1.0.5.png">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/8f5ab3aa-5db8-11e6-808c-6033f5d5c4ec.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/2.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/example2@2x.png">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/screenshot1.png">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/68747.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/3.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/anim.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/demo.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/heartlayout.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/folding_cell_preview.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/demoWaves.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/6966.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/76966.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/login.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/8745.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/gif_cover.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/sample.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/snapshot.png">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/54645.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/2e676966.gif">
+<meta property="og:updated_time" content="2019-09-18T07:10:43.078Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一些有意思的 View">
+<meta name="twitter:description" content="自定义View的套路包括以下四种。 绘制效果型直接使用 Canvas 添加绘制效果是最简单的一种套路。例如BaiduWave的效果不过是通过截断 Canvas 来实现的。  又比如SubmitButton的动画效果看起来很华丽，但可以将其过程拆成几段分别进行绘制。  PatternLockView PatternLockView 的绘制效果还与触摸事件有关，属于此类型中较为复杂的。 偷梁换柱型偷梁">
+<meta name="twitter:image" content="http://yoursite.com/2017/08/24/android/View/一些有意思的%20View/baidu.gif">
+  <link rel="canonical" href="http://yoursite.com/2017/08/24/android/View/一些有意思的 View/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>一些有意思的 View | lxt</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lxt</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a class="book-mark-link book-mark-link-fixed" href="#"></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/24/android/View/一些有意思的 View/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiang">
+      <meta itemprop="description" content="谨守而勿失，是谓反其真">
+      <meta itemprop="image" content="/images/1.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lxt">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">一些有意思的 View
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2017-08-24 09:26:26" itemprop="dateCreated datePublished" datetime="2017-08-24T09:26:26+08:00">2017-08-24</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-18 15:10:43" itemprop="dateModified" datetime="2019-09-18T15:10:43+08:00">2019-09-18</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/View/" itemprop="url" rel="index"><span itemprop="name">View</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>2.7k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>2 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>自定义View的套路包括以下四种。</p>
+<h2 id="绘制效果型"><a href="#绘制效果型" class="headerlink" title="绘制效果型"></a>绘制效果型</h2><p>直接使用 Canvas 添加绘制效果是最简单的一种套路。例如<a href="https://github.com/Jichensheng/BaiduWave" target="_blank" rel="noopener">BaiduWave</a>的效果不过是通过截断 Canvas 来实现的。</p>
+<img src="/2017/08/24/android/View/一些有意思的%20View/baidu.gif">
+<p>又比如<a href="https://github.com/SparkYuan/SubmitButton" target="_blank" rel="noopener">SubmitButton</a>的动画效果看起来很华丽，但可以将其过程拆成几段分别进行绘制。</p>
+<img src="/2017/08/24/android/View/一些有意思的%20View/submitbutton.gif">
+<h3 id="PatternLockView"><a href="#PatternLockView" class="headerlink" title="PatternLockView"></a><a href="https://github.com/aritraroy/PatternLockView" target="_blank" rel="noopener">PatternLockView</a></h3><p><img src="https://github.com/aritraroy/PatternLockView/raw/master/screenshots/pattern_lock_view_small.gif?raw=true" alt="PatternLockView"></p>
+<p>PatternLockView 的绘制效果还与触摸事件有关，属于此类型中较为复杂的。</p>
+<h2 id="偷梁换柱型"><a href="#偷梁换柱型" class="headerlink" title="偷梁换柱型"></a>偷梁换柱型</h2><p>偷梁换柱型指的是在原生的系统控件上添加或替换控件，典型的例子就是 <a href="https://github.com/AlexLiuSheng/BadgeView" target="_blank" rel="noopener">BadgeView</a>。</p>
+<img src="/2017/08/24/android/View/一些有意思的%20View/version1.0.5.png">
+<p>BadgeView 是怎样实现给已经存在的控件“打上”标记呢？</p>
+<p>将原来的控件(如 ImageView)从视图树中移除，但记录它的布局参数，ID等信息。而后新建一个 FrameLayout ，将ImageView 和准备好的角标加入这个布局，最后将 FrameLayout 添加到视图树中去，并复原它的 id ，布局参数等信息。</p>
+<blockquote>
+<p>实际上要实现 Badger 效果，完全可以靠扩展控件的 onDraw 方法来实现，不过这种实现没有通用性。</p>
+</blockquote>
+<p><a href="https://github.com/tyrantgit/ExplosionField" target="_blank" rel="noopener">升级版的BadgeView</a>还实现了动画效果。</p>
+<img src="/2017/08/24/android/View/一些有意思的%20View/8f5ab3aa-5db8-11e6-808c-6033f5d5c4ec.gif">
+<h3 id="AndroidResideMenu"><a href="#AndroidResideMenu" class="headerlink" title="AndroidResideMenu"></a><a href="https://github.com/SpecialCyCi/AndroidResideMenu" target="_blank" rel="noopener">AndroidResideMenu</a></h3><img src="/2017/08/24/android/View/一些有意思的%20View/2.gif">
+<p>AndroidResideMenu 在Activity的根布局中插入新布局，点击后用动画。还要处理 Activity 的 dispatchTouchEvent方法。</p>
+<h3 id="ShowcaseView"><a href="#ShowcaseView" class="headerlink" title="ShowcaseView"></a><a href="https://github.com/amlcurran/ShowcaseView" target="_blank" rel="noopener">ShowcaseView</a></h3><img src="/2017/08/24/android/View/一些有意思的%20View/example2@2x.png">
+<h3 id="TapTargetView"><a href="#TapTargetView" class="headerlink" title="TapTargetView"></a><a href="https://github.com/KeepSafe/TapTargetView" target="_blank" rel="noopener">TapTargetView</a></h3><img src="/2017/08/24/android/View/一些有意思的%20View/screenshot1.png">
+<p>TapTargetView 显示 SpannableString作为提示。</p>
+<h2 id="GuillotineMenu-Android"><a href="#GuillotineMenu-Android" class="headerlink" title="GuillotineMenu-Android"></a><a href="https://github.com/Yalantis/GuillotineMenu-Android" target="_blank" rel="noopener">GuillotineMenu-Android</a></h2><img src="/2017/08/24/android/View/一些有意思的%20View/68747.gif">
+<p>这个库的交互方式非常有意思，它将换上的布局旋转-90度隐藏起来，而后执行动画显示。难点在于如何处理遮挡NaviMenu的问题。</p>
+<h2 id="组合排列型"><a href="#组合排列型" class="headerlink" title="组合排列型"></a>组合排列型</h2><p>组合排列型是将几种控件组合在容器中，也是较为简单和常用的方法。</p>
+<h3 id="SpaceTabLayout"><a href="#SpaceTabLayout" class="headerlink" title="SpaceTabLayout"></a><a href="https://github.com/thelong1EU/SpaceTabLayout" target="_blank" rel="noopener"><strong>SpaceTabLayout</strong></a></h3><img src="/2017/08/24/android/View/一些有意思的%20View/3.gif">
+<p>这里是将组合和绘制结合在一起了。</p>
+<h3 id="AndroidTreeView"><a href="#AndroidTreeView" class="headerlink" title="AndroidTreeView"></a><a href="https://github.com/bmelnychuk/AndroidTreeView" target="_blank" rel="noopener">AndroidTreeView</a></h3>
+<p>这个树结构的View是纯粹的排列组合式，不过特殊之处在于要设计节点的的数据结构，即树。节点的抽象类TreeNode如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TreeNode</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> TreeNode mParent; </span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> List&lt;TreeNode&gt; children;</span><br><span class="line">  <span class="keyword">private</span> BaseNodeViewHolder mViewHolder;<span class="comment">//布局</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>各层的容器实际是 LinearLayout。获得根节点后，将每一个子节点中的布局添加进去即可，唯一值得注意的是这个一个递归过程，你还可以决定是否要扩展或收缩整个布局以及是否使用动画效果。</p>
+<h2 id="动画驱动型"><a href="#动画驱动型" class="headerlink" title="动画驱动型"></a>动画驱动型</h2><p>动画驱动型泛指为添加动画行为，与其它几种类型可以同时使用。例如 <a href="https://github.com/flavioarfaria/KenBurnsView" target="_blank" rel="noopener">KenBurnsView</a>就是在ImageView上应用属性动画而已。</p>
+<img src="/2017/08/24/android/View/一些有意思的%20View/anim.gif">
+<p>在比如<a href="https://github.com/varunest/SparkButton" target="_blank" rel="noopener">SparkButton</a>是对自定义的绘制效果使用动画。</p>
+
+<h3 id="FloatingView"><a href="#FloatingView" class="headerlink" title="FloatingView"></a><a href="https://github.com/UFreedom/FloatingView" target="_blank" rel="noopener">FloatingView</a></h3><img src="/2017/08/24/android/View/一些有意思的%20View/demo.gif">
+<p>FloatingView 是偷懒换柱的实现，兼备动画效果。</p>
+<p>FloatingView 在 DecorView 上添加了一层 FrameLayout，确定 anchorView 在屏幕上的位置将其在添加的FrameLayout上复制，并执行动画。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Rect rect = <span class="keyword">new</span> Rect();</span><br><span class="line">anchorView.getGlobalVisibleRect(rect);</span><br><span class="line"><span class="keyword">int</span>[] location = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">2</span>];</span><br><span class="line">mFloatingDecorView.getLocationOnScreen(location);</span><br><span class="line">rect.offset(-location[<span class="number">0</span>], -location[<span class="number">1</span>]);</span><br><span class="line"><span class="comment">//anchorView 的测量和布局</span></span><br><span class="line">mFloatingDecorView.addView(targetView,lp);</span><br><span class="line"><span class="comment">//此后是应用动画</span></span><br></pre></td></tr></table></figure>
+<p>类似的是<a href="https://github.com/tyrantgit/HeartLayout" target="_blank" rel="noopener">HeartLayout</a></p>
+<img src="/2017/08/24/android/View/一些有意思的%20View/heartlayout.gif">
+<h3 id="folding-cell-android"><a href="#folding-cell-android" class="headerlink" title="folding-cell-android"></a><a href="https://github.com/Ramotion/folding-cell-android" target="_blank" rel="noopener">folding-cell-android</a></h3><img src="/2017/08/24/android/View/一些有意思的%20View/folding_cell_preview.gif">
+<p>使用翻页动画来显示简介和详情，有意思的交互。</p>
+<p>FoldingCell 本身是一个容器，将若干个布局折叠存放起来，点击时对这些页执行动画。</p>
+<h3 id="AndroidFillableLoaders"><a href="#AndroidFillableLoaders" class="headerlink" title="AndroidFillableLoaders"></a><a href="https://github.com/JorgeCastilloPrz/AndroidFillableLoaders" target="_blank" rel="noopener">AndroidFillableLoaders</a></h3><img src="/2017/08/24/android/View/一些有意思的%20View/demoWaves.gif">
+<h3 id="VectAlign"><a href="#VectAlign" class="headerlink" title="VectAlign"></a><a href="https://github.com/bonnyfone/vectalign" target="_blank" rel="noopener">VectAlign</a></h3><img src="/2017/08/24/android/View/一些有意思的%20View/6966.gif">
+<h3 id="AndroidViewHover"><a href="#AndroidViewHover" class="headerlink" title="AndroidViewHover"></a><a href="https://github.com/daimajia/AndroidViewHover" target="_blank" rel="noopener">AndroidViewHover</a></h3><img src="/2017/08/24/android/View/一些有意思的%20View/76966.gif">
+<h3 id="Grav"><a href="#Grav" class="headerlink" title="Grav"></a><a href="https://github.com/glomadrian/Grav" target="_blank" rel="noopener">Grav</a></h3><img src="/2017/08/24/android/View/一些有意思的%20View/login.gif">
+<h2 id="综合使用"><a href="#综合使用" class="headerlink" title="综合使用"></a>综合使用</h2><p>例如<a href="https://github.com/Yalantis/Context-Menu.Android" target="_blank" rel="noopener">Context-Menu</a>这个库同时使用了偷梁换柱和组合排列，还添加了动画效果。</p>
+<img src="/2017/08/24/android/View/一些有意思的%20View/8745.gif">
+<p>有一些效果有多种实现方式，例如文字的跑马灯效果，可以纯粹绘制路径的方式实现，也可以用控件的组合的方式实现。</p>
+<p><a href="https://github.com/oubowu/MarqueeLayoutLibrary" target="_blank" rel="noopener">MarqueeLayoutLibrary</a>将控件并排排列，每一个子控件的尺寸都与容器相同，利用 Scroller 产生滚动效果。</p>
+
+<p><a href="https://github.com/sdsmdg/RotatingText" target="_blank" rel="noopener">RotatingText</a></p>
+<img src="/2017/08/24/android/View/一些有意思的%20View/gif_cover.gif">
+<p>则采用直接绘制的方式完成。</p>
+<h3 id="DiagonalLayout"><a href="#DiagonalLayout" class="headerlink" title="DiagonalLayout"></a><a href="https://github.com/florent37/DiagonalLayout" target="_blank" rel="noopener">DiagonalLayout</a></h3><img src="/2017/08/24/android/View/一些有意思的%20View/sample.gif">
+<h3 id="StepView"><a href="#StepView" class="headerlink" title="StepView"></a><a href="https://github.com/baoyachi/StepView" target="_blank" rel="noopener">StepView</a></h3><img src="/2017/08/24/android/View/一些有意思的%20View/snapshot.png">
+<p>StepView 是组合控件兼顾了绘制效果，它本身是一个 LinearLayout，容纳的布局如下</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">LinearLayout</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:orientation</span>=<span class="string">"vertical"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">com.baoyachi.stepview.HorizontalStepsViewIndicator</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/steps_indicator"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>"/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">RelativeLayout</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/rl_text_container"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">        /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>其中RelativeLayout负责容纳TextView控件， HorizontalStepsViewIndicator 负责绘制效果。</p>
+<h3 id="NavigationTabBar"><a href="#NavigationTabBar" class="headerlink" title="NavigationTabBar"></a><a href="https://github.com/Devlight/NavigationTabBar" target="_blank" rel="noopener">NavigationTabBar</a></h3><img src="/2017/08/24/android/View/一些有意思的%20View/54645.gif">
+<h3 id="TapBarMenu"><a href="#TapBarMenu" class="headerlink" title="TapBarMenu"></a><a href="https://github.com/michaldrabik/TapBarMenu" target="_blank" rel="noopener">TapBarMenu</a></h3><img src="/2017/08/24/android/View/一些有意思的%20View/2e676966.gif">
+
+    </div>
+
+    
+    
+    
+      
+
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="xiang 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2017/08/20/android/View/一些提示性的控件/" rel="next" title="一些提示性的控件">
+                  <i class="fa fa-chevron-left"></i> 一些提示性的控件
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2017/08/28/android/View/Menu,PopupWindow和Dialog/" rel="prev" title="Menu,PopupWindow和Dialog">
+                  Menu,PopupWindow和Dialog <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#绘制效果型"><span class="nav-text">绘制效果型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PatternLockView"><span class="nav-text">PatternLockView</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#偷梁换柱型"><span class="nav-text">偷梁换柱型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AndroidResideMenu"><span class="nav-text">AndroidResideMenu</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ShowcaseView"><span class="nav-text">ShowcaseView</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TapTargetView"><span class="nav-text">TapTargetView</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GuillotineMenu-Android"><span class="nav-text">GuillotineMenu-Android</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#组合排列型"><span class="nav-text">组合排列型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SpaceTabLayout"><span class="nav-text">SpaceTabLayout</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AndroidTreeView"><span class="nav-text">AndroidTreeView</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动画驱动型"><span class="nav-text">动画驱动型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FloatingView"><span class="nav-text">FloatingView</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#folding-cell-android"><span class="nav-text">folding-cell-android</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AndroidFillableLoaders"><span class="nav-text">AndroidFillableLoaders</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VectAlign"><span class="nav-text">VectAlign</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AndroidViewHover"><span class="nav-text">AndroidViewHover</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Grav"><span class="nav-text">Grav</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#综合使用"><span class="nav-text">综合使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DiagonalLayout"><span class="nav-text">DiagonalLayout</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#StepView"><span class="nav-text">StepView</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NavigationTabBar"><span class="nav-text">NavigationTabBar</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TapBarMenu"><span class="nav-text">TapBarMenu</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/1.jpg"
+      alt="xiang">
+  <p class="site-author-name" itemprop="name">xiang</p>
+  <div class="site-description" itemprop="description">谨守而勿失，是谓反其真</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/liuxiangtian" title="GitHub &rarr; https://github.com/liuxiangtian" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="http://www.zhihu.com/people/liu-xiang-tian-74" title="zhihu &rarr; http://www.zhihu.com/people/liu-xiang-tian-74" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>zhihu</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘祥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">191k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:53</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script><script src="/js/bookmark.js?v=7.4.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

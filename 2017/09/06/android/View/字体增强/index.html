@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN,ja,en,default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="android 中使用字体是非常不方便的，因为不支持 xml 定义，必须使用代码来动态修改字体，也无法用样式或主题来批量修改字体。 现在我们来探索下面两个字体使用增强库的原理。 android-typeface-helperandroid-typeface-helper 是较为简单，使用方法如下 1.首先在 Application 中初始化，主要是创建和缓存字体 12345678@Override">
+<meta property="og:type" content="article">
+<meta property="og:title" content="字体增强">
+<meta property="og:url" content="http://yoursite.com/2017/09/06/android/View/字体增强/index.html">
+<meta property="og:site_name" content="lxt">
+<meta property="og:description" content="android 中使用字体是非常不方便的，因为不支持 xml 定义，必须使用代码来动态修改字体，也无法用样式或主题来批量修改字体。 现在我们来探索下面两个字体使用增强库的原理。 android-typeface-helperandroid-typeface-helper 是较为简单，使用方法如下 1.首先在 Application 中初始化，主要是创建和缓存字体 12345678@Override">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-09-18T07:41:27.320Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="字体增强">
+<meta name="twitter:description" content="android 中使用字体是非常不方便的，因为不支持 xml 定义，必须使用代码来动态修改字体，也无法用样式或主题来批量修改字体。 现在我们来探索下面两个字体使用增强库的原理。 android-typeface-helperandroid-typeface-helper 是较为简单，使用方法如下 1.首先在 Application 中初始化，主要是创建和缓存字体 12345678@Override">
+  <link rel="canonical" href="http://yoursite.com/2017/09/06/android/View/字体增强/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>字体增强 | lxt</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lxt</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a class="book-mark-link book-mark-link-fixed" href="#"></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/06/android/View/字体增强/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiang">
+      <meta itemprop="description" content="谨守而勿失，是谓反其真">
+      <meta itemprop="image" content="/images/1.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lxt">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">字体增强
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2017-09-06 21:26:26" itemprop="dateCreated datePublished" datetime="2017-09-06T21:26:26+08:00">2017-09-06</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-18 15:41:27" itemprop="dateModified" datetime="2019-09-18T15:41:27+08:00">2019-09-18</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/View/" itemprop="url" rel="index"><span itemprop="name">View</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>10k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>9 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>android 中使用字体是非常不方便的，因为不支持 xml 定义，必须使用代码来动态修改字体，也无法用样式或主题来批量修改字体。</p>
+<p>现在我们来探索下面两个字体使用增强库的原理。</p>
+<h2 id="android-typeface-helper"><a href="#android-typeface-helper" class="headerlink" title="android-typeface-helper"></a><a href="https://github.com/norbsoft/android-typeface-helper" target="_blank" rel="noopener">android-typeface-helper</a></h2><p>android-typeface-helper 是较为简单，使用方法如下</p>
+<p>1.首先在 Application 中初始化，主要是创建和缓存字体</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">super</span>.onCreate();</span><br><span class="line">	<span class="comment">// Initialize typeface helper</span></span><br><span class="line">	TypefaceCollection typeface = <span class="keyword">new</span> TypefaceCollection.Builder()</span><br><span class="line">	        .set(Typeface.NORMAL, Typeface.createFromAsset(getAssets(), <span class="string">"fonts/ubuntu/Ubuntu-R.ttf"</span>))</span><br><span class="line">	        .create();</span><br><span class="line">	TypefaceHelper.init(typeface);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2.对 Activity , ViewGroup 或 View 应用字体。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">	setContentView(R.layout.activity_layout);</span><br><span class="line">	TypefaceHelper.typeface(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也可以动态的改变字体。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">typeface</span><span class="params">(View view)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>这个库是实际没有做太多事，仅仅对常规字体使用方法的包装而已。typeface 方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">applyForView</span><span class="params">(View view, TypefaceCollection typefaceCollection)</span> </span>&#123;</span><br><span class="line">   <span class="keyword">if</span> (view <span class="keyword">instanceof</span> TextView) &#123;</span><br><span class="line">      TextView textView = (TextView) view;</span><br><span class="line">      Typeface oldTypeface = textView.getTypeface();</span><br><span class="line">      <span class="keyword">final</span> <span class="keyword">int</span> style = oldTypeface == <span class="keyword">null</span> ? Typeface.NORMAL : oldTypeface.getStyle();</span><br><span class="line">      textView.setTypeface(typefaceCollection.getTypeface(style));</span><br><span class="line">      textView.setPaintFlags(textView.getPaintFlags() | Paint.SUBPIXEL_TEXT_FLAG);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可见字体的更改只应用在 TextView 控件上，对于 ViewGroup 要执行递归更改，对于 Acitivity 实际是对 content 布局执行递归更改。</p>
+<p>值得一提的是你还可以创造某种字体的 SpannableString</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SpannableString <span class="title">typeface</span><span class="params">(CharSequence sequence, TypefaceCollection typefaceCollection)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>这是通过定义字体 span 获得的效果，不过首先通过集合提供字体对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">TypefaceSpan</span> <span class="keyword">extends</span> <span class="title">MetricAffectingSpan</span> </span>&#123;</span><br><span class="line">   Typeface typeface;</span><br><span class="line">  </span><br><span class="line">   <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateDrawState</span><span class="params">(TextPaint tp)</span> </span>&#123;</span><br><span class="line">      tp.setTypeface(typeface);</span><br><span class="line">      tp.setFlags(tp.getFlags() | Paint.SUBPIXEL_TEXT_FLAG);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Calligraphy"><a href="#Calligraphy" class="headerlink" title="Calligraphy"></a><a href="https://github.com/chrisjenx/Calligraphy" target="_blank" rel="noopener">Calligraphy</a></h2><p>使用 Calligraphy 这个库，你可以直接在 XML 文件中定义字体</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">TextView</span> <span class="attr">fontPath</span>=<span class="string">"fonts/MyFont.ttf"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"TextAppearance.FontPath"</span> <span class="attr">parent</span>=<span class="string">"android:TextAppearance"</span>&gt;</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"fontPath"</span>&gt;</span>fonts/RobotoCondensed-Regular.ttf<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><strong>自定义控件时添加一个属性并不稀奇，稀奇的是给系统控件 TextView 添加了一个属性 fontPath，而且生效了。</strong></p>
+<p>要做到这点，首先要在 Application 中进行设置。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onCreate();</span><br><span class="line">    CalligraphyConfig.initDefault(<span class="keyword">new</span> CalligraphyConfig.Builder()</span><br><span class="line">                            .setDefaultFontPath(<span class="string">"fonts/Roboto-RobotoRegular.ttf"</span>)</span><br><span class="line">                            .setFontAttrId(R.attr.fontPath)</span><br><span class="line">                            .build()</span><br><span class="line">            );</span><br></pre></td></tr></table></figure>
+<p>此外还需要在 Activity 中替换 Context</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">attachBaseContext</span><span class="params">(Context newBase)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然该库也提供了 CalligraphyTypefaceSpan 供使用，不再叙述。</p>
+<h3 id="LayoutInflater的原理解析"><a href="#LayoutInflater的原理解析" class="headerlink" title="LayoutInflater的原理解析"></a>LayoutInflater的原理解析</h3><p>android 是怎样解析属性的呢？核心是更改 LayoutInflater，该类的加载过程如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> View <span class="title">inflate</span><span class="params">(@LayoutRes <span class="keyword">int</span> resource, ViewGroup root, <span class="keyword">boolean</span> attachToRoot)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Resources res = getContext().getResources();</span><br><span class="line">    <span class="keyword">final</span> XmlResourceParser parser = res.getLayout(resource); </span><br><span class="line">    AttributeSet attrs = Xml.asAttributeSet(parser);</span><br><span class="line">  </span><br><span class="line">    View result = root;</span><br><span class="line">    View temp = createViewFromTag(root, name, inflaterContext, attrs);</span><br><span class="line">    ViewGroup.LayoutParams params = root.generateLayoutParams(attrs);</span><br><span class="line">    <span class="keyword">if</span> (!attachToRoot) &#123;</span><br><span class="line">      temp.setLayoutParams(params);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (root != <span class="keyword">null</span> &amp;&amp; attachToRoot) &#123;</span><br><span class="line">        root.addView(temp, params);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (root == <span class="keyword">null</span> || !attachToRoot) &#123;</span><br><span class="line">        result = temp;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个过程实际是从布局文件中解析出 View 对象，再讲其添加到容器上去的过程。过程中有以下几点值得注意</p>
+<p>1.attachToRoot 参数决定了是要要将View添加到容器上，以及返回值是容器自身还是View对象。</p>
+<p>2.根据XML解析器生成View对象即 createViewFromTag 方法是一个移花接玉的过程。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">View <span class="title">createViewFromTag</span><span class="params">(View parent, String name, Context context, AttributeSet attrs)</span></span>&#123;</span><br><span class="line">  TypedArray ta = context.obtainStyledAttributes(attrs, ATTRS_THEME);</span><br><span class="line">  <span class="keyword">int</span> themeResId = ta.getResourceId(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">  context = <span class="keyword">new</span> ContextThemeWrapper(context, themeResId);</span><br><span class="line">  </span><br><span class="line">  View view;</span><br><span class="line">  <span class="keyword">if</span> (mFactory2 != <span class="keyword">null</span>) &#123;</span><br><span class="line">      view = mFactory2.onCreateView(parent, name, context, attrs);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (mFactory != <span class="keyword">null</span>) &#123;</span><br><span class="line">      view = mFactory.onCreateView(name, context, attrs);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      view = <span class="keyword">null</span>;</span><br><span class="line">  &#125;  </span><br><span class="line">  <span class="keyword">if</span> (view == <span class="keyword">null</span> &amp;&amp; mPrivateFactory != <span class="keyword">null</span>) &#123;</span><br><span class="line">      view = mPrivateFactory.onCreateView(parent, name, context, attrs);</span><br><span class="line">  &#125;  </span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (view == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">final</span> Object lastContext = mConstructorArgs[<span class="number">0</span>];</span><br><span class="line">      mConstructorArgs[<span class="number">0</span>] = context;</span><br><span class="line">      <span class="keyword">if</span> (-<span class="number">1</span> == name.indexOf(<span class="string">'.'</span>)) &#123;</span><br><span class="line">          view = onCreateView(parent, name, attrs); <span class="comment">//使用反射创建</span></span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          view = createView(name, <span class="keyword">null</span>, attrs);     <span class="comment">//使用反射创建</span></span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> view;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里创建View的处理顺序是 Factory2，Factory1，PrivateFactory，最后才是使用反射来创建。</p>
+<p>我们知道通过 Factory2 可以改变View的创建过程，实际上 Activity 就是这样做的，在执行 <code>super.onCreate(savedInstanceState);</code>这一句时就设置了 PrivateFactory。</p>
+<h3 id="简单实现"><a href="#简单实现" class="headerlink" title="简单实现"></a>简单实现</h3><p>我们通过自定义一个 LayoutInflater 来实现简单的效果，首先定义一个属性</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"customFont"</span> <span class="attr">format</span>=<span class="string">"string"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>在xml中使用</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">TextView</span> <span class="attr">customFont</span>=<span class="string">"fonts/Rotobo-Bold.ttf"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这时该属性已经能够被 LayoutInflater 解析到 AttributeSet 参数中去。我们可以使用 Factory2 接口来观察这一现象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Factory2 只能设置一次，所以先用反射修改 mFactorySet 的值，以解除此限制</span></span><br><span class="line">LayoutInflater inflater = LayoutInflater.from(<span class="keyword">this</span>);</span><br><span class="line">Class cls = LayoutInflater.class;</span><br><span class="line">Field bool = cls.getDeclaredField(<span class="string">"mFactorySet"</span>);</span><br><span class="line">bool.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">bool.setBoolean(inflater, <span class="keyword">false</span>);</span><br><span class="line">inflater.setFactory2(<span class="keyword">new</span> LayoutInflater.Factory2() &#123;</span><br><span class="line">      </span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> View <span class="title">onCreateView</span><span class="params">(View parent, String name, Context context, AttributeSet attrs)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span>(name.equals(<span class="string">"TextView"</span>)) &#123;</span><br><span class="line">           <span class="keyword">int</span> count = attrs.getAttributeCount();</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</span><br><span class="line">                Log.i(TAG, attrs.getAttributeName(i)); <span class="comment">//customFont</span></span><br><span class="line">                Log.i(TAG, attrs.getAttributeValue(i));<span class="comment">//fonts/Rotobo-Bold.ttf</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">      &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>从这里就可以拿到资源值(即字体文件路径)了，利用这一属性就可以设置字体了，简易实现如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> View <span class="title">onCreateView</span><span class="params">(View parent, String name, Context context, AttributeSet attrs)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span>(name.equals(<span class="string">"TextView"</span>)) &#123;</span><br><span class="line">             TextView textview = <span class="keyword">new</span> TextView(MainActivity.<span class="keyword">this</span>);</span><br><span class="line">             textview.setLayoutParams(<span class="keyword">new</span> ViewGroup.LayoutParams(<span class="number">400</span>, <span class="number">100</span>));</span><br><span class="line">             textview.setText(<span class="string">"中华大道 English hello 123456"</span>);</span><br><span class="line">             <span class="keyword">int</span> count = attrs.getAttributeCount();</span><br><span class="line">             <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</span><br><span class="line">                 <span class="keyword">if</span>(attrs.getAttributeName(i).equals(<span class="string">"customfont"</span>))&#123;</span><br><span class="line">                      String path = attrs.getAttributeValue(i);</span><br><span class="line">                      Typeface typeface = Typeface.createFromAsset(getAssets(), path);</span><br><span class="line">                      textview.setTypeface(typeface);</span><br><span class="line">                  &#125;</span><br><span class="line">              &#125;</span><br><span class="line">              <span class="keyword">return</span> textview;</span><br><span class="line">         &#125;</span><br><span class="line">     <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个简单的实现已经能通过自定义属性来修改字体文件了，但离具体应用还差的比较远，比如它无法使用 style 和主题，也会屏蔽掉其它View的生成，此外还默认设置成默认应用在 Activity 上。</p>
+<h3 id="在Activity中应用字体属性"><a href="#在Activity中应用字体属性" class="headerlink" title="在Activity中应用字体属性"></a>在Activity中应用字体属性</h3><p>在Activity中应用字体属性就是要修改其中的LayoutInflater类，通过调查我们可以发现该类已经实现了 Factory2 接口，只要通过代理的方式来改造该接口的实现使其能够处理字体属性就行了。</p>
+<p>实际过程分为两步</p>
+<p>1.替换 Factory2 接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> LayoutInflater <span class="title">getLayoutInflater</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   LayoutInflater inflater = <span class="keyword">super</span>.getLayoutInflater();</span><br><span class="line">   <span class="keyword">final</span> LayoutInflater.Factory2 factory2 = inflater.getFactory2();</span><br><span class="line">    Class cls = LayoutInflater.class;</span><br><span class="line">    Field bool = cls.getDeclaredField(<span class="string">"mFactorySet"</span>);</span><br><span class="line">    bool.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">    bool.setBoolean(inflater, <span class="keyword">false</span>);</span><br><span class="line">    inflater.setFactory2(<span class="keyword">new</span> WrapFacory2(factory2));</span><br><span class="line">    <span class="keyword">return</span> inflater;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>注意一定要做如下设置,在活动创建时就替换 LayoutInflater 来</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">    getLayoutInflater(); <span class="comment">//改造已经存在的 LayoutInflater 对象</span></span><br><span class="line">    setContentView(R.layout.activity_main);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>LayoutInflater 对象在 Window 中，必须要调用 getLayoutInflater 来改造它，才能在活动中生效。</p>
+</blockquote>
+<p>2.利用代理扩展Factory2的功能</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">WrapFactory2</span> <span class="keyword">implements</span> <span class="title">LayoutInflater</span>.<span class="title">Factory2</span> </span>&#123;</span><br><span class="line">    LayoutInflater.Factory2 factory2;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">WrapFactory2</span><span class="params">(LayoutInflater.Factory2 factory2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.factory2 = factory2;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> View <span class="title">onCreateView</span><span class="params">(View parent, String name, Context context, AttributeSet attrs)</span> </span>&#123;</span><br><span class="line">        View view = factory2.onCreateView(parent, name, context, attrs);</span><br><span class="line">        <span class="keyword">if</span>(view <span class="keyword">instanceof</span> TextView)&#123; <span class="comment">//支持所有 TextView 的子类，如Button</span></span><br><span class="line">            <span class="keyword">int</span> count = attrs.getAttributeCount();</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</span><br><span class="line">                <span class="keyword">if</span>(attrs.getAttributeName(i).equals(<span class="string">"customfont"</span>))&#123;</span><br><span class="line">                    String path = attrs.getAttributeValue(i);</span><br><span class="line">                    Typeface typeface = Typeface.createFromAsset(getAssets(), path);</span><br><span class="line">                    ((TextView)view).setTypeface(typeface);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> view;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>这样字体属性在这个 Activity 中就可以生效了，而且完全不干扰其它控件和其它属性。</strong></p>
+<h3 id="在样式或主题中使用字体属性"><a href="#在样式或主题中使用字体属性" class="headerlink" title="在样式或主题中使用字体属性"></a>在样式或主题中使用字体属性</h3><p>首先定义一个样式</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"Text"</span> &gt;</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"customFont"</span>&gt;</span>fonts/gtw.ttf<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>此时应用样式的主要问题就是如何使用 AttributeSet 解析出其中的字体属性，方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(attrs.getAttributeName(i).equals(<span class="string">"style"</span>))&#123;</span><br><span class="line">    <span class="keyword">int</span> styleId = attrs.getStyleAttribute();</span><br><span class="line">   TypedArray ta = obtainStyledAttributes(styleId, <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;R.attr.customFont&#125;);</span><br><span class="line">   String path = ta.getString(<span class="number">1</span>);</span><br><span class="line">   ta.recycle();</span><br><span class="line">   Typeface typeface = Typeface.createFromAsset(getAssets(), path);</span><br><span class="line">   ((TextView)view).setTypeface(typeface);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果在主题中定义了字体属性，因为 <strong>AttributeSet 中不会有未使用的属性出现，自然就解析不出字体属性了。</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"AppTheme"</span> <span class="attr">parent</span>=<span class="string">"Theme.AppCompat.Light.DarkActionBar"</span>&gt;</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"customfont"</span>&gt;</span>fonts/gtw.ttf<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这时应该用主题对象(Theme)来解析出字体属性</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> View <span class="title">onCreateView</span><span class="params">(View parent, String name, Context context, AttributeSet attrs)</span> </span>&#123;</span><br><span class="line">    View view = factory2.onCreateView(parent, name, context, attrs);</span><br><span class="line">    <span class="keyword">if</span>(view <span class="keyword">instanceof</span> TextView &amp;&amp; attrs!=<span class="keyword">null</span>)&#123;</span><br><span class="line">        TypedArray ta = getTheme().obtainStyledAttributes(<span class="keyword">new</span> <span class="keyword">int</span>[]&#123;</span><br><span class="line">            android.R.attr.colorAccent,  <span class="comment">//这里必须要以系统属性开头，否则自定义属性将解析错误</span></span><br><span class="line">            R.attr.customFont,           <span class="comment">//原因有待探索</span></span><br><span class="line">         &#125;);</span><br><span class="line">        String path = ta.getString(<span class="number">1</span>);</span><br><span class="line">        ta.recycle();</span><br><span class="line">        Typeface typeface = Typeface.createFromAsset(getAssets(), path);</span><br><span class="line">        ((TextView)view).setTypeface(typeface);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> view;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>最后在实现时应该处理获取属性的优先级，一般而言，直接定义的优先级最高，style其次，主题再次之。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+      
+
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="xiang 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2017/08/28/android/View/Menu,PopupWindow和Dialog/" rel="next" title="Menu,PopupWindow和Dialog">
+                  <i class="fa fa-chevron-left"></i> Menu,PopupWindow和Dialog
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2019/06/24/随笔/由西安奔驰车维权案所联想的/" rel="prev" title="西安奔驰事件所思">
+                  西安奔驰事件所思 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#android-typeface-helper"><span class="nav-text">android-typeface-helper</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Calligraphy"><span class="nav-text">Calligraphy</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#LayoutInflater的原理解析"><span class="nav-text">LayoutInflater的原理解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#简单实现"><span class="nav-text">简单实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在Activity中应用字体属性"><span class="nav-text">在Activity中应用字体属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在样式或主题中使用字体属性"><span class="nav-text">在样式或主题中使用字体属性</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/1.jpg"
+      alt="xiang">
+  <p class="site-author-name" itemprop="name">xiang</p>
+  <div class="site-description" itemprop="description">谨守而勿失，是谓反其真</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/liuxiangtian" title="GitHub &rarr; https://github.com/liuxiangtian" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="http://www.zhihu.com/people/liu-xiang-tian-74" title="zhihu &rarr; http://www.zhihu.com/people/liu-xiang-tian-74" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>zhihu</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘祥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">191k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:53</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script><script src="/js/bookmark.js?v=7.4.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

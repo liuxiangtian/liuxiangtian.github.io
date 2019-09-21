@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN,ja,en,default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="哈希表(Hash Table)哈希表的一般原理哈希表的参照物是数组或者链表，在后者中取值或者查找总是避免不了一个循环操作，造成O(n)的开销，通过构建哈希表可以将此类操作开销降低到O(1)。 典型哈希表的流程如下  这是一个电话号码簿，以人名作为键值(key)，将 key 值代入哈希函数得到 hash 值，通过 hash 值得到数组下标，通过下标可以在电话号码数组里直接得到号码。 为了这一高效过程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hash Table">
+<meta property="og:url" content="http://yoursite.com/2019/09/17/计算机/数据结构/哈希表/index.html">
+<meta property="og:site_name" content="lxt">
+<meta property="og:description" content="哈希表(Hash Table)哈希表的一般原理哈希表的参照物是数组或者链表，在后者中取值或者查找总是避免不了一个循环操作，造成O(n)的开销，通过构建哈希表可以将此类操作开销降低到O(1)。 典型哈希表的流程如下  这是一个电话号码簿，以人名作为键值(key)，将 key 值代入哈希函数得到 hash 值，通过 hash 值得到数组下标，通过下标可以在电话号码数组里直接得到号码。 为了这一高效过程">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Hash_table_5_0_1_1_1_1_1_LL.svg/450px-Hash_table_5_0_1_1_1_1_1_LL.svg.png">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Hash_table_5_0_1_1_1_1_0_LL.svg/1920px-Hash_table_5_0_1_1_1_1_0_LL.svg.png">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Hash_table_5_0_1_1_1_1_0_SP.svg/1024px-Hash_table_5_0_1_1_1_1_0_SP.svg.png">
+<meta property="og:image" content="https://harveyqing.gitbooks.io/python-read-and-write/content/images/pya/probing.png">
+<meta property="og:updated_time" content="2019-09-17T12:05:50.199Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hash Table">
+<meta name="twitter:description" content="哈希表(Hash Table)哈希表的一般原理哈希表的参照物是数组或者链表，在后者中取值或者查找总是避免不了一个循环操作，造成O(n)的开销，通过构建哈希表可以将此类操作开销降低到O(1)。 典型哈希表的流程如下  这是一个电话号码簿，以人名作为键值(key)，将 key 值代入哈希函数得到 hash 值，通过 hash 值得到数组下标，通过下标可以在电话号码数组里直接得到号码。 为了这一高效过程">
+<meta name="twitter:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Hash_table_5_0_1_1_1_1_1_LL.svg/450px-Hash_table_5_0_1_1_1_1_1_LL.svg.png">
+  <link rel="canonical" href="http://yoursite.com/2019/09/17/计算机/数据结构/哈希表/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Hash Table | lxt</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lxt</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a class="book-mark-link book-mark-link-fixed" href="#"></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/17/计算机/数据结构/哈希表/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiang">
+      <meta itemprop="description" content="谨守而勿失，是谓反其真">
+      <meta itemprop="image" content="/images/1.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lxt">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Hash Table
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-09-17 20:05:02 / 修改时间：20:05:50" itemprop="dateCreated datePublished" datetime="2019-09-17T20:05:02+08:00">2019-09-17</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/计算机/" itemprop="url" rel="index"><span itemprop="name">计算机</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/计算机/数据结构/" itemprop="url" rel="index"><span itemprop="name">数据结构</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>4.5k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>4 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="哈希表-Hash-Table"><a href="#哈希表-Hash-Table" class="headerlink" title="哈希表(Hash Table)"></a>哈希表(Hash Table)</h1><h3 id="哈希表的一般原理"><a href="#哈希表的一般原理" class="headerlink" title="哈希表的一般原理"></a>哈希表的一般原理</h3><p>哈希表的参照物是数组或者链表，在后者中取值或者查找总是避免不了一个循环操作，造成O(n)的开销，通过构建哈希表可以将此类操作开销降低到O(1)。</p>
+<p>典型哈希表的流程如下</p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Hash_table_5_0_1_1_1_1_1_LL.svg/450px-Hash_table_5_0_1_1_1_1_1_LL.svg.png" alt="âHashTableâçå¾çæç´¢ç»æ"></p>
+<p>这是一个电话号码簿，以人名作为键值(key)，将 key 值代入哈希函数得到 hash 值，通过 hash 值得到数组下标，通过下标可以在电话号码数组里直接得到号码。</p>
+<p>为了这一高效过程付出的代价是</p>
+<ul>
+<li>哈希函数的开销，该函数必须控制计算量 </li>
+<li>如果存储 hash 值，要付出额外的空间开销，例如 java 为每一个类提供 hash 属性</li>
+<li>hash 表构建开销为O(n)，不过这一开销是一次性的，能够被此后表的操作所摊还；不过频繁的重建表还是要避免的</li>
+</ul>
+<p>此外哈希表还有两个问题</p>
+<p>1.哈希函数的构造，主要是使得输出结果区间分配均匀，避免带来过多的哈希冲突</p>
+<p>2.哈希冲突。上图红色部分就显示了一个 hash 冲突，两个不同的人名通过 哈希函数得到相同的 hash 值，导致他们有得到同一个电话号码的风险。</p>
+<h3 id="哈希冲突的两种解决方法"><a href="#哈希冲突的两种解决方法" class="headerlink" title="哈希冲突的两种解决方法"></a>哈希冲突的两种解决方法</h3><p>不管选怎样的哈希函数，Hash 冲突都是不可避免的。为了解决这一问题，建立哈希表时可以采用两种方法</p>
+<ul>
+<li>分离链接法</li>
+</ul>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Hash_table_5_0_1_1_1_1_0_LL.svg/1920px-Hash_table_5_0_1_1_1_1_0_LL.svg.png" alt="img"></p>
+<p>buckets 中存放的元素都是链表，计算得到下标后获得此位置上的链表，将数据写入链表即可。发生 hash 冲突的数据一并都写入链表，查找时先在 buckets 数组中找链表，这一步开销是O(1)，而后在链表里找数据。</p>
+<p>这种方法需要遍历链表，这一部分开销与链表平均长度有关，可以等价于装填因子有关。一般而言，装填因子可以达到 1.</p>
+<ul>
+<li>开放定址法 </li>
+</ul>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Hash_table_5_0_1_1_1_1_0_SP.svg/1024px-Hash_table_5_0_1_1_1_1_0_SP.svg.png" alt="img"></p>
+<p>这种方法不在使用链表，发生冲突后在冲突位置往后寻找一个空位安放数据。寻找安置空位的方法有 </p>
+<ul>
+<li>线性探测 逐个探测表，直到查找到一个空单元，把散列地址存放在该空单元。</li>
+<li>平方探测 相对线性探测，相当于探测间隔 i*i 个单元的位置是否为空。</li>
+<li>伪随机探测     </li>
+</ul>
+<p>考虑将 {89,18,49,58,69} 插入到一个散列表，散列函数是简单的除10求余数，冲突处理采用开放定址线性检测，其过程如下</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">散列地址</th>
+<th style="text-align:center">空表</th>
+<th style="text-align:center">插入89</th>
+<th style="text-align:center">插入18</th>
+<th style="text-align:center">插入49</th>
+<th style="text-align:center">插入58</th>
+<th style="text-align:center">插入69</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"><strong>49</strong></td>
+<td style="text-align:center">49</td>
+<td style="text-align:center">49</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"><strong>58</strong></td>
+<td style="text-align:center">58</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"><strong>69</strong></td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">7</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">18</td>
+<td style="text-align:center">18</td>
+<td style="text-align:center">18</td>
+<td style="text-align:center">18</td>
+</tr>
+<tr>
+<td style="text-align:center">9</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">89</td>
+<td style="text-align:center">89</td>
+<td style="text-align:center">89</td>
+<td style="text-align:center">89</td>
+<td style="text-align:center">89</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>如果采用平方定址法</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">散列地址</th>
+<th style="text-align:center">空表</th>
+<th style="text-align:center">插入89</th>
+<th style="text-align:center">插入18</th>
+<th style="text-align:center">插入49</th>
+<th style="text-align:center">插入58</th>
+<th style="text-align:center">插入69</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">49</td>
+<td style="text-align:center">49</td>
+<td style="text-align:center">49</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"><strong>58</strong></td>
+<td style="text-align:center">58</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"><strong>69</strong></td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">7</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">18</td>
+<td style="text-align:center">18</td>
+<td style="text-align:center">18</td>
+<td style="text-align:center">18</td>
+</tr>
+<tr>
+<td style="text-align:center">9</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">89</td>
+<td style="text-align:center">89</td>
+<td style="text-align:center">89</td>
+<td style="text-align:center">89</td>
+<td style="text-align:center">89</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>插入 58 发生冲突，第一次寻址是偏移 1 位，但此位被占据，第二次寻址是 4 位，即所处位置。</p>
+<p>开放定址的问题是随着表中元素的增多，插入寻址会变得越来越困难。当装填因子超过一定值后，插入新元素将变的不可能，这时就需要重新构造一个容积更大的哈希表，这个操作叫做<strong>再散列</strong>。使用分离链接法解决哈希冲突是没有这个问题的。</p>
+<p>再散列后新表的大小一般是旧表的两倍。</p>
+<p>对于开放定址法，荷载因子是特别重要因素。超过0.8，查表时的缓存不命中（cache missing）按照指数曲线上升。例如 Java 系统库限制荷载因子为0.75，超过此值将发生再散列。</p>
+<h3 id="哈希表的实现"><a href="#哈希表的实现" class="headerlink" title="哈希表的实现"></a>哈希表的实现</h3><p>Python 中的字典 dict ，Java 中的 HashMap 都采用哈希表实现，以提高效率。不同的是前者采用开放定址法，后者采用分离链接法。</p>
+<h4 id="Python-的字典"><a href="#Python-的字典" class="headerlink" title="Python 的字典"></a>Python 的字典</h4><p>字典的使用</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">teams = &#123;<span class="string">"seriaA"</span>:<span class="string">"inter"</span>, <span class="string">"Liga"</span>:<span class="string">"Barça"</span>, <span class="string">"Premier"</span>:<span class="string">"Liverpool"</span>&#125;</span><br><span class="line">teams[<span class="string">"seriaA"</span>] // inter</span><br></pre></td></tr></table></figure>
+<p>python的函数函数为 hash()</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hash(<span class="string">"seriaA"</span>) // <span class="number">-6110547274228262006</span></span><br></pre></td></tr></table></figure>
+<p>python 用一个数组来存储键/值对，其中键为索引值。索引的计算如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hash(<span class="string">"seriaA"</span>) &amp; (len<span class="number">-1</span>) // len 是数组长度, &amp; 运算等价于求余</span><br></pre></td></tr></table></figure>
+<p><img src="https://harveyqing.gitbooks.io/python-read-and-write/content/images/pya/probing.png" alt="probing sequence"></p>
+<h4 id="Java-中的-HashMap"><a href="#Java-中的-HashMap" class="headerlink" title="Java 中的 HashMap"></a>Java 中的 HashMap</h4><p>HashMap 的使用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Map&lt;String, String&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">map.put(<span class="string">"SeriaA"</span>, <span class="string">"inter"</span>);</span><br><span class="line">String team = map.get(<span class="string">"SeriaA"</span>);</span><br></pre></td></tr></table></figure>
+<p>键值对存放的数组是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HashMap.Node&lt;K, V&gt;[] table;</span><br></pre></td></tr></table></figure>
+<p>其中 Node 定义如下，是典型的链表，说明 HashMap 采用的是分离链接法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span>&lt;<span class="title">K</span>, <span class="title">V</span>&gt; <span class="keyword">implements</span> <span class="title">Entry</span>&lt;<span class="title">K</span>, <span class="title">V</span>&gt; </span>&#123;    </span><br><span class="line">    <span class="keyword">int</span> hash;    </span><br><span class="line">    K key;    </span><br><span class="line">    V value;    </span><br><span class="line">    HashMap.Node&lt;K, V&gt; next;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行 put 操作的流程</p>
+<p>1.首先利用下式计算出 key 对应的下标 i ，如果table中此位置无元素存在，那么创建 Node 节点并写入键值对即可</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hash(key) &amp; (table.length-<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p> 2.如果 table[i] 上已经有元素存在，遍历链表<strong>比对 hash值和key值</strong>，如果发现均相同的元素，则认为找到了元素，此时 put 的操作实际是 “<strong>修改已存在的元素</strong>“；如果没有找到，则此时 put 的操作实际是 “<strong>添加新元素</strong>。”</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Node.hash == hash &amp;&amp; (Node.key == key || Node.key.equals(key))</span><br></pre></td></tr></table></figure>
+<p>上述条件说的是只要两个元素的 <strong>hash值相同</strong>且 <strong>至少满足equal 条件</strong>，即在 HashMap 中视为同一个元素。</p>
+<h4 id="ArrayMap"><a href="#ArrayMap" class="headerlink" title="ArrayMap"></a>ArrayMap</h4><p>ArrayMap 与 HashMap 相比，是实现字典的另一种思路，它已经不采用哈希表来实现。它主要有两个数组</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span>[] mHashes;		<span class="comment">//存放 hash 值的数组</span></span><br><span class="line">Object[] mArray;    <span class="comment">//存放 key-vaule 的数组</span></span><br></pre></td></tr></table></figure>
+<p>它的 put 操作流程是</p>
+<p>1.先计算hash值和下标 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hash = key.hashCode();</span><br><span class="line"><span class="keyword">int</span> index = binarySearchHashes(mHashes, N, hash);</span><br></pre></td></tr></table></figure>
+<p>2.写入数据</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mHashes[index] = hash;        <span class="comment">// 下标是hash数组中的下标</span></span><br><span class="line">mArray[index&lt;&lt;<span class="number">1</span>] = key;       <span class="comment">// 存放到键值对数组中要先换算下标</span></span><br><span class="line">mArray[(index&lt;&lt;<span class="number">1</span>)+<span class="number">1</span>] = value;</span><br></pre></td></tr></table></figure>
+<p>可见键值对在数组中完全是并排存放的，而由hash值到下标的计算也不再使用哈希函数，而是将其按序排列使用二分查找，这步的开销是<strong>O(log(n))</strong>，比 HashMap 要大，但比数组要小。可以想见，在处理海量数据，例如城市居民通讯录时是不能采用这种结构的。</p>
+<h4 id="SparseArray"><a href="#SparseArray" class="headerlink" title="SparseArray"></a>SparseArray</h4><p>SparseArray 的使用如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SparseArray&lt;String&gt; array = <span class="keyword">new</span> SparseArray&lt;&gt;();</span><br><span class="line">array.put(<span class="number">1</span>, <span class="string">"inter"</span>);</span><br><span class="line">String team = array.get(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+<p>主要存储结构如下，它的 key 和 value 是分开存放的，只不过 key 是特殊的 int 类型，设计这种结构是为了避免 Integer 类型的装箱和解装箱开销。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">int</span>[] mKeys;</span><br><span class="line"><span class="keyword">private</span> Object[] mValues;</span><br></pre></td></tr></table></figure>
+<p>它的实现与 ArrayMap 类似，因为它的 key 直接是 int 类型，省去了计算 hash 值的过程。可以直接将 key 值在 mKeys 数组中进行二分查找，以获得下标。再用这个下标到 mValues 数组中获得对象。</p>
+<h3 id="哈希表的应用"><a href="#哈希表的应用" class="headerlink" title="哈希表的应用"></a>哈希表的应用</h3><p>哈希表最关键的特征是，<strong>将数组的查值变成O(1)开销</strong>，因此遇到类似问题，我们应该有意识的构建哈希表。但要注意，在具体实现过程中，可能碰到 <strong>key 键重复问题</strong>。</p>
+<h4 id="算法题：Two-Sum"><a href="#算法题：Two-Sum" class="headerlink" title="算法题：Two Sum"></a>算法题：Two Sum</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">   Example:</span></span><br><span class="line"><span class="string">   Given nums = [2, 7, 11, 15], target = 9,</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">   Because nums[0] + nums[1] = 2 + 7 = 9,</span></span><br><span class="line"><span class="string">   return [0, 1].</span></span><br><span class="line"><span class="string">"""</span></span><br></pre></td></tr></table></figure>
+<p>常规解法是双循环，时间开销是O(n)。通过构建哈希表可以将其降低到O(1)。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">    <span class="comment">//1.构建哈希表</span></span><br><span class="line">    Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">        map.put(nums[i], i);</span><br><span class="line">    &#125; </span><br><span class="line">    <span class="comment">//2.在哈希表中查找差值</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">        <span class="keyword">if</span> (map.containsKey(complement) &amp;&amp; map.get(complement) != i) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, map.get(complement) &#125;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"No two sum solution"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个解法利用了哈希表的高效查找。值得注意的是这里所构建哈希表的元素是<strong>(值，索引)</strong>,因为索引不可能相同，而值可能相同，所以数组中的相同元素在插入时，会被覆盖。</p>
+<p>例如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span>[] nums = &#123;<span class="number">3</span>, <span class="number">3</span>&#125;;</span><br></pre></td></tr></table></figure>
+<p> 获得的 map 将是 { 3:1 }, 而不是{ 3:1, 3:0 } 。这样就存在一个隐患，所幸的是我们构建哈希表时被覆盖的是索引小的那个，查找时是根据索引小的那个查找索引大的那个，而且这个题目只要求查找出一对数就够了。</p>
+<p>我们可以进一步思考下这个算法的关键步骤在哪里？</p>
+<p>是<strong>利用哈希表判断差值是否在表中存在</strong>的那一步，这一步本来都要起一个循环来判断的，因为我们构建并利用了哈希表，所以开销从O(n)降低到了O(1)，但是正因为如此，<strong>哈希表的 key 值必须用数字值而不是索引值</strong>，随之而来的就是<strong>重复数字值在哈希表中被覆盖问题</strong>，这导致了我们无法用这种方法求出所有满足条件的结果。</p>
+
+    </div>
+
+    
+    
+    
+      
+
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="xiang 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/09/17/天文/历法/" rel="next" title="历法">
+                  <i class="fa fa-chevron-left"></i> 历法
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#哈希表-Hash-Table"><span class="nav-text">哈希表(Hash Table)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#哈希表的一般原理"><span class="nav-text">哈希表的一般原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#哈希冲突的两种解决方法"><span class="nav-text">哈希冲突的两种解决方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#哈希表的实现"><span class="nav-text">哈希表的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Python-的字典"><span class="nav-text">Python 的字典</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Java-中的-HashMap"><span class="nav-text">Java 中的 HashMap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ArrayMap"><span class="nav-text">ArrayMap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SparseArray"><span class="nav-text">SparseArray</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#哈希表的应用"><span class="nav-text">哈希表的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#算法题：Two-Sum"><span class="nav-text">算法题：Two Sum</span></a></li></ol></li></ol></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/1.jpg"
+      alt="xiang">
+  <p class="site-author-name" itemprop="name">xiang</p>
+  <div class="site-description" itemprop="description">谨守而勿失，是谓反其真</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/liuxiangtian" title="GitHub &rarr; https://github.com/liuxiangtian" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="http://www.zhihu.com/people/liu-xiang-tian-74" title="zhihu &rarr; http://www.zhihu.com/people/liu-xiang-tian-74" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>zhihu</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘祥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">191k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:53</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script><script src="/js/bookmark.js?v=7.4.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN,ja,en,default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="提示性的控件代表了着一种典型的自定义控件的实现思路，即在某个布局上添加自定义的布局。 像系统定义的 Toast，Dialog，甚至 Activity 都是在 Window 上添加自定义布局，SnackBar 则是在 CoordinatorLayout 布局上添加自定义布局，以便利用自定义的 Behavior 类。 在具体实现上，不同的控件根据实现效果还要考虑 IPC 过程，动画效果，触摸事件等。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一些提示性的控件">
+<meta property="og:url" content="http://yoursite.com/2017/08/20/android/View/一些提示性的控件/index.html">
+<meta property="og:site_name" content="lxt">
+<meta property="og:description" content="提示性的控件代表了着一种典型的自定义控件的实现思路，即在某个布局上添加自定义的布局。 像系统定义的 Toast，Dialog，甚至 Activity 都是在 Window 上添加自定义布局，SnackBar 则是在 CoordinatorLayout 布局上添加自定义布局，以便利用自定义的 Behavior 类。 在具体实现上，不同的控件根据实现效果还要考虑 IPC 过程，动画效果，触摸事件等。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2017/08/20/android/View/一些提示性的控件/demo.gif">
+<meta property="og:image" content="http://yoursite.com/2017/08/20/android/View/一些提示性的控件/alert_default.gif">
+<meta property="og:updated_time" content="2019-09-18T07:21:08.509Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一些提示性的控件">
+<meta name="twitter:description" content="提示性的控件代表了着一种典型的自定义控件的实现思路，即在某个布局上添加自定义的布局。 像系统定义的 Toast，Dialog，甚至 Activity 都是在 Window 上添加自定义布局，SnackBar 则是在 CoordinatorLayout 布局上添加自定义布局，以便利用自定义的 Behavior 类。 在具体实现上，不同的控件根据实现效果还要考虑 IPC 过程，动画效果，触摸事件等。">
+<meta name="twitter:image" content="http://yoursite.com/2017/08/20/android/View/一些提示性的控件/demo.gif">
+  <link rel="canonical" href="http://yoursite.com/2017/08/20/android/View/一些提示性的控件/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>一些提示性的控件 | lxt</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lxt</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a class="book-mark-link book-mark-link-fixed" href="#"></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/20/android/View/一些提示性的控件/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiang">
+      <meta itemprop="description" content="谨守而勿失，是谓反其真">
+      <meta itemprop="image" content="/images/1.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lxt">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">一些提示性的控件
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2017-08-20 14:28:29" itemprop="dateCreated datePublished" datetime="2017-08-20T14:28:29+08:00">2017-08-20</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-18 15:21:08" itemprop="dateModified" datetime="2019-09-18T15:21:08+08:00">2019-09-18</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/View/" itemprop="url" rel="index"><span itemprop="name">View</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>5.1k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>5 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>提示性的控件代表了着一种典型的自定义控件的实现思路，即<strong>在某个布局上添加自定义的布局。</strong></p>
+<p>像系统定义的 Toast，Dialog，甚至 Activity 都是在 Window 上添加自定义布局，SnackBar 则是在 CoordinatorLayout 布局上添加自定义布局，以便利用自定义的 Behavior 类。</p>
+<p>在具体实现上，不同的控件根据实现效果还要考虑 IPC 过程，动画效果，触摸事件等。</p>
+<h2 id="Toast"><a href="#Toast" class="headerlink" title="Toast"></a>Toast</h2><p>Toast 是一个系统提供的提示性控件，<strong>本质和 PopupWindow 一样，是在 Window 上添加和移除 View</strong>，所以最重要的是设置 View，否则显示的时候将出现异常。它的使用分为两步</p>
+<p>1.构造。</p>
+<p>常用的 makeText 方法即构造了一个只包括 TextView 的布局，<strong>如果要设置文本，必须将其 id 设置为android.R.id.message。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Toast <span class="title">makeText</span><span class="params">(Context context, CharSequence text, @Duration <span class="keyword">int</span> duration)</span> </span>&#123;</span><br><span class="line">    Toast result = <span class="keyword">new</span> Toast(context);</span><br><span class="line">    View v = inflate.inflate(com.android.internal.R.layout.transient_notification, <span class="keyword">null</span>);</span><br><span class="line">    TextView tv = (TextView)v.findViewById(com.android.internal.R.id.message);</span><br><span class="line">    tv.setText(text);</span><br><span class="line">    </span><br><span class="line">    result.mNextView = v;</span><br><span class="line">    result.mDuration = duration;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2.显示。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mNextView == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"setView must have been called"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    tn.mNextView = mNextView;</span><br><span class="line">    INotificationManager service = getService();</span><br><span class="line">    String pkg = mContext.getOpPackageName();</span><br><span class="line">    TN tn = mTN;</span><br><span class="line">    service.enqueueToast(pkg, tn, mDuration);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>显示的过程是一个 IPC 过程，这是为了避免与其他应用的 Toast 冲突。显示 Toast 依靠 Handler 来实现，本质是通过 WindowManager 服务添加 mNextView 来实现的。<strong>Toast 可以配置的参数都应用在WindowManager.LayoutParams 上。 包括 gravity，偏移量，margin等。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">WindowManager mWM = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);</span><br><span class="line">mParams.gravity = gravity;</span><br><span class="line">mWM.addView(mView, mParams);</span><br></pre></td></tr></table></figure>
+<h3 id="自定义View"><a href="#自定义View" class="headerlink" title="自定义View"></a>自定义View</h3><p>因为可以设置 View，故而可以通过自定义 View 来实现各种效果，甚至可以通过 onAttachedToWindow 方法来获得动画效果。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onAttachedToWindow</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onAttachedToWindow();</span><br><span class="line">    ValueAnimator va = ValueAnimator.ofInt(Color.GREEN, Color.CYAN).setDuration(<span class="number">1500</span>);</span><br><span class="line">    va.addUpdateListener(<span class="keyword">new</span> ValueAnimator.AnimatorUpdateListener() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAnimationUpdate</span><span class="params">(ValueAnimator animation)</span> </span>&#123;</span><br><span class="line">            drawable.setColor((Integer) animation.getAnimatedValue());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    va.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="SnackBar"><a href="#SnackBar" class="headerlink" title="SnackBar"></a>SnackBar</h2><p>SnackBar 比 Toast 要轻量，它也要防止冲突，但并非通过 IPC 机制来完成。</p>
+<p>首先是构建</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Snackbar <span class="title">make</span><span class="params">(View view, <span class="keyword">int</span> resId, @Duration <span class="keyword">int</span> duration)</span></span></span><br></pre></td></tr></table></figure>
+<p>这里的 View 只用来寻找 Parent 布局，或者是 CoordinatorLayout 或者是 android.R.id.content，而后是加载 SnackbarLayout 到布局。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ViewGroup mTargetParent;</span><br><span class="line"><span class="keyword">final</span> SnackbarLayout mView;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="title">Snackbar</span><span class="params">(ViewGroup parent)</span> </span>&#123;</span><br><span class="line">    mTargetParent = parent;</span><br><span class="line">    mView = (SnackbarLayout) inflater.inflate(</span><br><span class="line">            R.layout.design_layout_snackbar, mTargetParent, <span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个 SnackbarLayout 是一个线性布局，它采用 LayoutInflate 将带 merge 标签的布局加载进自己</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">merge</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">TextView</span> <span class="attr">android:id</span>=<span class="string">"@+id/snackbar_text"</span>"/&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">Button</span> <span class="attr">android:id</span>=<span class="string">"@+id/snackbar_action"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:textColor</span>=<span class="string">"?attr/colorAccent"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">style</span>=<span class="string">"?attr/borderlessButtonStyle"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">merge</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这样 setAction 方法就是此 Button 点击事件的委托处理，点击将执行 dispatchDismiss 方法，</p>
+<p>show 方法交给 SnackbarManager 来处理，这个类管理两个 SnackbarRecord 实例，以避免叠加</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> SnackbarRecord mCurrentSnackbar;</span><br><span class="line"><span class="keyword">private</span> SnackbarRecord mNextSnackbar;</span><br></pre></td></tr></table></figure>
+<p>显示的时候，要取消当前，实例化和显示后者，SnackbarRecord 实际就是一个包装了功能的回调，其执行内容为 Callback 的 show 方法。真实的显示方法为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">showView</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mView.getParent() == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">final</span> ViewGroup.LayoutParams lp = mView.getLayoutParams();</span><br><span class="line">        <span class="keyword">if</span> (lp <span class="keyword">instanceof</span> CoordinatorLayout.LayoutParams) &#123;</span><br><span class="line">            CoordinatorLayout.LayoutParams clp = (CoordinatorLayout.LayoutParams) lp;</span><br><span class="line">            Behavior behavior = <span class="keyword">new</span> Behavior();</span><br><span class="line">            behavior.setListener(<span class="keyword">new</span> SwipeDismissBehavior.OnDismissListener());</span><br><span class="line">            clp.setBehavior(behavior);</span><br><span class="line">            clp.insetEdge = Gravity.BOTTOM;</span><br><span class="line">        &#125;</span><br><span class="line">        mTargetParent.addView(mView);</span><br><span class="line">        <span class="comment">//使用动画</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里 SnackbarLayout 将配置上 SwipeDismissBehavior，该类决定了其行为。SwipeDismissBehavior 是一个提供 swipe-to-dismiss 的类，依靠 ViewDragHelper 实现，</p>
+<h3 id="FloatingToolbar"><a href="#FloatingToolbar" class="headerlink" title="FloatingToolbar"></a><a href="https://github.com/rubensousa/FloatingToolbar" target="_blank" rel="noopener">FloatingToolbar</a></h3><p>FloatingToolbar 是模仿 Snackbar 实现的一个库。</p>
+<img src="/2017/08/20/android/View/一些提示性的控件/demo.gif">
+<p>如果将动画放慢，就会发现首先 Fab 先消失(alpha动画)，而后 FloatingToolbar 才扩展出现(scaleX动画)，因此主要的工作是设置和添加布局。</p>
+<p>FloatingToolbar 是一个线性布局，可以添加自定义布局，也可以添加菜单。Fab 的点击事件发生后，将执行动画显示；如果再点击菜单中的控件，将执行各自ItemClick，并执行隐藏操作。</p>
+<p>FloatingToolbar 的优点还在于考虑了与Snackbar 冲突的情况，通过添加 OnScrollListener 来在 RecyclerView 滑动时隐藏 FloatingToolbar 。</p>
+<p><strong>FloatingToolbar 需要在自定义布局，虽然有自由度，但没有 Snackbar 封装的那么好，而且也没有利用Behavior类。</strong></p>
+<p>Fab 的点击事件发生后，将执行动画显示；如果再点击菜单中的控件，将执行各自ItemClick，并执行隐藏操作。</p>
+<h2 id="Alert"><a href="#Alert" class="headerlink" title="Alert"></a><a href="https://github.com/Tapadoo/Alerter" target="_blank" rel="noopener">Alert</a></h2><img src="/2017/08/20/android/View/一些提示性的控件/alert_default.gif">
+<p>与之类似还有<a href="https://github.com/code-mc/loadtoast" target="_blank" rel="noopener">LoadToast</a>， 原理是在 Window 上添加控件，并使用动画来显示。</p>
+<h2 id="通知"><a href="#通知" class="headerlink" title="通知"></a><a href="http://hukai.me/android-training-course-in-chinese/ux/notify-user/index.html" target="_blank" rel="noopener">通知</a></h2><p>服务 NotificationManager 将通知展示在状态栏处，属于跨进程通信。</p>
+<p>其中 Notification 类是 Parcelable 对象，包装了通知所需的数据，包括关于信息的，关于布局的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);</span><br><span class="line">Notification compat = <span class="keyword">new</span> NotificationCompat.Builder(<span class="keyword">this</span>)</span><br><span class="line">        .setSmallIcon(R.drawable.boot)</span><br><span class="line">        .setContentText(<span class="string">"通知必须有：标题，内容和显示在状态栏的Small图标"</span>)</span><br><span class="line">        .setContentTitle(<span class="string">"标题"</span>)</span><br><span class="line">        .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.beauty))</span><br><span class="line">        .setSubText(<span class="string">"子标题"</span>)          </span><br><span class="line">        .setCustomBigContentView(remoteViews) <span class="comment">//大图</span></span><br><span class="line">        .setAutoCancel(<span class="keyword">true</span>) <span class="comment">//点击取消</span></span><br><span class="line">        .setTicker(<span class="string">"通知"</span>) <span class="comment">//显示在状态栏的标题</span></span><br><span class="line">        .setDefaults(Notification.DEFAULT_ALL) <span class="comment">//效果</span></span><br><span class="line">        .build();</span><br><span class="line">manager.notify(<span class="string">"like"</span>, <span class="number">6</span>, compat);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>通知必须有：标题，内容和显示在状态栏的Small图标</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+      
+
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="xiang 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2017/08/18/android/View/与Drawable相关的实践/" rel="next" title="与Drawable相关的实践">
+                  <i class="fa fa-chevron-left"></i> 与Drawable相关的实践
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2017/08/24/android/View/一些有意思的 View/" rel="prev" title="一些有意思的 View">
+                  一些有意思的 View <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Toast"><span class="nav-text">Toast</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义View"><span class="nav-text">自定义View</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SnackBar"><span class="nav-text">SnackBar</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FloatingToolbar"><span class="nav-text">FloatingToolbar</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Alert"><span class="nav-text">Alert</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#通知"><span class="nav-text">通知</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/1.jpg"
+      alt="xiang">
+  <p class="site-author-name" itemprop="name">xiang</p>
+  <div class="site-description" itemprop="description">谨守而勿失，是谓反其真</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/liuxiangtian" title="GitHub &rarr; https://github.com/liuxiangtian" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="http://www.zhihu.com/people/liu-xiang-tian-74" title="zhihu &rarr; http://www.zhihu.com/people/liu-xiang-tian-74" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>zhihu</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘祥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">191k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:53</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script><script src="/js/bookmark.js?v=7.4.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

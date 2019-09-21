@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN,ja,en,default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="ImageViewImageView 的核心功能是显示 Drawable，因此其核心方法是 1public void setImageDrawable(@Nullable Drawable drawable) 传入新的 Drawable 对象后，会配置其各种属性，包括 level，state，染色，Bounds等。 onDraw 方法就是对 Drawable 对象的绘制，但有两点要注意  Matr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="与 ImageView 有关的知识点">
+<meta property="og:url" content="http://yoursite.com/2017/07/26/android/View/与 ImageView 有关的知识点/index.html">
+<meta property="og:site_name" content="lxt">
+<meta property="og:description" content="ImageViewImageView 的核心功能是显示 Drawable，因此其核心方法是 1public void setImageDrawable(@Nullable Drawable drawable) 传入新的 Drawable 对象后，会配置其各种属性，包括 level，state，染色，Bounds等。 onDraw 方法就是对 Drawable 对象的绘制，但有两点要注意  Matr">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2017/07/26/android/View/与%20ImageView%20有关的知识点/6874.png">
+<meta property="og:image" content="http://yoursite.com/2017/07/26/android/View/与%20ImageView%20有关的知识点/screenshot.png">
+<meta property="og:image" content="http://yoursite.com/2017/07/26/android/View/与%20ImageView%20有关的知识点/sample.gif">
+<meta property="og:image" content="http://yoursite.com/2017/07/26/android/View/与%20ImageView%20有关的知识点/sample_app.png">
+<meta property="og:image" content="http://yoursite.com/2017/07/26/android/View/与%20ImageView%20有关的知识点/anim.gif">
+<meta property="og:image" content="http://yoursite.com/2017/07/26/android/View/与%20ImageView%20有关的知识点/style_sample.gif">
+<meta property="og:updated_time" content="2019-09-18T06:56:46.201Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="与 ImageView 有关的知识点">
+<meta name="twitter:description" content="ImageViewImageView 的核心功能是显示 Drawable，因此其核心方法是 1public void setImageDrawable(@Nullable Drawable drawable) 传入新的 Drawable 对象后，会配置其各种属性，包括 level，state，染色，Bounds等。 onDraw 方法就是对 Drawable 对象的绘制，但有两点要注意  Matr">
+<meta name="twitter:image" content="http://yoursite.com/2017/07/26/android/View/与%20ImageView%20有关的知识点/6874.png">
+  <link rel="canonical" href="http://yoursite.com/2017/07/26/android/View/与 ImageView 有关的知识点/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>与 ImageView 有关的知识点 | lxt</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lxt</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a class="book-mark-link book-mark-link-fixed" href="#"></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/26/android/View/与 ImageView 有关的知识点/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiang">
+      <meta itemprop="description" content="谨守而勿失，是谓反其真">
+      <meta itemprop="image" content="/images/1.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lxt">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">与 ImageView 有关的知识点
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2017-07-26 12:18:29" itemprop="dateCreated datePublished" datetime="2017-07-26T12:18:29+08:00">2017-07-26</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-18 14:56:46" itemprop="dateModified" datetime="2019-09-18T14:56:46+08:00">2019-09-18</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/View/" itemprop="url" rel="index"><span itemprop="name">View</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>7.6k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>7 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="ImageView"><a href="#ImageView" class="headerlink" title="ImageView"></a>ImageView</h2><p><strong>ImageView 的核心功能是显示 Drawable</strong>，因此其核心方法是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setImageDrawable</span><span class="params">(@Nullable Drawable drawable)</span></span></span><br></pre></td></tr></table></figure>
+<p><strong>传入新的 Drawable 对象后，会配置其各种属性，包括 level，state，染色，Bounds等。</strong></p>
+<p>onDraw 方法就是对 Drawable 对象的绘制，但有两点要注意</p>
+<ul>
+<li>Matrix 通过左乘对 canvas 产生影响 ,可以用于图片处理</li>
+<li>mCropToPadding 通过 canvas 的 clipRect 方法将对显示区域做截取， 并将 padding 纳入 Drawable 的Bound计算</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">canvas.save();</span><br><span class="line"><span class="keyword">if</span> (mCropToPadding) &#123;</span><br><span class="line">    canvas.clipRect(scrollX + mPaddingLeft, scrollY + mPaddingTop,</span><br><span class="line">            scrollX + mRight - mLeft - mPaddingRight,</span><br><span class="line">            scrollY + mBottom - mTop - mPaddingBottom);</span><br><span class="line">&#125;</span><br><span class="line">canvas.translate(mPaddingLeft, mPaddingTop);</span><br><span class="line">canvas.concat(mDrawMatrix);</span><br><span class="line">mDrawable.draw(canvas);</span><br><span class="line">canvas.restoreToCount(saveCount);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>如果设置了 mCropToPadding 为 true，则滚动ImageView</p>
+</blockquote>
+<h3 id="ImageButton与-FloatingActionButton"><a href="#ImageButton与-FloatingActionButton" class="headerlink" title="ImageButton与 FloatingActionButton"></a>ImageButton与 FloatingActionButton</h3><p>子类 ImageButton 虽然名为 “Button”，却不是 TextView，而是 ImageView，只不过它用了与 Button 相同的背景</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"background"</span>&gt;</span>@drawable/btn_default<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>子类 FloatingActionButton 的特别之处在于它强制定义了背景 Drawable，其默认配置如下</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"Widget.Design.FloatingActionButton"</span> <span class="attr">parent</span>=<span class="string">"android:Widget"</span>&gt;</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:background"</span>&gt;</span>@drawable/design_fab_background<span class="tag">&lt;/<span class="name">item</span>&gt;</span> //白色的圆形 shapedrawable</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"backgroundTint"</span>&gt;</span>?attr/colorAccent<span class="tag">&lt;/<span class="name">item</span>&gt;</span> // 背景的渲染色是 colorAccent</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"fabSize"</span>&gt;</span>normal<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"elevation"</span>&gt;</span>@dimen/design_fab_elevation<span class="tag">&lt;/<span class="name">item</span>&gt;</span>					  // 6dp</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"pressedTranslationZ"</span>&gt;</span>@dimen/design_fab_translation_z_pressed<span class="tag">&lt;/<span class="name">item</span>&gt;</span> // 6dp</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"rippleColor"</span>&gt;</span>?attr/colorControlHighlight<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"borderWidth"</span>&gt;</span>@dimen/design_fab_border_width<span class="tag">&lt;/<span class="name">item</span>&gt;</span>				   // 0.5dp</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>然而实际的背景并不是简单地 ShapeDrawable，还要考虑描边和ripple的效果，其实现在不同的版本各不相同。</p>
+<h3 id="绘制形状的改造"><a href="#绘制形状的改造" class="headerlink" title="绘制形状的改造"></a>绘制形状的改造</h3><p><a href="https://github.com/hdodenhof/CircleImageView" target="_blank" rel="noopener">圆形控件:CircleImageView</a>库实现了圆形图片，实际是重新实现了 ImageView 的绘制方法，它的绘制原理是从 Drawable 中提取出位图 Bitmap 对象，而后使用其作为 BitmapShader 的像素源，绘制圆形图片。</p>
+<p>它的具体实现如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">    <span class="comment">//1.获取 Drawable</span></span><br><span class="line">    Drawable drawable = getDrawable();</span><br><span class="line">  </span><br><span class="line">    <span class="comment">//2.提取 Bitmap</span></span><br><span class="line">    Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), ARGB_8888);</span><br><span class="line">    Canvas c = <span class="keyword">new</span> Canvas(bitmap);</span><br><span class="line">    drawable.setBounds(<span class="number">0</span>, <span class="number">0</span>, c.getWidth(), c.getHeight());</span><br><span class="line">    drawable.draw(c);</span><br><span class="line">    <span class="comment">//3.生成 BitmapShader 以配置 Paint</span></span><br><span class="line">    BitmapShader bitmapShader = <span class="keyword">new</span> BitmapShader(bitmap, CLAMP, CLAMP);</span><br><span class="line">    Paint bitmapPaint = <span class="keyword">new</span> Paint(Paint.ANTI_ALIAS_FLAG);</span><br><span class="line">    bitmapPaint.setShader(bitmapShader);</span><br><span class="line">  </span><br><span class="line">    <span class="comment">//4.计算尺寸和位置，完成最后绘制</span></span><br><span class="line">    <span class="keyword">int</span> width = getWidth() - getPaddingLeft() - getPaddingRight();</span><br><span class="line">    <span class="keyword">int</span> height = getHeight() - getPaddingTop() - getPaddingBottom();</span><br><span class="line">    <span class="keyword">int</span> radius = Math.min(width / <span class="number">2</span>, height / <span class="number">2</span>);</span><br><span class="line">    <span class="keyword">int</span> centerX = getPaddingLeft() + width / <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">int</span> centerY = getPaddingTop() + height / <span class="number">2</span>;</span><br><span class="line">    canvas.drawCircle(centerX, centerY, radius, bitmapPaint);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>实际上这也可以通过 canvas 的 clipPath 方法来实现，但截取操作在底层开销比较大，宜使用 Shader 方法。</p>
+<p>v4 包中的 CircleImageView 专门用作下拉刷新控件，它的背景 Drawable 设置为圆形的 ShapeDrawable，内容 Drawable 设置为带动画效果的箭头 Drawable。</p>
+</blockquote>
+<p><a href="https://github.com/vinc3m1/RoundedImageView" target="_blank" rel="noopener">RoundedImageView</a>库实现圆角图片，其实现原理与上面的 CircleImageView 类似，以(0,0,200,200)为区域，半径为 20 的圆角矩形为例，最终实现方法是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(@NonNull Canvas canvas)</span> </span>&#123;</span><br><span class="line">  BitmapShader bitmapShader = <span class="keyword">new</span> BitmapShader(mBitmap, mTileModeX, mTileModeY);</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">  canvas.drawRoundRect(mDrawableRect, radius, radius, mBitmapPaint);</span><br><span class="line">  redrawBitmapForSquareCorners(canvas);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="/2017/07/26/android/View/与%20ImageView%20有关的知识点/6874.png">
+<p>只是绘制由圆形变成了圆角矩形而已，但是如何只绘制单个原角呢？这里的做法是重绘，例如左上角，重绘的区域即(0,0,20,20)的矩形，将这部分的位图重绘出来就行了。如果是边界，则重绘线段。</p>
+<blockquote>
+<p>这里的问题是发生了重绘，在有三个圆角的情况下最为糟糕，因此应该避免这种情况。如果自己实现，可以将矩形区域划分的细一些，以便一次绘制完毕。<strong>也可以采用 Shape 的做法，通过构建路径的方式来实现。</strong></p>
+</blockquote>
+<h3 id="绘制内容的添加"><a href="#绘制内容的添加" class="headerlink" title="绘制内容的添加"></a>绘制内容的添加</h3><p>绘制内容的添加即在 ImageView 之上进行扩展绘制。</p>
+<p><a href="https://github.com/HeZaiJin/SlantedTextView" target="_blank" rel="noopener">SlantedTextView</a>库的效果可以采用额外绘制的方法实现。</p>
+<img src="/2017/07/26/android/View/与%20ImageView%20有关的知识点/screenshot.png">
+<p><a href="https://github.com/zagum/Android-SwitchIcon" target="_blank" rel="noopener">SwitchIcon</a>库的效果如下</p>
+<img src="/2017/07/26/android/View/与%20ImageView%20有关的知识点/sample.gif">
+<p>该库所做的额外绘制稍显复杂，包括</p>
+<ul>
+<li>绘制斜线状态</li>
+<li>达成动画效果</li>
+<li>颜色渲染</li>
+</ul>
+<p>1.斜线是通过 Paint 绘制 Line 来实现的，其起始点在</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dashXStart = getPaddingLeft() + <span class="number">0.5f</span> * SIN_45 * dashThickness;</span><br><span class="line">dashYStart = getPaddingTop() + <span class="number">1.5f</span> * SIN_45 * dashThickness;</span><br></pre></td></tr></table></figure>
+<p>结束点在</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dashEnd.x = (<span class="keyword">int</span>) (dashXStart + width - delta1);</span><br><span class="line">dashEnd.y = (<span class="keyword">int</span>) (dashYStart + height - delta2);</span><br></pre></td></tr></table></figure>
+<p>这样斜线就是从左上向右下逐渐延伸的。</p>
+<p>2.斜线的延伸由参数 friction 控制，除此之外，friction 还控制渲染的颜色，透明度的变化。这里原本的 drawable 变色是通过构建新的 PorterDuffColorFilter 来完成的，而斜线的颜色是通过Paint来设置的。</p>
+<p>3.这里还有最后一个问题：就是斜线和原 Drawable 的重叠，其解决方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">  drawDash(canvas);</span><br><span class="line">  canvas.clipPath(clipPath, Region.Op.XOR); </span><br><span class="line">  <span class="keyword">super</span>.onDraw(canvas);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里 clipPath 覆盖斜线，并略微大于斜线，值得注意的是区域截取的方式采用的是 XOR，这保证了Canvas 将在斜线区域之外绘制原 Drawable。</p>
+<h3 id="动画效果"><a href="#动画效果" class="headerlink" title="动画效果"></a>动画效果</h3><p><a href="https://github.com/Q42/AndroidScrollingImageView" target="_blank" rel="noopener">AndroidScrollingImageView</a>这种效果实际是视差造成的，动的是背景图，实际绘制的是多个 Bitmap，通过设置 offset 参数造成偏移效果，并通过控制此值形成动画效果。最终效果实际上与背景素材有关，不同的素材可以设置不同的回退速度。</p>
+<img src="/2017/07/26/android/View/与%20ImageView%20有关的知识点/sample_app.png">
+<p><a href="https://github.com/flavioarfaria/KenBurnsView" target="_blank" rel="noopener">KenBurnsView</a> 库实现 Ken Burns 效果，即景深效果，</p>
+<img src="/2017/07/26/android/View/与%20ImageView%20有关的知识点/anim.gif">
+<p>首先确定控件的尺寸和Bitmap尺寸是不一致的，后者要大于前者。在 Bitmap 尺寸范围内截取一个空间尺寸大小的区域，同时显示区域用动画移位过去，就是 Ken Burns 效果。</p>
+<p>效果的实现与位置形状矩阵 Matrix 有关，这里需要将ScaleType类型设置为MATRIX</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">super</span>.setScaleType(ImageView.ScaleType.MATRIX);</span><br></pre></td></tr></table></figure>
+<p>这里移位采用 Matrix 来完成，动画由 mProcess 参数来控制。</p>
+<h3 id="图像处理"><a href="#图像处理" class="headerlink" title="图像处理"></a>图像处理</h3><p>图像处理主要依赖于颜色矩阵(ColorMatrix)来实现。</p>
+<h4 id="ColorMatrix"><a href="#ColorMatrix" class="headerlink" title="ColorMatrix"></a>ColorMatrix</h4><p>ColorMatrix 是一个 4*5 的矩阵，4行分别代表red，green，blue和alpha向量，默认是单位阵。在实现上采用的是float数组来存储这些数据。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ColorMatrix</span> </span>&#123;    </span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">float</span>[] mArray = <span class="keyword">new</span> <span class="keyword">float</span>[<span class="number">20</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最简单的操作像素颜色变化的方法是 setScale，它只改变了对角线的上的数据，这样颜色的各个分量独立的进行变化</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setScale</span><span class="params">(<span class="keyword">float</span> rScale, <span class="keyword">float</span> gScale, <span class="keyword">float</span> bScale, <span class="keyword">float</span> aScale)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">float</span>[] a = mArray;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">19</span>; i &gt; <span class="number">0</span>; --i) &#123;</span><br><span class="line">        a[i] = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    a[<span class="number">0</span>] = rScale;</span><br><span class="line">    a[<span class="number">6</span>] = gScale;</span><br><span class="line">    a[<span class="number">12</span>] = bScale;</span><br><span class="line">    a[<span class="number">18</span>] = aScale;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="StyleImageView-库可以进行图像的处理。"><a href="#StyleImageView-库可以进行图像的处理。" class="headerlink" title="StyleImageView 库可以进行图像的处理。"></a><a href="https://github.com/chengdazhi/StyleImageView" target="_blank" rel="noopener">StyleImageView</a> 库可以进行图像的处理。</h4><img src="/2017/07/26/android/View/与%20ImageView%20有关的知识点/style_sample.gif">
+<p>图像Bitmap由像素构成，像素又包括对比度(Contrast)，亮度(Brightness)，纯度(saturation)等参数，图片的重叠还涉及混合模式(Mode)。修改这些信息主要通过颜色矩阵(ColorMatrix)来完成。</p>
+<p>关于构建 marix 的方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">float</span>[] calculateMatrix(<span class="keyword">int</span> mode, <span class="keyword">int</span> brightness, <span class="keyword">float</span> contrast, <span class="keyword">float</span> saturation) &#123;</span><br><span class="line">    <span class="keyword">return</span> applyBrightnessAndContrast(getMatrixByMode(mode, saturation), brightness, contrast);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">float</span>[] applyBrightnessAndContrast(<span class="keyword">float</span>[] matrix, <span class="keyword">int</span> brightness, <span class="keyword">float</span> contrast) &#123;</span><br><span class="line">    <span class="keyword">float</span> t = (<span class="number">1.0F</span> - contrast) / <span class="number">2.0F</span> * <span class="number">255.0F</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = i * <span class="number">5</span>; j &lt; i * <span class="number">5</span> + <span class="number">3</span>; j++) &#123;</span><br><span class="line">            matrix[j] *= contrast;</span><br><span class="line">        &#125;</span><br><span class="line">        matrix[<span class="number">5</span> * i + <span class="number">4</span>] += t + brightness;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> matrix;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>正常情况下直接改变像素颜色</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">float</span>[] matrix = calculateMatrix(mode, brightness, contrast, saturation);</span><br><span class="line">drawableHolder.getDrawable().setColorFilter(<span class="keyword">new</span> ColorMatrixColorFilter(<span class="keyword">new</span> ColorMatrix(matrix)));</span><br></pre></td></tr></table></figure>
+<p>如果要在改变时形成动画，则需要利用颜色矩阵中的float数组作为起始值，并利用值动画来更新。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateStyle</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">float</span>[] matrix = calculateMatrix(mode, brightness, contrast, saturation);</span><br><span class="line">    <span class="keyword">if</span> (enableAnimation) &#123;</span><br><span class="line">        animateMatrix(oldMatrix, matrix, <span class="keyword">new</span> AnimatorListenerAdapter() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAnimationEnd</span><span class="params">(Animator animation)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">super</span>.onAnimationEnd(animation);</span><br><span class="line">                setDrawableStyleByMatrix(matrix);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">animateMatrix</span><span class="params">(<span class="keyword">final</span> <span class="keyword">float</span>[] startMatrix, <span class="keyword">final</span> <span class="keyword">float</span>[] endMatrix, AnimatorListenerAdapter onAnimationEndListener)</span> </span>&#123;</span><br><span class="line">    animator = ValueAnimator.ofFloat(<span class="number">0F</span>, <span class="number">1F</span>).setDuration(animationDuration);</span><br><span class="line">    animator.addUpdateListener(<span class="keyword">new</span> ValueAnimator.AnimatorUpdateListener() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAnimationUpdate</span><span class="params">(ValueAnimator valueAnimator)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">float</span>[] result = <span class="keyword">new</span> <span class="keyword">float</span>[<span class="number">20</span>];</span><br><span class="line">            <span class="keyword">float</span> fraction = valueAnimator.getAnimatedFraction();</span><br><span class="line">            <span class="keyword">float</span> progress = interpolator.getInterpolation(fraction);</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">20</span>; i++) &#123;</span><br><span class="line">                result[i] = (startMatrix[i] * (<span class="number">1</span> - progress)) + (endMatrix[i] * progress);</span><br><span class="line">            &#125;</span><br><span class="line">            drawableHolder.getDrawable().setColorFilter(<span class="keyword">new</span> ColorMatrixColorFilter(<span class="keyword">new</span> ColorMatrix(matrix))); </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    animator.addListener(onAnimationEndListener);</span><br><span class="line">    animator.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+      
+
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="xiang 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2017/07/24/android/View/与 Drawable 相关的知识点/" rel="next" title="与 Drawable 相关的知识点">
+                  <i class="fa fa-chevron-left"></i> 与 Drawable 相关的知识点
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2017/08/04/android/View/动画一：常规动画/" rel="prev" title="动画一：常规动画">
+                  动画一：常规动画 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ImageView"><span class="nav-text">ImageView</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ImageButton与-FloatingActionButton"><span class="nav-text">ImageButton与 FloatingActionButton</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#绘制形状的改造"><span class="nav-text">绘制形状的改造</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#绘制内容的添加"><span class="nav-text">绘制内容的添加</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动画效果"><span class="nav-text">动画效果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#图像处理"><span class="nav-text">图像处理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ColorMatrix"><span class="nav-text">ColorMatrix</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#StyleImageView-库可以进行图像的处理。"><span class="nav-text">StyleImageView 库可以进行图像的处理。</span></a></li></ol></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/1.jpg"
+      alt="xiang">
+  <p class="site-author-name" itemprop="name">xiang</p>
+  <div class="site-description" itemprop="description">谨守而勿失，是谓反其真</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/liuxiangtian" title="GitHub &rarr; https://github.com/liuxiangtian" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="http://www.zhihu.com/people/liu-xiang-tian-74" title="zhihu &rarr; http://www.zhihu.com/people/liu-xiang-tian-74" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>zhihu</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘祥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">191k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:53</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script><script src="/js/bookmark.js?v=7.4.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

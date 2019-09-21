@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN,ja,en,default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="布局容器动画：android.transitionTransition 是布局容器发生变化(包括其内部的控件发生变化：如添加控件，某个控件改变颜色)时应用的一种动画。 Transition 的简单调用如下 1TransitionManager.beginDelayedTransition(sceneRoot);//默认采用A utoTransition 也可以使用 Scene 12Scene s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="动画二：布局容器动画(Transition)">
+<meta property="og:url" content="http://yoursite.com/2017/08/06/android/View/动画二：布局容器动画(Transition)/index.html">
+<meta property="og:site_name" content="lxt">
+<meta property="og:description" content="布局容器动画：android.transitionTransition 是布局容器发生变化(包括其内部的控件发生变化：如添加控件，某个控件改变颜色)时应用的一种动画。 Transition 的简单调用如下 1TransitionManager.beginDelayedTransition(sceneRoot);//默认采用A utoTransition 也可以使用 Scene 12Scene s">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://github.com/Yalantis/StarWars.Android/raw/master/star_wars-concept.gif">
+<meta property="og:updated_time" content="2019-09-18T08:03:36.237Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="动画二：布局容器动画(Transition)">
+<meta name="twitter:description" content="布局容器动画：android.transitionTransition 是布局容器发生变化(包括其内部的控件发生变化：如添加控件，某个控件改变颜色)时应用的一种动画。 Transition 的简单调用如下 1TransitionManager.beginDelayedTransition(sceneRoot);//默认采用A utoTransition 也可以使用 Scene 12Scene s">
+<meta name="twitter:image" content="https://github.com/Yalantis/StarWars.Android/raw/master/star_wars-concept.gif">
+  <link rel="canonical" href="http://yoursite.com/2017/08/06/android/View/动画二：布局容器动画(Transition)/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>动画二：布局容器动画(Transition) | lxt</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lxt</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a class="book-mark-link book-mark-link-fixed" href="#"></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/06/android/View/动画二：布局容器动画(Transition)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiang">
+      <meta itemprop="description" content="谨守而勿失，是谓反其真">
+      <meta itemprop="image" content="/images/1.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lxt">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">动画二：布局容器动画(Transition)
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2017-08-06 21:26:26" itemprop="dateCreated datePublished" datetime="2017-08-06T21:26:26+08:00">2017-08-06</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-18 16:03:36" itemprop="dateModified" datetime="2019-09-18T16:03:36+08:00">2019-09-18</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/View/" itemprop="url" rel="index"><span itemprop="name">View</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>10k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>9 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="布局容器动画：android-transition"><a href="#布局容器动画：android-transition" class="headerlink" title=" 布局容器动画：android.transition"></a><a href="https://github.com/andkulikov/Transitions-Everywhere" target="_blank" rel="noopener"> 布局容器动画：android.transition</a></h2><p>Transition 是布局容器发生变化(包括其内部的控件发生变化：如添加控件，某个控件改变颜色)时应用的一种动画。</p>
+<p>Transition 的简单调用如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TransitionManager.beginDelayedTransition(sceneRoot);<span class="comment">//默认采用A utoTransition</span></span><br></pre></td></tr></table></figure>
+<p>也可以使用 Scene</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Scene scene = <span class="keyword">new</span> Scene(sceneRoot, textView);</span><br><span class="line">TransitionManager.go(scene, <span class="keyword">new</span> Fade(Fade.IN));</span><br></pre></td></tr></table></figure>
+<p><strong>此时实际并不能执行动画，只有当布局发生变化时才会执行，且一次设置只能执行一次</strong>。<strong>动画发生的准确时间是在onPreDraw方法中。</strong></p>
+<h3 id="Scene"><a href="#Scene" class="headerlink" title="Scene"></a>Scene</h3><p>首先来看Scene类，Scene 定义如下，它需要一个已经存在的容器(mSceneRoot)，和一个新的控件或布局(mLayoutId或mLayout)。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Scene</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Context mContext;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mLayoutId = -<span class="number">1</span>; <span class="comment">//待加入到根布局中的布局，必须没有父控件</span></span><br><span class="line">    <span class="keyword">private</span> ViewGroup mSceneRoot; <span class="comment">//根布局，必须已经存在</span></span><br><span class="line">    <span class="keyword">private</span> View mLayout; <span class="comment">// alternative to layoutId</span></span><br><span class="line">    Runnable mEnterAction, mExitAction;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>进入场景(Scene )的执行方法 enter 如下，实际是将容器的控件清空，添加新控件并将Scene对象自身存储进容器中。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">enter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    getSceneRoot().removeAllViews();</span><br><span class="line">  </span><br><span class="line">    mSceneRoot.addView(mLayout);</span><br><span class="line">    LayoutInflater.from(mContext).inflate(mLayoutId, mSceneRoot);</span><br><span class="line">    mEnterAction.run();</span><br><span class="line">  </span><br><span class="line">    setCurrentScene(mSceneRoot, <span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>根布局对象 sceneRoot 中的 Tag 对象是一个SparseArray<scene>集合，用 layoutId 作为键 新创建的 Scene 对象存储进去，反过来也能从中获取Scene对象。</scene></strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> Scene <span class="title">getCurrentScene</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (Scene) view.getTag(com.android.internal.R.id.current_scene);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>这样原本的根布局就埋下了所需的条件，当时机成熟时将被调用，当Transition动画播放完成后将被清除</strong></p>
+<h3 id="TransitionManager"><a href="#TransitionManager" class="headerlink" title="TransitionManager"></a>TransitionManager</h3><p>TransitionManager 是使用 Transition 的调度器，它将 Scene 和 Transition 匹配到一起，这样当某个 Scene 进入时，可以执行对应的 Transition。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TransitionManager</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Transition sDefaultTransition = <span class="keyword">new</span> AutoTransition();</span><br><span class="line">    ArrayMap&lt;Scene, Transition&gt; mSceneTransitions = <span class="keyword">new</span> ArrayMap&lt;Scene, Transition&gt;();</span><br><span class="line">    ArrayMap&lt;Scene, ArrayMap&lt;Scene, Transition&gt;&gt; mScenePairTransitions =</span><br><span class="line">            <span class="keyword">new</span> ArrayMap&lt;Scene, ArrayMap&lt;Scene, Transition&gt;&gt;();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> ArrayList&lt;ViewGroup&gt; sPendingTransitions = <span class="keyword">new</span> ArrayList&lt;ViewGroup&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也可以指定离开某Scene时的 Transition 集合，由集合mScenePairTransitions保存，其 key 是进入场景 toScene。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTransition</span><span class="params">(Scene fromScene, Scene toScene, Transition transition)</span> </span>&#123;</span><br><span class="line">    ArrayMap&lt;Scene, Transition&gt; sceneTransitionMap = mScenePairTransitions.get(toScene);</span><br><span class="line">    sceneTransitionMap.put(fromScene, transition);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>虽然 TransitionManager 保存了 Scene 和 Transition 的对应关系，但如何根据Scene获取Transition 还与所配置的 ViewGroup有关。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这里Scene表示进入场景，而 sceneRoot 中存储的是当前场景，即将要离开的场景，在播放完成后要被删除；</span></span><br><span class="line"><span class="comment">//因此先获取的是离开场景，离开Transition播放完成后将获取进入场景。</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> Transition <span class="title">getTransition</span><span class="params">(Scene scene)</span> </span>&#123;</span><br><span class="line">    Transition transition = <span class="keyword">null</span>;</span><br><span class="line">    ViewGroup sceneRoot = scene.getSceneRoot();</span><br><span class="line">    <span class="keyword">if</span> (sceneRoot != <span class="keyword">null</span>) &#123;</span><br><span class="line">        Scene currScene = Scene.getCurrentScene(sceneRoot);</span><br><span class="line">        <span class="keyword">if</span> (currScene != <span class="keyword">null</span>) &#123;</span><br><span class="line">            ArrayMap&lt;Scene, Transition&gt; sceneTransitionMap = mScenePairTransitions.get(scene);</span><br><span class="line">            <span class="keyword">if</span> (sceneTransitionMap != <span class="keyword">null</span>) &#123;</span><br><span class="line">                transition = sceneTransitionMap.get(currScene);</span><br><span class="line">                <span class="keyword">if</span> (transition != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">return</span> transition;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    transition = mSceneTransitions.get(scene);</span><br><span class="line">    <span class="keyword">return</span> (transition != <span class="keyword">null</span>) ? transition : sDefaultTransition;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>TransitionManager 调用动画的执行过程如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1.准备工作1：清理先前的 Transition，包括 TransitionManager 和 sceneRoot 内部存储的两部分</span></span><br><span class="line">ArrayList&lt;Transition&gt; runningTransitions = getRunningTransitions().get(sceneRoot);</span><br><span class="line"><span class="keyword">for</span> (Transition runningTransition : runningTransitions) &#123;</span><br><span class="line">    runningTransition.pause(sceneRoot);</span><br><span class="line">&#125;</span><br><span class="line">Scene previousScene = Scene.getCurrentScene(sceneRoot);</span><br><span class="line">previousScene.exit();</span><br><span class="line"><span class="comment">//2.准备工作2：新的 Transition 获取初始值，并清理掉 sceneRoot内部存储的 Scene 对象</span></span><br><span class="line">transition.captureValues(sceneRoot, <span class="keyword">true</span>);</span><br><span class="line">Scene.setCurrentScene(sceneRoot, <span class="keyword">null</span>);</span><br><span class="line"><span class="comment">//3.在视图树中埋点</span></span><br><span class="line">sceneRoot.getViewTreeObserver().addOnPreDrawListener(listener);</span><br><span class="line">mTransition.captureValues(mSceneRoot, <span class="keyword">false</span>);</span><br><span class="line">mTransition.playTransition(mSceneRoot);</span><br></pre></td></tr></table></figure>
+<p>当视图树发生变化时将执行 OnPreDraw 方法，此时就是执行动画的时机</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1.清理监听器和 Transition 集合</span></span><br><span class="line">removeListeners();</span><br><span class="line">sPendingTransitions.remove(mSceneRoot);</span><br><span class="line"><span class="comment">//2.此时布局过程已经完成，绘制还没有开始，是 Transition 获取终止值的绝佳时机。</span></span><br><span class="line">mTransition.captureValues(mSceneRoot, <span class="keyword">false</span>);</span><br><span class="line"><span class="comment">//3.起始值均已捕获，执行动画的条件已经成熟。</span></span><br><span class="line">mTransition.playTransition(mSceneRoot);</span><br></pre></td></tr></table></figure>
+<p><strong>这里 Transition 的执行实际是放在ViewTreeObserver.OnPreDrawListener接口中进行的，以便容器 mSceneRoot 重绘前调用</strong>，在播放完成后还要进行对应清理工作。</p>
+<h3 id="Transition"><a href="#Transition" class="headerlink" title="Transition"></a>Transition</h3><p>Transition 动画的数据结构是 TransitionValues，包含了待变化的属性字典</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TransitionValues</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> View view;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> Map&lt;String, Object&gt; values = <span class="keyword">new</span> ArrayMap&lt;String, Object&gt;();</span><br><span class="line">    <span class="keyword">final</span> ArrayList&lt;Transition&gt; targetedTransitions = <span class="keyword">new</span> ArrayList&lt;Transition&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Transition 中的核心就是两个 TransitionValues 集合，表示动画的起始值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ArrayList&lt;TransitionValues&gt; mStartValuesList; <span class="comment">// only valid after playTransition starts</span></span><br><span class="line">ArrayList&lt;TransitionValues&gt; mEndValuesList; <span class="comment">// only valid after playTransitions starts</span></span><br></pre></td></tr></table></figure>
+<p>在 playTransition 方法中，首先要构建这两个集合</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">captureStartValues</span><span class="params">(TransitionValues transitionValues)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">captureEndValues</span><span class="params">(TransitionValues transitionValues)</span></span>;</span><br></pre></td></tr></table></figure>
+<p><strong>而后是遍历 sceneRoot，为每个 TransitionValues 对创建属性动画。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Animator <span class="title">createAnimator</span><span class="params">(ViewGroup sceneRoot, TransitionValues startValues,TransitionValues endValues)</span></span></span><br></pre></td></tr></table></figure>
+<p><strong>Transition 的子类要定义如何获取起始值以及如何创建属性动画上，这都与具体的属性有关。</strong></p>
+<p>下面通过子类实例说说如何定义 Transition。</p>
+<h4 id="Visibility"><a href="#Visibility" class="headerlink" title="Visibility"></a>Visibility</h4><p><strong>Visibility 类能够响应控件可见性的变化， 这与他定义的三个属性有关</strong>，这些属性的数值完全由 View 提供，其名称和类型为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1.表示 View 的可见性，int类型</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> String PROPNAME_VISIBILITY = <span class="string">"android:visibility:visibility"</span>;</span><br><span class="line"><span class="comment">//2.表示 View 的 Parent，View类型</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> String PROPNAME_PARENT = <span class="string">"android:visibility:parent"</span>;</span><br><span class="line"><span class="comment">//3.表示 View 的屏幕位置，int[]类型</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> String PROPNAME_SCREEN_LOCATION = <span class="string">"android:visibility:screenLocation"</span>;</span><br></pre></td></tr></table></figure>
+<p>这样在获取属性时，就可以将这些属性值写入属性字典中去</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">captureValues</span><span class="params">(TransitionValues transitionValues, <span class="keyword">int</span> forcedVisibility)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> visibility = transitionValues.view.getVisibility();</span><br><span class="line">    transitionValues.values.put(PROPNAME_VISIBILITY, visibility);</span><br><span class="line">    transitionValues.values.put(PROPNAME_PARENT, transitionValues.view.getParent());</span><br><span class="line">    <span class="keyword">int</span>[] loc = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">2</span>];</span><br><span class="line">    transitionValues.view.getLocationOnScreen(loc);</span><br><span class="line">    transitionValues.values.put(PROPNAME_SCREEN_LOCATION, loc);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>创建动画的方法委托给了子类，以 Fade 为例，它添加了一个透明度属性(由view.getAlpha()提供)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> String PROPNAME_ALPHA = <span class="string">"fade:alpha"</span>;</span><br></pre></td></tr></table></figure>
+<p>创建关于 View透明度的属性动画，变化区间从当前透明度到 1。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Animator <span class="title">onAppear</span><span class="params">(ViewGroup sceneRoot, View view, TransitionValues startValues,</span></span></span><br><span class="line"><span class="function"><span class="params">        TransitionValues endValues)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">float</span> startAlpha = getStartAlpha(startValues, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">return</span> ObjectAnimator.ofFloat(view, View.ALPHA, startAlpha, <span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同理子类 Scale 创建了关于 scaleX 和 scaleY 的属性动画，子类 Slide 创建了关于 TRANSLATION_X 和 TRANSLATION_Y的属性动画，在确立起始点时要考虑屏幕位置，<strong>它使用的属性动画要建立 Path，通过改变Path可以改变滑动的轨迹</strong>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ObjectAnimator.ofFloat(view, View.TRANSLATION_X, View.TRANSLATION_Y, path);</span><br></pre></td></tr></table></figure>
+<h4 id="其他Transition"><a href="#其他Transition" class="headerlink" title="其他Transition"></a>其他Transition</h4><p>类 ChangeBounds 将改变 View 的 Bound 属性，同时也要处理父容器的 Bound 改变。它有如下属性</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String PROPNAME_BOUNDS = <span class="string">"android:changeBounds:bounds"</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String PROPNAME_CLIP = <span class="string">"android:changeBounds:clip"</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String PROPNAME_PARENT = <span class="string">"android:changeBounds:parent"</span>; <span class="comment">//父容器是否响应</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String PROPNAME_WINDOW_X = <span class="string">"android:changeBounds:windowX"</span>; <span class="comment">//屏幕位置</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String PROPNAME_WINDOW_Y = <span class="string">"android:changeBounds:windowY"</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>ChangeScroll ： scrollX/scrollY 属性</li>
+<li>ChangeTransform ： AnimationMatrix 属性</li>
+<li>ChangeClipBounds ： clipBounds 属性</li>
+<li>ChangeImageTransform ：ImageView 的 animateTransform 属性</li>
+</ul>
+<h4 id="TransitionSet"><a href="#TransitionSet" class="headerlink" title="TransitionSet"></a>TransitionSet</h4><p>装饰器 TransitionSet 代表着 Transition 集合，并能够为其指定播放顺序。默认实现 AutoTransition 采用顺序播放，包括三个 Transition，即 Fade.OUT，ChangeBounds，Fade.IN。</p>
+<p><strong>单个 Transition 可以添加或排除某个 View，排除的规则可以使用 id，transitionname字符串，class等手段。</strong></p>
+<h3 id="二维路径插值器-PathMotion"><a href="#二维路径插值器-PathMotion" class="headerlink" title="二维路径插值器(PathMotion)"></a>二维路径插值器(PathMotion)</h3><p>PathMotion 负责在起始点之间进行插值，它返回的是一个路径。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> Path <span class="title">getPath</span><span class="params">(<span class="keyword">float</span> startX, <span class="keyword">float</span> startY, <span class="keyword">float</span> endX, <span class="keyword">float</span> endY)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>某些改变位置的 Transition 可以使用，如ChangeBounds</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> ChangeBounds().setPathMotion(<span class="keyword">new</span> ArcMotion())</span><br></pre></td></tr></table></figure>
+<h2 id="Transition-的实践"><a href="#Transition-的实践" class="headerlink" title="Transition 的实践"></a>Transition 的实践</h2><h3 id="活动间的转场动画"><a href="#活动间的转场动画" class="headerlink" title="活动间的转场动画"></a>活动间的转场动画</h3><p>使用 ActivityOptions可以得到活动间的转场动画，这里要通过 transitionName 属性来指定采用动画的View。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String transitionName = context.getResources().getString(R.string.transition_app_icon);</span><br><span class="line">ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(activity, appIcon, transitionName);</span><br><span class="line">context.startActivity(intent, transitionActivityOptions.toBundle());</span><br></pre></td></tr></table></figure>
+<p><strong>1.执行这个动画需要设置 Window.FEATURE_ACTIVITY_TRANSITIONS。</strong></p>
+<p>ActivityOptions 创建的各种动画只是记录参数到 Bundle 中去，对于 SceneTransition 主要记录 View 和 String(transitionName) 的对应关系，以便于选取 Transition。</p>
+<p><strong>2.使用转场动画时，可以使用下列的一对方法来控制转场动画。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">postponeEnterTransition</span><span class="params">()</span></span>; <span class="comment">//使得动画阻塞</span></span><br><span class="line"><span class="comment">//Thread.sleep(3000); //可以利用这段时间做准备工作，进行数据的加载</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">startPostponedEnterTransition</span><span class="params">()</span></span>; <span class="comment">//启动动画，否则动画将一直阻塞下去，新Activit无法启动</span></span><br></pre></td></tr></table></figure>
+<p><strong>3.更简单的使用场景动画的方式是</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">startActivity(intent);</span><br><span class="line">overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);</span><br></pre></td></tr></table></figure>
+<p>overridePendingTransition 分别决定了起始页和跳转页使用的属性动画。</p>
+<p>这一点同样可以用在离开时</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onBackPressed</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onBackPressed();</span><br><span class="line">    overridePendingTransition(R.anim.slide_out_right, R.anim.slide_in_left);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>4.使用 Transition 监听器</strong></p>
+<p>活动的 Transition 是设置在 Window 上的，采用转场动画应该尽量在动画播放完成后再加载数据，避免处理控件(如RecyclerView)的滑动等。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getWindow().getEnterTransition().addListener(<span class="keyword">this</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="自定义Transition"><a href="#自定义Transition" class="headerlink" title="自定义Transition"></a>自定义Transition</h3><p><strong>自定义Transition的核心是要改变容器布局中哪些 View 的哪些属性</strong>，为此需要以下步骤来确定(以改变TextView的字体大小为例)</p>
+<p><strong>1.确定属性名称</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String PRO_NAME_TEXT_SIZE = <span class="string">"text:size"</span>;</span><br></pre></td></tr></table></figure>
+<p><strong>2.如何获取起始值</strong>TransitionValues</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">captureStartValues</span><span class="params">(TransitionValues transitionValues)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(transitionValues.view <span class="keyword">instanceof</span> TextView)&#123;</span><br><span class="line">        TextView tv = (TextView) transitionValues.view;</span><br><span class="line">        transitionValues.values.put(PRO_NAME_TEXT_SIZE, tv.getTextSize());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>3.创建关于字体大小的动画</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Animator <span class="title">createAnimator</span><span class="params">(ViewGroup sceneRoot, TransitionValues startValues, TransitionValues endValues)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(endValues.view <span class="keyword">instanceof</span> TextView)&#123;</span><br><span class="line">        TextView tv = (TextView) endValues.view;</span><br><span class="line">        <span class="keyword">float</span> start = ((TextView) startValues.view).getTextSize(); <span class="comment">//初始值</span></span><br><span class="line">        <span class="keyword">float</span> end = ((TextView) endValues.view).getTextSize();     <span class="comment">//终止值</span></span><br><span class="line">        PropertyValuesHolder holder = PropertyValuesHolder.ofFloat(PROPERTY_TEXT_SIZE, start, end);</span><br><span class="line">        <span class="keyword">return</span> ObjectAnimator.ofPropertyValuesHolder(tv, holder);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样当设置字体时就会播放动画。</p>
+<h3 id="TransitionPlayer"><a href="#TransitionPlayer" class="headerlink" title="TransitionPlayer"></a><a href="https://github.com/linfaxin/TransitionPlayer" target="_blank" rel="noopener">TransitionPlayer</a></h3><p>TransitionPlayer 中有一个精彩的引导页示例， 也是 Transition 动画的使用范例。</p>
+<h2 id="Material-Animations"><a href="#Material-Animations" class="headerlink" title="Material-Animations"></a><a href="https://github.com/lgvalle/Material-Animations" target="_blank" rel="noopener">Material-Animations</a></h2><h2 id="StarWars-Android"><a href="#StarWars-Android" class="headerlink" title="StarWars.Android"></a><a href="https://github.com/Yalantis/StarWars.Android" target="_blank" rel="noopener">StarWars.Android</a></h2><p><img src="https://github.com/Yalantis/StarWars.Android/raw/master/star_wars-concept.gif" alt="img"></p>
+
+    </div>
+
+    
+    
+    
+      
+
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="xiang 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2017/08/04/android/View/动画一：常规动画/" rel="next" title="动画一：常规动画">
+                  <i class="fa fa-chevron-left"></i> 动画一：常规动画
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2017/08/16/android/View/View和ViewGroup/" rel="prev" title="View和ViewGroup">
+                  View和ViewGroup <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#布局容器动画：android-transition"><span class="nav-text"> 布局容器动画：android.transition</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Scene"><span class="nav-text">Scene</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TransitionManager"><span class="nav-text">TransitionManager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Transition"><span class="nav-text">Transition</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Visibility"><span class="nav-text">Visibility</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其他Transition"><span class="nav-text">其他Transition</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TransitionSet"><span class="nav-text">TransitionSet</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二维路径插值器-PathMotion"><span class="nav-text">二维路径插值器(PathMotion)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Transition-的实践"><span class="nav-text">Transition 的实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#活动间的转场动画"><span class="nav-text">活动间的转场动画</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义Transition"><span class="nav-text">自定义Transition</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TransitionPlayer"><span class="nav-text">TransitionPlayer</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Material-Animations"><span class="nav-text">Material-Animations</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#StarWars-Android"><span class="nav-text">StarWars.Android</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/1.jpg"
+      alt="xiang">
+  <p class="site-author-name" itemprop="name">xiang</p>
+  <div class="site-description" itemprop="description">谨守而勿失，是谓反其真</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/liuxiangtian" title="GitHub &rarr; https://github.com/liuxiangtian" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="http://www.zhihu.com/people/liu-xiang-tian-74" title="zhihu &rarr; http://www.zhihu.com/people/liu-xiang-tian-74" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>zhihu</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘祥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">191k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:53</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script><script src="/js/bookmark.js?v=7.4.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

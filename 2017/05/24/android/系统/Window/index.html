@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN,ja,en,default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="基本原理Window 的实现类是 PhoneWindow，它是视图系统的核心，也是一切事件的起源。 Window 系统是通过 IPC 机制实现的，使用 WindowManager 来添加和移除控件，其实现类是 WindowManagerGlobal，其内部维持着以下四个集合 1234ArrayList&amp;lt;View&amp;gt; mViews = new ArrayList&amp;lt;View&amp;gt;()">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Window">
+<meta property="og:url" content="http://yoursite.com/2017/05/24/android/系统/Window/index.html">
+<meta property="og:site_name" content="lxt">
+<meta property="og:description" content="基本原理Window 的实现类是 PhoneWindow，它是视图系统的核心，也是一切事件的起源。 Window 系统是通过 IPC 机制实现的，使用 WindowManager 来添加和移除控件，其实现类是 WindowManagerGlobal，其内部维持着以下四个集合 1234ArrayList&amp;lt;View&amp;gt; mViews = new ArrayList&amp;lt;View&amp;gt;()">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-09-18T04:35:54.221Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Window">
+<meta name="twitter:description" content="基本原理Window 的实现类是 PhoneWindow，它是视图系统的核心，也是一切事件的起源。 Window 系统是通过 IPC 机制实现的，使用 WindowManager 来添加和移除控件，其实现类是 WindowManagerGlobal，其内部维持着以下四个集合 1234ArrayList&amp;lt;View&amp;gt; mViews = new ArrayList&amp;lt;View&amp;gt;()">
+  <link rel="canonical" href="http://yoursite.com/2017/05/24/android/系统/Window/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Window | lxt</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lxt</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a class="book-mark-link book-mark-link-fixed" href="#"></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/24/android/系统/Window/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiang">
+      <meta itemprop="description" content="谨守而勿失，是谓反其真">
+      <meta itemprop="image" content="/images/1.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lxt">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Window
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2017-05-24 11:56:26" itemprop="dateCreated datePublished" datetime="2017-05-24T11:56:26+08:00">2017-05-24</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-18 12:35:54" itemprop="dateModified" datetime="2019-09-18T12:35:54+08:00">2019-09-18</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/系统/" itemprop="url" rel="index"><span itemprop="name">系统</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>15k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>14 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h2><p>Window 的实现类是 PhoneWindow，它是视图系统的核心，也是一切事件的起源。</p>
+<p>Window 系统是通过 IPC 机制实现的，使用 WindowManager 来添加和移除控件，其实现类是 WindowManagerGlobal，其内部维持着以下四个集合</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ArrayList&lt;View&gt; mViews = <span class="keyword">new</span> ArrayList&lt;View&gt;(); <span class="comment">// Window上存在的View集合</span></span><br><span class="line">ArrayList&lt;ViewRootImpl&gt; mRoots = <span class="keyword">new</span> ArrayList&lt;ViewRootImpl&gt;();</span><br><span class="line">ArrayList&lt;WindowManager.LayoutParams&gt; mParams;</span><br><span class="line">ArraySet&lt;View&gt; mDyingViews = <span class="keyword">new</span> ArraySet&lt;View&gt;();</span><br></pre></td></tr></table></figure>
+<p><strong>在 Window 上添加 View 的逻辑就是更新这几个集合</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addView</span><span class="params">(View view, ViewGroup.LayoutParams params,  Display display, Window parentWindow)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> WindowManager.LayoutParams wparams = (WindowManager.LayoutParams) params;</span><br><span class="line">    ViewRootImpl root;</span><br><span class="line">    View panelParentView = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">synchronized</span> (mLock) &#123;</span><br><span class="line">        root = <span class="keyword">new</span> ViewRootImpl(view.getContext(), display);</span><br><span class="line">        view.setLayoutParams(wparams);</span><br><span class="line">        mViews.add(view);</span><br><span class="line">        mRoots.add(root);</span><br><span class="line">        mParams.add(wparams);</span><br><span class="line">    &#125;</span><br><span class="line">    root.setView(view, wparams, panelParentView);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>实际的工作交给了 ViewRootImpl。</p>
+<h3 id="与-Activity-的关系"><a href="#与-Activity-的关系" class="headerlink" title="与 Activity 的关系"></a>与 Activity 的关系</h3><p>Window 与 Activity 实际是两个独立的系统，只不过二者有交集，<strong>Window 需要在 Activity 启动时展示其设置的布局而已</strong>。</p>
+<p>在启动活动前，要进行 WindowManager 的初始化</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">WindowManagerGlobal.initialize();</span><br><span class="line">Activity a = performLaunchActivity(r, customIntent);</span><br></pre></td></tr></table></figure>
+<p><strong>使用反射创建 Activity 对象后，将执行 attach 方法，此时将创建 PhoneWindow 并配置 WindowManager</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">attach</span><span class="params">(Context context, ActivityThread aThread ，...)</span> </span>&#123;</span><br><span class="line">    attachBaseContext(context); <span class="comment">//attach 回调方法</span></span><br><span class="line">    mFragments.attachHost(<span class="keyword">null</span>);</span><br><span class="line">    mWindow = <span class="keyword">new</span> PhoneWindow(<span class="keyword">this</span>); <span class="comment">//创建 PhoneWindow 并配置 WindowManager</span></span><br><span class="line">    mWindow.setWindowManager(</span><br><span class="line">            (WindowManager)context.getSystemService(Context.WINDOW_SERVICE),</span><br><span class="line">            mToken, mComponent.flattenToString(),</span><br><span class="line">            (info.flags &amp; ActivityInfo.FLAG_HARDWARE_ACCELERATED) != <span class="number">0</span>);</span><br><span class="line">    mWindowManager = mWindow.getWindowManager();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Activity 的onCreate方法也在这一步进行，到此 Window 中的 decorView 将被设置好，只是没有添加到 Window 上去。</strong></p>
+<p>而后是显示Activity 的 handleResumeActivity 方法，这里才利用 WindowManager 将 DecorView 添加到Window上去，参数全部由WindowManager.LayoutParams 决定。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">View decor = r.window.getDecorView();</span><br><span class="line">decor.setVisibility(View.INVISIBLE);</span><br><span class="line">ViewManager wm = a.getWindowManager();</span><br><span class="line">WindowManager.LayoutParams l = r.window.getAttributes();</span><br><span class="line">wm.addView(decor, l);</span><br></pre></td></tr></table></figure>
+<h3 id="DecorView-和-ContentParent"><a href="#DecorView-和-ContentParent" class="headerlink" title="DecorView 和 ContentParent"></a>DecorView 和 ContentParent</h3><p>PhoneWindow 中会创建 DecorView 和 ContentParent 两个控件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">installDecor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mDecor == <span class="keyword">null</span>) &#123;</span><br><span class="line">        mDecor = <span class="keyword">new</span> DecorView(getContext(), -<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (mContentParent == <span class="keyword">null</span>) &#123;</span><br><span class="line">        mContentParent = generateLayout(mDecor);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>mContentParent 的创建较为复杂，它会根据theme配置有所不同。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> ViewGroup <span class="title">generateLayout</span><span class="params">(DecorView decor)</span> </span>&#123;</span><br><span class="line">    TypedArray a = getWindowStyle();</span><br><span class="line">    <span class="comment">//1.windowIsFloating决定是否采用floating，如果是则布局以WRAP_CONTENT计算，并清除其它flag</span></span><br><span class="line">    mIsFloating = a.getBoolean(R.styleable.Window_windowIsFloating, <span class="keyword">false</span>);</span><br><span class="line">    <span class="keyword">int</span> flagsToUpdate = (FLAG_LAYOUT_IN_SCREEN|FLAG_LAYOUT_INSET_DECOR)</span><br><span class="line">            &amp; (~getForcedWindowFlags());</span><br><span class="line">    <span class="keyword">if</span> (mIsFloating) &#123;</span><br><span class="line">        setLayout(WRAP_CONTENT, WRAP_CONTENT);</span><br><span class="line">        setFlags(<span class="number">0</span>, flagsToUpdate);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        setFlags(FLAG_LAYOUT_IN_SCREEN|FLAG_LAYOUT_INSET_DECOR, flagsToUpdate);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//2. Feature 参数决定了加载哪种系统布局，windowNoTitle和windowActionBar是互斥的</span></span><br><span class="line">    <span class="keyword">if</span> (a.getBoolean(R.styleable.Window_windowNoTitle, <span class="keyword">false</span>)) &#123;</span><br><span class="line">        requestFeature(FEATURE_NO_TITLE);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (a.getBoolean(R.styleable.Window_windowActionBar, <span class="keyword">false</span>)) &#123;</span><br><span class="line">        requestFeature(FEATURE_ACTION_BAR);</span><br><span class="line">    &#125; </span><br><span class="line">    <span class="comment">// 比较特殊的 Feature 参数是FEATURE_CONTENT_TRANSITIONS和FEATURE_ACTIVITY_TRANSITIONS，它采用 Transition 动画</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">//3. Flag 参数决定了窗口类型，如全屏类型和TRANSLUCENT_STATUS</span></span><br><span class="line">    <span class="keyword">if</span> (a.getBoolean(R.styleable.Window_windowFullscreen, <span class="keyword">false</span>)) &#123;</span><br><span class="line">        setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN &amp; (~getForcedWindowFlags()));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (a.getBoolean(R.styleable.Window_windowTranslucentStatus,</span><br><span class="line">            <span class="keyword">false</span>)) &#123;</span><br><span class="line">        setFlags(FLAG_TRANSLUCENT_STATUS, ...);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//特殊的 flag 包括 windowDrawsSystemBarBackgrounds，必须配合statusBarColor才能生效</span></span><br><span class="line">    <span class="comment">// backgroundDimEnabled 背景是否模糊，设置FLAG_DIM_BEHIND，配合backgroundDimAmount生效</span></span><br><span class="line">    WindowManager.LayoutParams params = getAttributes();</span><br><span class="line">    <span class="comment">//根据不同的 feature 获得不同的布局资源，并加载到 window decor.</span></span><br><span class="line">    <span class="keyword">int</span> layoutResource = R.layout.screen_simple;</span><br><span class="line">    View in = mLayoutInflater.inflate(layoutResource, <span class="keyword">null</span>);</span><br><span class="line">    decor.addView(in, <span class="keyword">new</span> ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));</span><br><span class="line">    mContentRoot = (ViewGroup) in;</span><br><span class="line">    <span class="comment">//返回ID为 ID_ANDROID_CONTENT 的内容控件</span></span><br><span class="line">    ViewGroup contentParent = (ViewGroup)findViewById(ID_ANDROID_CONTENT);</span><br><span class="line">    <span class="keyword">if</span> (contentParent == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Window couldn't find content container view"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> contentParent;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>到此为止内容控件只是一个占位控件，如在 R.layout.screen_simple 中</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">LinearLayout</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:fitsSystemWindows</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:orientation</span>=<span class="string">"vertical"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ViewStub</span> <span class="attr">android:id</span>=<span class="string">"@+id/action_mode_bar_stub"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:inflatedId</span>=<span class="string">"@+id/action_mode_bar"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:layout</span>=<span class="string">"@layout/action_mode_bar"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:theme</span>=<span class="string">"?attr/actionBarTheme"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">FrameLayout</span></span></span><br><span class="line"><span class="tag">         <span class="attr">android:id</span>=<span class="string">"@android:id/content"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">android:foregroundInsidePadding</span>=<span class="string">"false"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">android:foregroundGravity</span>=<span class="string">"fill_horizontal|top"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">android:foreground</span>=<span class="string">"?android:attr/windowContentOverlay"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>当活动启动时最终调用 setContentView 方法时将替换这个内容布局，这里将提供的布局加载到 @android:id/content 中去，并处理了设置 FEATURE_CONTENT_TRANSITIONS 的情况。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setContentView</span><span class="params">(<span class="keyword">int</span> layoutResID)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mContentParent == <span class="keyword">null</span>) &#123;</span><br><span class="line">        installDecor();</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!hasFeature(FEATURE_CONTENT_TRANSITIONS)) &#123;</span><br><span class="line">        mContentParent.removeAllViews();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (hasFeature(FEATURE_CONTENT_TRANSITIONS)) &#123;</span><br><span class="line">        <span class="keyword">final</span> Scene newScene = Scene.getSceneForLayout(mContentParent, layoutResID,</span><br><span class="line">                getContext());</span><br><span class="line">        transitionTo(newScene);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        mLayoutInflater.inflate(layoutResID, mContentParent);</span><br><span class="line">    &#125;</span><br><span class="line">    mContentParent.requestApplyInsets(); <span class="comment">//应用 Inset</span></span><br><span class="line">    <span class="keyword">final</span> Callback cb = getCallback();</span><br><span class="line">    <span class="keyword">if</span> (cb != <span class="keyword">null</span> &amp;&amp; !isDestroyed()) &#123;</span><br><span class="line">        cb.onContentChanged();           <span class="comment">//内容回调</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="WindowManager-LayoutParams"><a href="#WindowManager-LayoutParams" class="headerlink" title="WindowManager.LayoutParams"></a>WindowManager.LayoutParams</h3><p>对Window窗口的改变都是通过 WindowManager.LayoutParams 参数来实现的，最突出了莫过于 WindowInset 了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> WindowInsets <span class="title">onApplyWindowInsets</span><span class="params">(WindowInsets insets)</span> </span>&#123;</span><br><span class="line">    mFrameOffsets.set(insets.getSystemWindowInsets());</span><br><span class="line">    insets = updateColorViews(insets, <span class="keyword">true</span> <span class="comment">/* animate */</span>);</span><br><span class="line">    insets = updateStatusGuard(insets);</span><br><span class="line">    updateNavigationGuard(insets);</span><br><span class="line">    <span class="keyword">return</span> insets;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>updateColorViews 方法的作用主要是处理横竖屏情况下的 WindowInsets ，并通过更新 statusBar 和 navigationBar 的布局参数来处理 WindowInsets事件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> WindowInsets <span class="title">updateColorViews</span><span class="params">(WindowInsets insets, <span class="keyword">boolean</span> animate)</span> </span>&#123;</span><br><span class="line">    WindowManager.LayoutParams attrs = getAttributes();</span><br><span class="line">    <span class="keyword">int</span> sysUiVisibility = attrs.systemUiVisibility | getWindowSystemUiVisibility();</span><br><span class="line">    <span class="keyword">boolean</span> disallowAnimate = (mLastWindowFlags ^ attrs.flags)</span><br><span class="line">                    &amp; FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS != <span class="number">0</span>;</span><br><span class="line">    mLastWindowFlags = attrs.flags;</span><br><span class="line">    mLastTopInset = Math.min(insets.getStableInsetTop(),</span><br><span class="line">                        insets.getSystemWindowInsetTop());</span><br><span class="line">    mLastBottomInset = Math.min(insets.getStableInsetBottom(),</span><br><span class="line">                        insets.getSystemWindowInsetBottom());</span><br><span class="line">    mLastRightInset = Math.min(insets.getStableInsetRight(),</span><br><span class="line">                        insets.getSystemWindowInsetRight());</span><br><span class="line">    <span class="keyword">boolean</span> navBarToRightEdge = mLastBottomInset == <span class="number">0</span> &amp;&amp; mLastRightInset &gt; <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> navBarSize = navBarToRightEdge ? mLastRightInset : mLastBottomInset;</span><br><span class="line">    updateColorViewInt(mNavigationColorViewState, sysUiVisibility, mNavigationBarColor, navBarSize, navBarToRightEdge, <span class="number">0</span>, animate &amp;&amp; !disallowAnimate);</span><br><span class="line">      </span><br><span class="line">    <span class="keyword">boolean</span> statusBarNeedsRightInset = navBarToRightEdge</span><br><span class="line">                    &amp;&amp; mNavigationColorViewState.present;</span><br><span class="line">    <span class="keyword">int</span> statusBarRightInset = statusBarNeedsRightInset ? mLastRightInset : <span class="number">0</span>;</span><br><span class="line">    updateColorViewInt(mStatusColorViewState, sysUiVisibility, mStatusBarColor,</span><br><span class="line">                    mLastTopInset, <span class="keyword">false</span>, statusBarRightInset,</span><br><span class="line">                    animate &amp;&amp; !disallowAnimate);</span><br><span class="line">    <span class="keyword">return</span> insets;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>默认情况下 ColorViewState 配置了一个参数 systemUiHideFlag， 取值为 SYSTEM_UI_FLAG_FULLSCREEN，如果设置为改制，更新方法 updateColorViewInt 无效。</p>
+<h2 id="与-Dialog-的关系"><a href="#与-Dialog-的关系" class="headerlink" title="与 Dialog 的关系"></a>与 Dialog 的关系</h2><p>Dialog 的构造方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Dialog(<span class="meta">@NonNull</span> Context context, <span class="meta">@StyleRes</span> <span class="keyword">int</span> themeResId) &#123; </span><br><span class="line">    <span class="comment">//1.从配置文件中虚招主题，并构建 ContextThemeWrapper</span></span><br><span class="line">    TypedValue outValue = <span class="keyword">new</span> TypedValue();</span><br><span class="line">    context.getTheme().resolveAttribute(R.attr.dialogTheme, outValue, <span class="keyword">true</span>);</span><br><span class="line">    themeResId = outValue.resourceId;</span><br><span class="line">    mContext = <span class="keyword">new</span> ContextThemeWrapper(context, themeResId);</span><br><span class="line">    mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);</span><br><span class="line">    <span class="comment">//2.创建 PhoneWindow 对象并居中</span></span><br><span class="line">    <span class="keyword">final</span> Window w = <span class="keyword">new</span> PhoneWindow(mContext);</span><br><span class="line">    w.setGravity(Gravity.CENTER);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里明白的显示了一个 Dialog 就是一个 Window，显示什么内容也遵循 Window 的规律，使用 setContentView 来添加自定义布局。</p>
+<p><strong>至于显示则是利用 WindowManager 将准备好的 DecorView 添加到 Window 上去。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    mDecor = mWindow.getDecorView();</span><br><span class="line">    mWindowManager.addView(mDecor, l);</span><br><span class="line">    mShowing = <span class="keyword">true</span>;</span><br><span class="line">    sendShowMessage();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>同理 hide() 方法实际就是隐藏 DecorView，dismiss 方法就是使用 WindowManager 移除 DecorView。</strong></p>
+<p>Dialog 的若干子类不过是配置它的布局而已，此外 Dilog 没有生命周期。</p>
+<h2 id="状态栏染色"><a href="#状态栏染色" class="headerlink" title="状态栏染色"></a>状态栏染色</h2><p>我们已经知道状态栏的染色是通过添加View来完成的，其必须满足条件</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowDrawsSystemBarBackgrounds"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowTranslucentStatus"</span>&gt;</span>false<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:statusBarColor"</span>&gt;</span>#FF786312<span class="tag">&lt;/<span class="name">item</span>&gt;</span> //非必须</span><br></pre></td></tr></table></figure>
+<p>动态染色可以采用如下办法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getWindow().setStatusBarColor(Color.MAGENTA);</span><br></pre></td></tr></table></figure>
+<p>实际上这个 View 是这样定义的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ColorViewState mStatusColorViewState = <span class="keyword">new</span> ColorViewState(</span><br><span class="line">            SYSTEM_UI_FLAG_FULLSCREEN, FLAG_TRANSLUCENT_STATUS,</span><br><span class="line">            Gravity.TOP,</span><br><span class="line">            Gravity.LEFT,</span><br><span class="line">            STATUS_BAR_BACKGROUND_TRANSITION_NAME,</span><br><span class="line">            com.android.internal.R.id.statusBarBackground, <span class="comment">//id</span></span><br><span class="line">            FLAG_FULLSCREEN);</span><br></pre></td></tr></table></figure>
+<p>我们也完全可以这样做</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">View view = findViewById(android.R.id.statusBarBackground);<span class="comment">//获取 StatusColorView</span></span><br><span class="line">view.setBackgroundColor(Color.YELLOW);</span><br></pre></td></tr></table></figure>
+<p>如果播放一个动画，就能完全看清楚这个 View</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">v.animate().setDuration(<span class="number">2000</span>).setInterpolator(<span class="keyword">new</span> CycleInterpolator(<span class="number">0.5f</span>)).translationY(<span class="number">200</span>).start();</span><br></pre></td></tr></table></figure>
+<p>这一过程的实现如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Update a color view</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> state the color view to update.</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> sysUiVis the current systemUiVisibility to apply.</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> color the current color to apply.</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> size the current size in the non-parent-matching dimension.</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> verticalBar if true view is attached to a vertical edge, otherwise to a</span></span><br><span class="line"><span class="comment">*                    horizontal edge,</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> rightMargin rightMargin for the color view.</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> animate if true, the change will be animated.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">updateColorViewInt</span><span class="params">(<span class="keyword">final</span> ColorViewState state, <span class="keyword">int</span> sysUiVis, <span class="keyword">int</span> color,</span></span></span><br><span class="line"><span class="function"><span class="params">            <span class="keyword">int</span> size, <span class="keyword">boolean</span> verticalBar, <span class="keyword">int</span> rightMargin, <span class="keyword">boolean</span> animate)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//1.判断是否存在更新的条件，包括 inset 的尺寸要有，flag 不能有 hideWindowFlag，必须有 FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS</span></span><br><span class="line">    state.present = size &gt; <span class="number">0</span> &amp;&amp; (sysUiVis &amp; state.systemUiHideFlag) == <span class="number">0</span></span><br><span class="line">                &amp;&amp; (getAttributes().flags &amp; state.hideWindowFlag) == <span class="number">0</span></span><br><span class="line">                &amp;&amp; (getAttributes().flags &amp; FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS) != <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//2.判断是否要显示，包括颜色不能是黑色，flag 不能配置成 translucent</span></span><br><span class="line">    <span class="keyword">boolean</span> show = state.present</span><br><span class="line">                &amp;&amp; (color &amp; Color.BLACK) != <span class="number">0</span></span><br><span class="line">                &amp;&amp; (getAttributes().flags &amp; state.translucentFlag) == <span class="number">0</span>;</span><br><span class="line">    View view = state.view;</span><br><span class="line">    <span class="keyword">int</span> resolvedHeight = verticalBar ? LayoutParams.MATCH_PARENT : size;</span><br><span class="line">    <span class="keyword">int</span> resolvedWidth = verticalBar ? size : LayoutParams.MATCH_PARENT;</span><br><span class="line">    <span class="keyword">int</span> resolvedGravity = verticalBar ? state.horizontalGravity : state.verticalGravity;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//通过添加一个带颜色的 View ，并更新其 LayoutParams 参数实现效果。</span></span><br><span class="line">    <span class="keyword">if</span> (view == <span class="keyword">null</span>) &#123;</span><br><span class="line">            state.view = view = <span class="keyword">new</span> View(mContext);</span><br><span class="line">            view.setBackgroundColor(color);</span><br><span class="line">            view.setVisibility(INVISIBLE);</span><br><span class="line">            LayoutParams lp = <span class="keyword">new</span> LayoutParams(resolvedWidth, resolvedHeight,</span><br><span class="line">                        resolvedGravity);</span><br><span class="line">            lp.rightMargin = rightMargin;</span><br><span class="line">            addView(view, lp);</span><br><span class="line">            updateColorViewTranslations(); <span class="comment">//使用动画效果</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            LayoutParams lp = (LayoutParams) view.getLayoutParams();</span><br><span class="line">            lp.height = resolvedHeight;</span><br><span class="line">            lp.width = resolvedWidth;</span><br><span class="line">            lp.gravity = resolvedGravity;</span><br><span class="line">            lp.rightMargin = rightMargin;</span><br><span class="line">            view.setLayoutParams(lp);</span><br><span class="line">            view.setBackgroundColor(color);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (animate) &#123;</span><br><span class="line">         view.animate().alpha(<span class="number">1.0f</span>).setInterpolator(mShowInterpolator).</span><br><span class="line">                            setDuration(mBarEnterExitDuration);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p><strong>这里 windowDrawsSystemBarBackgrounds 和 windowTranslucentStatus 是互相排斥的，想要改变状态栏颜色，必须使用前者，禁止后者。后者一旦生效，上述方法将无效，View 不会被创建。</strong></p>
+<h4 id="WindowSystemUiVisibility"><a href="#WindowSystemUiVisibility" class="headerlink" title="WindowSystemUiVisibility"></a>WindowSystemUiVisibility</h4><p>SystemUiVisibility 能够完成的动作完全可以通过设置 Window 来完成，但好处在于随时可以清除效果。</p>
+<p>SystemUiVisibility 的设置必染色要复杂，涉及状态栏和布局的变化，不过在回调中也会执行更新方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onWindowSystemUiVisibilityChanged</span><span class="params">(<span class="keyword">int</span> visible)</span> </span>&#123;</span><br><span class="line">    updateColorViews(<span class="keyword">null</span>, <span class="keyword">true</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>View.SYSTEM_UI_FLAG_FULLSCREEN 这种情况下，状态栏将彻底消失，内容布局扩展到全屏模式<ul>
+<li>SYSTEM_UI_FLAG_IMMERSIVE 默认情况下，触摸下拉会出现通知栏，必须手动清除才能取消 SYSTEM_UI_FLAG_FULLSCREEN 的效果；配合该标记能够下拉出状态栏，且立即清除效果</li>
+<li>SYSTEM_UI_FLAG_IMMERSIVE_STICKY 下拉出原生未染色的的状态栏，且不清除效果</li>
+</ul>
+</li>
+<li>View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN 内容布局到全屏，且给ActionBar设置一个padding显示状态栏，一旦清除，布局回收，该Padding还在</li>
+<li>View.SYSTEM_UI_FLAG_LAYOUT_STABLE 配合上述设置，使得更改永久生效，清除之后布局不回收</li>
+</ul>
+<h3 id="Toolbar"><a href="#Toolbar" class="headerlink" title="Toolbar"></a>Toolbar</h3><p>最后在说下 ActionBar 和 Toolbar 的关系</p>
+<p>设置 Toolbar 的方法如下，首先要判断是否已经存在 ActionBar，通常如果使用 FEATURE_ACTION_BAR 则会初始化 ActionBar， 实现类是 WindowDecorActionBar</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ActionBar <span class="title">getActionBar</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Window window = getWindow();</span><br><span class="line">    <span class="keyword">if</span> (!window.hasFeature(Window.FEATURE_ACTION_BAR) || mActionBar != <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">    mActionBar = <span class="keyword">new</span> WindowDecorActionBar(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">return</span> mActionBar;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果没有，可以正常进行，新建的实现类是 ToolbarActionBar。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setActionBar</span><span class="params">(@Nullable Toolbar toolbar)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (getActionBar() <span class="keyword">instanceof</span> WindowDecorActionBar) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"This Activity already has an action bar supplied "</span> + <span class="string">"by the window decor. Do not request Window.FEATURE_ACTION_BAR and set "</span> +</span><br><span class="line"><span class="string">"android:windowActionBar to false in your theme to use a Toolbar instead."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    ToolbarActionBar tbab = <span class="keyword">new</span> ToolbarActionBar(toolbar, getTitle(), <span class="keyword">this</span>);</span><br><span class="line">    mActionBar = tbab;</span><br><span class="line">    mActionBar.invalidateOptionsMenu();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可见 ActionBar 和 Toolbar 是表里的关系。你可以处理菜单相关的事项</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Menu <span class="title">getMenu</span><span class="params">()</span></span>;</span><br><span class="line">inflateMenu(R.menu.menu_main);</span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">showOverflowMenu</span><span class="params">()</span></span>; <span class="comment">//通过反射修改显示 OverflowMenu</span></span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">hideOverflowMenu</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">setOnMenuItemClickListener</span><span class="params">(OnMenuItemClickListener listener)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>也可以使用动画</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ViewPropertyAnimator toolbarAnimator = toolbar.animate();</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+      
+
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="xiang 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2017/05/18/android/系统/Activity/" rel="next" title="Activity">
+                  <i class="fa fa-chevron-left"></i> Activity
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2017/05/29/android/系统/Broadcast/" rel="prev" title="Broadcast">
+                  Broadcast <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本原理"><span class="nav-text">基本原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#与-Activity-的关系"><span class="nav-text">与 Activity 的关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DecorView-和-ContentParent"><span class="nav-text">DecorView 和 ContentParent</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WindowManager-LayoutParams"><span class="nav-text">WindowManager.LayoutParams</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#与-Dialog-的关系"><span class="nav-text">与 Dialog 的关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#状态栏染色"><span class="nav-text">状态栏染色</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#WindowSystemUiVisibility"><span class="nav-text">WindowSystemUiVisibility</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Toolbar"><span class="nav-text">Toolbar</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/1.jpg"
+      alt="xiang">
+  <p class="site-author-name" itemprop="name">xiang</p>
+  <div class="site-description" itemprop="description">谨守而勿失，是谓反其真</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/liuxiangtian" title="GitHub &rarr; https://github.com/liuxiangtian" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="http://www.zhihu.com/people/liu-xiang-tian-74" title="zhihu &rarr; http://www.zhihu.com/people/liu-xiang-tian-74" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>zhihu</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘祥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">191k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:53</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script><script src="/js/bookmark.js?v=7.4.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

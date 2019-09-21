@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN,ja,en,default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="位置与尺寸1.关于控件的位置，有left，translationX 和 X三种，他们都和 RenderNode 有关，计算公式为 123public float getX() &amp;#123;        return mLeft + getTranslationX();&amp;#125; 为什么要在View中搞出这么多变量呢？ 如果只变更 left，则只是左边界的变化，View 的视觉宽度将发生变化；T">
+<meta property="og:type" content="article">
+<meta property="og:title" content="View和ViewGroup">
+<meta property="og:url" content="http://yoursite.com/2017/08/16/android/View/View和ViewGroup/index.html">
+<meta property="og:site_name" content="lxt">
+<meta property="og:description" content="位置与尺寸1.关于控件的位置，有left，translationX 和 X三种，他们都和 RenderNode 有关，计算公式为 123public float getX() &amp;#123;        return mLeft + getTranslationX();&amp;#125; 为什么要在View中搞出这么多变量呢？ 如果只变更 left，则只是左边界的变化，View 的视觉宽度将发生变化；T">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cloud.githubusercontent.com/assets/24237865/22188970/cc138f6a-e15c-11e6-8a17-a8bccb3e6dcd.gif">
+<meta property="og:updated_time" content="2019-09-18T06:06:39.822Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="View和ViewGroup">
+<meta name="twitter:description" content="位置与尺寸1.关于控件的位置，有left，translationX 和 X三种，他们都和 RenderNode 有关，计算公式为 123public float getX() &amp;#123;        return mLeft + getTranslationX();&amp;#125; 为什么要在View中搞出这么多变量呢？ 如果只变更 left，则只是左边界的变化，View 的视觉宽度将发生变化；T">
+<meta name="twitter:image" content="https://cloud.githubusercontent.com/assets/24237865/22188970/cc138f6a-e15c-11e6-8a17-a8bccb3e6dcd.gif">
+  <link rel="canonical" href="http://yoursite.com/2017/08/16/android/View/View和ViewGroup/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>View和ViewGroup | lxt</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lxt</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a class="book-mark-link book-mark-link-fixed" href="#"></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/16/android/View/View和ViewGroup/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiang">
+      <meta itemprop="description" content="谨守而勿失，是谓反其真">
+      <meta itemprop="image" content="/images/1.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lxt">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">View和ViewGroup
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2017-08-16 21:26:26" itemprop="dateCreated datePublished" datetime="2017-08-16T21:26:26+08:00">2017-08-16</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-18 14:06:39" itemprop="dateModified" datetime="2019-09-18T14:06:39+08:00">2019-09-18</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/View/" itemprop="url" rel="index"><span itemprop="name">View</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>21k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>19 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="位置与尺寸"><a href="#位置与尺寸" class="headerlink" title="位置与尺寸"></a>位置与尺寸</h2><p>1.关于控件的位置，有left，translationX 和 X三种，他们都和 RenderNode 有关，计算公式为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">float</span> <span class="title">getX</span><span class="params">()</span> </span>&#123;    </span><br><span class="line">    <span class="keyword">return</span> mLeft + getTranslationX();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>为什么要在View中搞出这么多变量呢？</p>
+<p>如果只变更 left，则只是左边界的变化，View 的视觉宽度将发生变化；TranslationX 则能够产生平移的效果，它同时附加在 left 和 right 上。</p>
+<p>实际上同时移动 left 和right 相同的距离，也能达到平移的效果，类似于ViewCompat.offsetLeftAndRight 造成的效果，但这个与 TranslationX 实现的平移效果有所区别。</p>
+<p>实际上同时移动 left 和right 相同的距离，也能达到平移的效果，类似于 ViewCompat.offsetLeftAndRight 造成的效果，但这个与 TranslationX 实现的平移效果有所区别。</p>
+<p>前者只是非常机械的渲染效果，只要碰上 requestLayout 方法就复原了，后者的平移在重新布局后仍然有效。而且只变更left不会考虑一些类似于居中的要求，控件在变化过程中往往就“失真’’了。</p>
+<p>如果确实要改变控件的宽度，应该从 LayoutParams.width 入手，修改此值，并调用方法，控件会重新进行测量。</p>
+<p>2.再来说说 mScrollX/mScrollY ，它们只影响内容的绘制，不会影响背景 Drawable 的绘制，实际是通过对内容区域加偏移造成，最终的绘制效果是偏移后的内容区域与原本区域的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">invalidate</span><span class="params">(Rect dirty)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> scrollX = mScrollX;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> scrollY = mScrollY;</span><br><span class="line">    invalidateInternal(dirty.left - scrollX, dirty.top - scrollY,</span><br><span class="line">            dirty.right - scrollX, dirty.bottom - scrollY, <span class="keyword">true</span>, <span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3.此外还可以使用动画来改变控件位置，属性动画就不提了，值得一提的是补间动画，默认的四种补间动画采用Transformation里的矩阵来操作渲染结果，但并不真的改变属性，如果要达成属性动画的效果，可以利用下面的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setFillBefore</span><span class="params">(<span class="keyword">boolean</span> fillBefore)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setFillAfter</span><span class="params">(<span class="keyword">boolean</span> fillAfter)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>最后评价下各种操作的性能</p>
+<ul>
+<li>left 虽然是RenderNode实现，但需要 CPU 更新 displayList，调用和递归多(56/1022)，GPU监视上蓝色部分长</li>
+<li>translationX 基本无更新 displayList 的调用和递归存在，蓝线几乎没有，耗时极少</li>
+<li>LayoutParams 除非测量事件，耗时验证</li>
+<li>offset ，耗时极少</li>
+<li>animation 更新 displayList极多</li>
+<li>animtor 不更新 displayList，快</li>
+</ul>
+<h3 id="layout-机制与-LayoutParams"><a href="#layout-机制与-LayoutParams" class="headerlink" title="layout_* 机制与 LayoutParams"></a>layout_* 机制与 LayoutParams</h3><p>layout<em>*机制通过内部类 LayoutParams 中定义以 layout</em>为前缀的属性供子控件使用，从而控制子控件的行为，这些属性并不为布局类自己所使用。以AppBarLayout为例</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">android.support.design.widget.AppBarLayout</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">  <span class="tag">&lt;<span class="name">android.support.v7.widget.Toolbar</span></span></span><br><span class="line"><span class="tag">    <span class="attr">app:layout_scrollFlags</span>=<span class="string">"scroll|enterAlways"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">android.support.design.widget.AppBarLayout</span> &gt;</span></span><br></pre></td></tr></table></figure>
+<p>Toolbar 本身并没有 layout<em>scrollFlags 属性，该属性定义在类 AppBarLayout.LayoutParams 中，加前缀 layout</em>表示这是一个父布局定义而子控件使用的属性。虽然这个属性是由容器来读取 XML文件进行解析和实例化的。</p>
+<p>最广泛最著名的属性来自于 ViewGroup.LayoutParams 中的属性：layout_width 与 layout_height， 是容器用来约束子控件的宽度和高度的，ViewGroup.MarginLayoutParams 增加了6个margin属性，如果采用这种 LayoutParams，就能够给子控件设置 layout__margin属性，容器会在布局时利用这个属性。</p>
+<p>自定义 LayoutParams 需要覆盖以下4个方法，这些方法是为子控件生成 LayoutParams 对象所必须的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">checkLayoutParams</span><span class="params">(ViewGroup.LayoutParams p)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> p <span class="keyword">instanceof</span> LayoutParams;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> LayoutParams <span class="title">generateLayoutParams</span><span class="params">(AttributeSet attrs)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> LayoutParams(getContext(), attrs);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> LayoutParams <span class="title">generateDefaultLayoutParams</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> LayoutParams <span class="title">generateLayoutParams</span><span class="params">(ViewGroup.LayoutParams p)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> LayoutParams(p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>实际上布局每添加一个控件，都会采用 generateDefaultLayoutParams() 方法来生成一个 LayoutParams 对象应用在子控件上(见addView方法)。</p>
+<p>如果默认产生的 LayoutParams 对象不能通过 checkLayoutParams 方法的检查，则使用 generateLayoutParams 方法来产生 LayoutParams 对象。</p>
+<p><strong>因此自定义LayoutParams 时要故意使得 generateDefaultLayoutParams 产生的对象通不过检查，而使用 generateLayoutParams(AttributeSet attrs)产生的 LayoutParams 对象。</strong></p>
+<blockquote>
+<p>约定 LayoutParams 中解析的属性值均要以 layout_ 开头。</p>
+</blockquote>
+<h3 id="尺寸测量"><a href="#尺寸测量" class="headerlink" title="尺寸测量"></a>尺寸测量</h3><p>控件的尺寸测量实际比想象的复杂，我们先看系统的默认实现。对于容器而言，除了测量自身，还要考虑测量子控件，这一步往往是调用 measureChild 方法来完成的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">measureChild</span><span class="params">(View child, <span class="keyword">int</span> parentWidthMeasureSpec,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> parentHeightMeasureSpec)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> LayoutParams lp = child.getLayoutParams();</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,</span><br><span class="line">            mPaddingLeft + mPaddingRight, lp.width);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,</span><br><span class="line">            mPaddingTop + mPaddingBottom, lp.height);</span><br><span class="line">    child.measure(childWidthMeasureSpec, childHeightMeasureSpec);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>在真正的测量方法前，将对复合尺寸进行重新计算，以求得实际的控件尺寸。</strong>其方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//spec 的复合尺寸，padding 是控件的留白</span></span><br><span class="line"><span class="comment">//childDimension 是赋给LayoutParams的尺寸，是控件想达到的尺寸，可能是 -1 -2 或 具体数值</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getChildMeasureSpec</span><span class="params">(<span class="keyword">int</span> spec, <span class="keyword">int</span> padding, <span class="keyword">int</span> childDimension)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> specMode = MeasureSpec.getMode(spec); <span class="comment">// 容器的尺寸模式</span></span><br><span class="line">    <span class="keyword">int</span> specSize = MeasureSpec.getSize(spec); <span class="comment">// 容器的尺寸大小</span></span><br><span class="line">    <span class="keyword">int</span> size = Math.max(<span class="number">0</span>, specSize - padding); <span class="comment">// 容器的尺寸大小 - 控件的留白 == 控件在容器中的最大尺寸</span></span><br><span class="line">    <span class="keyword">int</span> resultSize = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> resultMode = <span class="number">0</span>;</span><br><span class="line">	<span class="comment">// 根据 LayoutParams 和 MeasureSpec 确定最终的复合尺寸</span></span><br><span class="line">    <span class="keyword">return</span> MeasureSpec.makeMeasureSpec(resultSize, resultMode);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>控件最终的复合尺寸受到两个因素的影响，即控件自定义的 LayoutParams 和容器的 MeasureSpec。其结果如下表所示</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Spec\Params</th>
+<th style="text-align:center">MATCH_PARENT</th>
+<th style="text-align:center">WRAP_CONTENT</th>
+<th style="text-align:center">具体数值(NUM)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>EXACTLY</strong></td>
+<td style="text-align:center"><strong>EXACTLY + size</strong></td>
+<td style="text-align:center"><strong>AT_MOST + size</strong></td>
+<td style="text-align:center"><strong>EXACTLY+ NUM</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">AT_MOST</td>
+<td style="text-align:center">AT_MOST + size</td>
+<td style="text-align:center">AT_MOST + size</td>
+<td style="text-align:center">EXACTLY + NUM</td>
+</tr>
+<tr>
+<td style="text-align:left">UNSPECIFIED</td>
+<td style="text-align:center">UNSPECIFIED + size</td>
+<td style="text-align:center">UNSPECIFIED + size</td>
+<td style="text-align:center">EXACTLY + NUM</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>实际默认的容器 SpecMode 往往是 EXACTLY，因此关注第一行。子控件设置为 match_parent 和 具体数值时，都将获得 exactly模式，不过尺寸有所差别而已，而 warp_content 的情况较为复杂，其模式为 at_most，尺寸想达到容器尺寸，需要进一步处理。</strong></p>
+</blockquote>
+<p>而后就是控件自身的测量方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onMeasure</span><span class="params">(<span class="keyword">int</span> widthMeasureSpec, <span class="keyword">int</span> heightMeasureSpec)</span> </span>&#123;</span><br><span class="line">    setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),</span><br><span class="line">            getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>默认情况下的最小尺寸为背景 drawable 的尺寸 ，要在所得的尺寸和这个最小尺寸间做出决定，即 getDefaultSize 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//size 是最小尺寸，measureSpec 是复合尺寸</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getDefaultSize</span><span class="params">(<span class="keyword">int</span> size, <span class="keyword">int</span> measureSpec)</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>getDefaultSize 方法将根据复合尺寸的模式得到最终在最小尺寸和复合尺寸间做出选择。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>specMode</th>
+<th style="text-align:center">UNSPECIFIED</th>
+<th style="text-align:center">AT_MOST</th>
+<th style="text-align:center">EXACTLY</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>最终尺寸</td>
+<td style="text-align:center">size</td>
+<td style="text-align:center"><strong>specSize</strong></td>
+<td style="text-align:center">specSize</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>即仅在容器指定尺寸模式为 UNSPECIFIED 的情况下使用最小尺寸，其余情况可以默认这一步不存在。</strong></p>
+<blockquote>
+<p>这里有一个问题如果控件采用 warp_content，那么到这一步的 specSize 实际是容器的尺寸。<strong>这说明默认情况下处理 warp_content 是不合理，自定义控件直接继承View时要注意。</strong></p>
+</blockquote>
+<p>最后就是为测量尺寸 mMeasuredWidth 和 mMeasuredHeight 赋值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setMeasuredDimensionRaw</span><span class="params">(<span class="keyword">int</span> measuredWidth, <span class="keyword">int</span> measuredHeight)</span> </span>&#123;</span><br><span class="line">    mMeasuredWidth = measuredWidth;</span><br><span class="line">    mMeasuredHeight = measuredHeight;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="resolveSizeAndState"><a href="#resolveSizeAndState" class="headerlink" title="resolveSizeAndState"></a>resolveSizeAndState</h3><p>刚才说了默认的 measureChild 在碰到子控件设置了 warp_content 时会取容器尺寸的问题，除非子控件不采用默认的自测量方式。这个问题可以用 resolveSizeAndState 方法修复。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> size How big the view wants to be.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> measureSpec Constraints imposed by the parent.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> childMeasuredState Size information bit mask for the view's children.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">resolveSizeAndState</span><span class="params">(<span class="keyword">int</span> size, <span class="keyword">int</span> measureSpec, <span class="keyword">int</span> childMeasuredState)</span></span>;</span><br></pre></td></tr></table></figure>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>specMode</th>
+<th style="text-align:center">AT_MOST</th>
+<th style="text-align:center">EXACTLY</th>
+<th style="text-align:center">UNSPECIFIED</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>最终尺寸</td>
+<td style="text-align:center"><strong>Min(specSize, size)</strong></td>
+<td style="text-align:center">specSize</td>
+<td style="text-align:center">size</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>resolveSizeAndState 方法和 getDefaultSize 方法不同之处在于如何解析 AT_MOST，这是关键之处。</strong></p>
+<p>即将默认的测量方法改为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onMeasure</span><span class="params">(<span class="keyword">int</span> widthMeasureSpec, <span class="keyword">int</span> heightMeasureSpec)</span> </span>&#123;</span><br><span class="line">    setMeasuredDimension(</span><br><span class="line">      resolveSizeAndState(getSuggestedMinimumWidth(), widthMeasureSpec, MEASURED_STATE_MASK),</span><br><span class="line">      resolveSizeAndState(getSuggestedMinimumHeight(), heightMeasureSpec, MEASURED_STATE_MASK));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="自定义测量方法"><a href="#自定义测量方法" class="headerlink" title="自定义测量方法"></a>自定义测量方法</h3><p>如果想达到一些其它效果，如在 DrawLayout 中要求内容控件占据容器，实际上在 LayoutParams 上的设置已无任何意义，测量时完全不予考虑，这时就要求抛弃默认的测量方法，去自定义测量方法。</p>
+<p><strong>自定义测量方法y要依赖控件的自测量方法，其核心在于在合适的时机改造复合尺寸。</strong></p>
+<p>例如要求一个控件占据容器是最容易的情况，此时完全不用考虑容器Spec模式和 LayoutParams 参数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mContent.measure(</span><br><span class="line">   MeasureSpec.makeMeasureSpec(</span><br><span class="line">        getMeasuredWidth() - getPaddingLeft() - getPaddingRight(), MeasureSpec.EXACTLY), </span><br><span class="line">   MeasureSpec.makeMeasureSpec(</span><br><span class="line">        getMeasuredHeight() - getPaddingTop() - getPaddingBottom(), MeasureSpec.EXACTLY)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>在控件内部首先对传入的尺寸进行改造</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onMeasure</span><span class="params">(<span class="keyword">int</span> widthSpec, <span class="keyword">int</span> heightSpec)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (MeasureSpec.getMode(widthSpec)) &#123;</span><br><span class="line">        <span class="keyword">case</span> MeasureSpec.EXACTLY:</span><br><span class="line">            <span class="comment">// Nothing to do</span></span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> MeasureSpec.AT_MOST:</span><br><span class="line">            widthSpec = MeasureSpec.makeMeasureSpec(</span><br><span class="line">                    Math.min(MeasureSpec.getSize(widthSpec), mMaxWidth), MeasureSpec.EXACTLY);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> MeasureSpec.UNSPECIFIED:</span><br><span class="line">            widthSpec = MeasureSpec.makeMeasureSpec(mMaxWidth, MeasureSpec.EXACTLY);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Let super sort out the height</span></span><br><span class="line">    <span class="keyword">super</span>.onMeasure(widthSpec, heightSpec);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最要命的情况是要同时处理容器Spec模式和 LayoutParams 参数共九种情况，不过好在遵循 getChildMeasureSpec 方法的套路就行。</p>
+<h3 id="布局机制"><a href="#布局机制" class="headerlink" title="布局机制"></a>布局机制</h3><p>布局机制比测量机制要简单地多，但应该注意到布局时会掉用测量过程，此外有时子控件如何布局与 LayoutParams 参数有关，布局时要考虑 padding 和 margin 的影响，获取控件宽度不应该用 LayoutParams.width (可能为负值) 等等。</p>
+<h3 id="触摸机制"><a href="#触摸机制" class="headerlink" title="触摸机制"></a>触摸机制</h3><p>触摸机制首先从 Activity 开始，而后有ViewRootImpl传递下去</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">dispatchTouchEvent</span><span class="params">(MotionEvent ev)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (getWindow().superDispatchTouchEvent(ev)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> onTouchEvent(ev);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>默认的处理流程是一个来回：一半是事件分发(dispatchTouchEvent方法)，一半是事件处理(onTouch 方法)。</strong>其中容器 ViewGroup 和控件 View 的分发方法是不一致的，前者会使用 onInterceptTouchEvent 方法拦截事件，且默认情况下不拦截，逐层交给子控件分发，直到根View；控件 View 的分发会调用事件处理，且会逐级上溯，直到返回 Activity 。</p>
+<p>假设布局层级是 TopLayout，BottomLayout 和 CircleImage，则默认情况下流程是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">//1.向下传递拦截事件</span><br><span class="line">TopLayout onInterceptTouchEvent: false 0</span><br><span class="line">BottomLayout onInterceptTouchEvent: false 0</span><br><span class="line">//2.向上传递处理事件</span><br><span class="line">CircleImage onTouchEvent: false 0</span><br><span class="line">CircleImage dispatchTouchEvent: false 0</span><br><span class="line">BottomLayout onTouchEvent: false 0</span><br><span class="line">BottomLayout dispatchTouchEvent: false 0</span><br><span class="line">TopLayout onTouchEvent: false 0</span><br><span class="line">TopLayout dispatchTouchEvent: false 0</span><br><span class="line">MainActivity onTouchEvent: false 0</span><br><span class="line">MainActivity dispatchTouchEvent: false 0</span><br><span class="line">//3.无人处理</span><br><span class="line">MainActivity onTouchEvent: false 2</span><br><span class="line">MainActivity dispatchTouchEvent: false 2</span><br></pre></td></tr></table></figure>
+<p><strong>默认情况下整个流程是不进行拦截的处理的，所以流程会从顶到根走一个来回，但仅能处理 Action_down 的情况，后续的其它动作如Action_Move 等将停留在Activity 中。</strong></p>
+<p>如果在 BottomLayout 中截断事件，这里有几种情况。只拦截不处理和默认情况一样。同时拦截和处理结果如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TopLayout onInterceptTouchEvent: false ACTION_DOWNBottomLayout onInterceptTouchEvent: true ACTION_DOWN //拦截方法只能执行一次BottomLayout onTouchEvent: true ACTION_DOWNBottomLayout dispatchTouchEvent: true ACTION_DOWNTopLayout dispatchTouchEvent: true ACTION_DOWNMainActivity dispatchTouchEvent: true ACTION_DOWNTopLayout onInterceptTouchEvent: false ACTION_MOVE  //父布局的拦截方法倒是能多次执行BottomLayout onTouchEvent: true ACTION_MOVEBottomLayout dispatchTouchEvent: true ACTION_MOVETopLayout dispatchTouchEvent: true ACTION_MOVE //消灭这一行，禁止 TopLayout 拦截MainActivity dispatchTouchEvent: true ACTION_MOVETopLayout onInterceptTouchEvent: false ACTION_UPBottomLayout onTouchEvent: true ACTION_UPBottomLayout dispatchTouchEvent: true ACTION_UPTopLayout dispatchTouchEvent: true ACTION_UPMainActivity dispatchTouchEvent: true ACTION_UP</span><br></pre></td></tr></table></figure>
+<p>即流程到 BottomLayout 这一层被截断了，如果要 TopLayout 不进行拦截，可以使用下列方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getParent().requestDisallowInterceptTouchEvent(<span class="keyword">true</span>);</span><br></pre></td></tr></table></figure>
+<p>如果不拦截，只处理结果如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TopLayout onInterceptTouchEvent: false 0BottomLayout onInterceptTouchEvent: false 0CircleImage onTouchEvent: false 0CircleImage dispatchTouchEvent: false 0BottomLayout onTouchEvent: true 0BottomLayout dispatchTouchEvent: true 0TopLayout dispatchTouchEvent: true 0MainActivity dispatchTouchEvent: true 0TopLayout onInterceptTouchEvent: false 2BottomLayout onTouchEvent: true 2BottomLayout dispatchTouchEvent: true 2TopLayout dispatchTouchEvent: true 2MainActivity dispatchTouchEvent: true 2TopLayout onInterceptTouchEvent: false 1BottomLayout onTouchEvent: true 1BottomLayout dispatchTouchEvent: true 1TopLayout dispatchTouchEvent: true 1MainActivity dispatchTouchEvent: true 1</span><br></pre></td></tr></table></figure>
+<p><strong>区别是下面的子控件还能得到一次处理的机会， 否则即便子控件设置了处理方法，也不会得到执行机会。当然如果子控件不处理，那么以后依然将会被屏蔽。</strong></p>
+<blockquote>
+<p>监听器是事件处理的特殊情况，如果配置了监听器，等同于设置了事件处理。如果容器和子控件都配置了监听器，那么按照事件处理的顺序是子控件优先截断控制权；容器如果想夺回控制权，只能使用拦截方法进行拦截。</p>
+</blockquote>
+<h3 id="修改触摸机制"><a href="#修改触摸机制" class="headerlink" title="修改触摸机制"></a>修改触摸机制</h3><p><strong>修改触摸机制的核心是确定那个控件在哪种情况下能够进行拦截和消费事件，这样使得不同的控件都有机会处理触摸事件。</strong></p>
+<p>先说下可以着手的三个地方</p>
+<ul>
+<li><strong>onInterceptTouchEvent 方法：返回 true，则事件不再向下分发，即屏蔽了子控件，使得子控件设置的点击事件失效，因此要谨慎使用。此外如果容器消费了事件，该方法只执行一次。</strong></li>
+<li>onTouchEvent 方法：返回 true，则此后的处理流程就到这一层。</li>
+<li>dispatchTouchEvent 方法：返回 true，<strong>此时不管*onTouchEvent 方法如何，都能形成闭合流程。</strong></li>
+</ul>
+<p>例如我们要求在 TopLayout 中拦截左右滑动，在 BottomLayout 中拦截 上下滑动，同时也要保证 CircleImage 能够响应点击事件。</p>
+<p>三个控件都要能拦截事件，这就要求它们各自精确拦截自己的那一部分。</p>
+<p><strong>首先给 CircleImage 设置一个监听器，此时事件是到 CircleImage 这里得到处理的，但TopLayout 和 BottomLayout 还有拦截事件的机会。</strong></p>
+<p><strong>再来改造 TopLayout ，前提是不能拦截 ACTION_DOWN 和 ACTION_UP，这样就屏蔽了子控件的点击监听，这两个动作里只能做一些初始化和清理的工作。而后在 ACTION_MOVE 中进行拦截</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onInterceptTouchEvent</span><span class="params">(MotionEvent ev)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">boolean</span> isIntercept = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">int</span> action = ev.getAction();</span><br><span class="line">    <span class="keyword">switch</span> (action) &#123;</span><br><span class="line">        <span class="keyword">case</span> MotionEvent.ACTION_DOWN:</span><br><span class="line">            isIntercept = <span class="keyword">false</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> MotionEvent.ACTION_MOVE:</span><br><span class="line">            <span class="keyword">if</span> (<span class="string">"左右滑动"</span>) &#123;</span><br><span class="line">                isIntercept = <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> MotionEvent.ACTION_UP:</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            isIntercept = <span class="keyword">false</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> isIntercept;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>还有在 onTouchEvent 方法里也不能在 ACTION_DOWN 和 ACTION_UP 里进行事件的处理，这样也会导致子控件的点击事件失效。只能在 ACTION_MOVE 进行相同条件下的处理，这样才能构成闭环处理流程。</p>
+<p>最后是 BottomLayout ，和TopLayout 类似，只需要改一下拦截和处理的条件。</p>
+<blockquote>
+<p>这里三个控件都要获得拦截事件的机会，底层的控件尤其重要，它要求响应点击事件的特性使得父控件无法拦截和处理 ACTION_DOWN 和 ACTION_UP。父控件之间更是不得不小心翼翼，避免彼此之间的冲突。</p>
+</blockquote>
+<h4 id="实践：点击控件带扩张效果"><a href="#实践：点击控件带扩张效果" class="headerlink" title="实践：点击控件带扩张效果"></a>实践：点击控件带扩张效果</h4><p><img src="https://cloud.githubusercontent.com/assets/24237865/22188970/cc138f6a-e15c-11e6-8a17-a8bccb3e6dcd.gif" alt="ElasticViews"></p>
+<p>要达成这样的效果，且要求保留子控件的点击事件，实际上不需要进行事件的拦截，只需要在 dispatchTouchEvent 中添加一个动画即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">dispatchTouchEvent</span><span class="params">(MotionEvent event)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//只处理 ACTION_UP，防止执行多个动画，造成View参数紊乱</span></span><br><span class="line">    <span class="keyword">if</span>(event.getAction() == MotionEvent.ACTION_UP) &#123; </span><br><span class="line">        ViewCompat.animate(view).setDuration(duration)</span><br><span class="line">          .scaleX(scale).scaleY(scale).setInterpolator(<span class="keyword">new</span> CycleInterpolator(<span class="number">0.5f</span>))</span><br><span class="line">          .withLayer()</span><br><span class="line">          .start();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">super</span>.dispatchTouchEvent(event);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这里要注意的是如果容器即其子控件不设置点击事件监听器，那么可以不加第一行，因为此时dispatchTouchEvent只执行一次，在ACTION_DOWN之后就被屏蔽了；</p>
+<p>然而这过于理想了，一旦有一个子控件拦截的事件，将造成多个动画同时执行，View的scale参数将紊乱。因此为了安全，需要添加第一行。</p>
+</blockquote>
+<h4 id="MotionEvent和手势"><a href="#MotionEvent和手势" class="headerlink" title="MotionEvent和手势"></a>MotionEvent和手势</h4><p>动作包含动作码和坐标集合两个部分，前者表示是按下还是离开等；此外多触摸屏幕还可以响应多个手指，其中只能有一个起作用的，即常见的 mActivePointerId。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> action = MotionEventCompat.getActionMasked(event);</span><br><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> actionIndex = MotionEventCompat.getActionIndex(event);</span><br><span class="line"><span class="keyword">int</span> pointerCount = event.getPointerCount();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; pointerCount; i++) &#123;</span><br><span class="line">    <span class="keyword">int</span> pointerId = event.getPointerId(i);</span><br><span class="line">    <span class="keyword">float</span> x = event.getX(actionIndex);</span><br><span class="line">    <span class="keyword">float</span> y = event.getY(actionIndex);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>手势库：<a href="https://github.com/nisrulz/sensey" target="_blank" rel="noopener">Sensey</a></p>
+</blockquote>
+<h3 id="滚动机制-Scroller"><a href="#滚动机制-Scroller" class="headerlink" title="滚动机制(Scroller)"></a>滚动机制(Scroller)</h3><p><strong>scrollTo 方法就能够使得控件内容移位，其原理是改变参数 mScrollX/mScrollY ，这两个数值会在绘制的时候移动绘制区域，这是滚动机制的基础。</strong></p>
+<p><strong>scrollTo 方法的问题在于滚动花费的时间太短，Scroller 通过拉长这个时间带来平滑的视觉效果，具体做法是将整个过程拆分成若干的步进过程，逐步改变 mScrollX/mScrollY 的数值。</strong></p>
+<p>Scroller 类本身是一个纯属性类，只需要传入滑动时间，起始值等描述一次滑动过程的必要参数。但它并不能直接滑动控件，想要滑动控件需要与具体控件配合驱动步进计算。Scroller类的手动更新方法是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1.启动滚动过程</span></span><br><span class="line">mScroller.startScroll(getScrollX(), getScrollY(), <span class="number">100</span>, <span class="number">100</span>);</span><br><span class="line">invalidate();</span><br><span class="line"><span class="comment">//2.自我驱动</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">computeScroll</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mScroller != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (mScroller.computeScrollOffset()) &#123;                    <span class="comment">//判断是否完成</span></span><br><span class="line">            scrollTo(mScroller.getCurrX(), mScroller.getCurrY()); <span class="comment">//实现滚动的一小步 </span></span><br><span class="line">            setAlpha(<span class="number">1f</span>*scroller.getCurrX()/scroller.getFinalX());<span class="comment">//附加效果</span></span><br><span class="line">            postInvalidate();                                     <span class="comment">//实现滚动循环</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p><strong>这里达成真实的滚动效果是靠改变控件 mScrollX/mScrollY 位置来产生的，完全可以考改变其它属性来达成其它动画效果。</strong></p>
+<p>为了兼容性，可以使用类ScrollerCompat代替实现，该类还提供了fling 和 springback 两种滑动方式。</p>
+<h3 id="绘制机制与动画机制"><a href="#绘制机制与动画机制" class="headerlink" title="绘制机制与动画机制"></a>绘制机制与动画机制</h3><p>View 的实际绘制区域与布局区域是不一致的，它与 mScrollX/mScrollY 有关</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getDrawingRect</span><span class="params">(Rect outRect)</span> </span>&#123;    </span><br><span class="line">    outRect.left = mScrollX;    </span><br><span class="line">    outRect.top = mScrollY;    </span><br><span class="line">    outRect.right = mScrollX + (mRight - mLeft);    </span><br><span class="line">    outRect.bottom = mScrollY + (mBottom - mTop);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>在 onDraw 方法上添加附加效果是一种常用的手段。</strong></p>
+<p>View 可以执行三种动画</p>
+<p>1.补间动画</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">startAnimation</span><span class="params">(Animation animation)</span></span></span><br></pre></td></tr></table></figure>
+<p>2.状态转移动画</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setStateListAnimator</span><span class="params">(StateListAnimator stateListAnimator)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>3.属性动画</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ViewPropertyAnimator <span class="title">animate</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+<h4 id="EdgeEffect"><a href="#EdgeEffect" class="headerlink" title="EdgeEffect"></a>EdgeEffect</h4><p>EdgeEffect 是用来绘制边界阴影的，它的实质是画一个弧顶过某边的圆，同时截取弧顶部分。默认情况下绘制的顶边。</p>
+<p>通过 onPull, onAbsorb 方法，EdgeEffect 可以控制弧顶漏出的比例，这是纯属性设置的方法，必须刷新绘制才能生效。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onPull</span><span class="params">(<span class="keyword">float</span> deltaDistance, <span class="keyword">float</span> displacement)</span></span></span><br></pre></td></tr></table></figure>
+<p>通过 onRelease 方法可以产生回弹，这与Scroll 自我驱动更新的原理是一样的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.draw(canvas);</span><br><span class="line">    edge.setSize(getWidth(), getHeight());</span><br><span class="line">    <span class="keyword">if</span> (!edge.isFinished()) &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> restoreCount = canvas.save();</span><br><span class="line">        <span class="keyword">if</span>(edge.draw(canvas))&#123;</span><br><span class="line">            postInvalidate();</span><br><span class="line">        &#125;</span><br><span class="line">        canvas.restoreToCount(restoreCount);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在实际的使用中，应该给每一个边设置一个 EdgeEffectCompat , 这需要移位，旋转等操作 。以右边为例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">canvas.rotate(<span class="number">90</span>); <span class="comment">//画布旋转90度，意味着坐标轴也偏移了90度，</span></span><br><span class="line">canvas.translate(<span class="number">0</span>,-getWidth()); <span class="comment">//此时 y 轴实际是向左，故而反向回退一个宽度，矫正弧顶矩形</span></span><br><span class="line">edge.setSize(getHeight(), getWidth());</span><br></pre></td></tr></table></figure>
+<p>左边</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">canvas.rotate(<span class="number">270</span>); <span class="comment">//画布旋转270度，此时y轴向右</span></span><br><span class="line">canvas.translate(-getHeight(), <span class="number">0</span>);<span class="comment">//弧顶矩形需要下移</span></span><br><span class="line">edge.setSize(getHeight(), getWidth());</span><br></pre></td></tr></table></figure>
+<p>下边</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">canvas.rotate(<span class="number">180</span>);</span><br><span class="line">canvas.translate(-getWidth(), -getHeight());</span><br><span class="line">edge.setSize(getWidth(), getHeight());</span><br></pre></td></tr></table></figure>
+<h3 id="SurfaceView"><a href="#SurfaceView" class="headerlink" title="SurfaceView"></a><a href="http://blog.csdn.net/luoshengyang/article/details/8661317" target="_blank" rel="noopener">SurfaceView</a></h3><p>SurfaceView 在一个独立的线程中进行绘制，不在主线程中不会占用主线程资源，一方面可以实现复杂而高效的UI，另一方面又不会导致用户输入得不到及时响应。由于应用程序的主线程除了要绘制UI之外，还需要及时地响应用户输入，否则的话，系统就会认为应用程序没有响应了，因此就会弹出一个ANR对话框出来。对于一些游戏画面就不适合在应用程序的主线程中进行绘制。这时候就可以使用 SurfaceView 。一个Surface绘图示例如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceview);</span><br><span class="line"><span class="comment">//1. 获取 SurfaceView 对象内部类SurfaceHolder</span></span><br><span class="line">SurfaceHolder holder = surfaceView.getHolder();</span><br><span class="line"><span class="comment">//2. SurfaceHolder对象添加Callback接口，执行在UI线程</span></span><br><span class="line">holder.addCallback(<span class="keyword">new</span> SurfaceHolder.Callback() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">surfaceCreated</span><span class="params">(SurfaceHolder holder)</span></span></span><br><span class="line"><span class="function">    </span></span><br><span class="line"><span class="function">    <span class="comment">//4.Surface设置参数被改变将调用此回调方法，实现主要绘制逻辑</span></span></span><br><span class="line"><span class="function">    @Override</span></span><br><span class="line"><span class="function">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title">surfaceChanged</span><span class="params">(SurfaceHolder holder, <span class="keyword">int</span> format, <span class="keyword">int</span> width, <span class="keyword">int</span> height)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//1. 通过锁定获取canvas对象，开始编辑底层像素</span></span><br><span class="line">        Canvas canvas = holder.lockCanvas();</span><br><span class="line">        canvas.drawColor(<span class="number">0x4398ff</span>);</span><br><span class="line">        <span class="comment">//2. 消除canvas对象，结束像素编辑</span></span><br><span class="line">        holder.unlockCanvasAndPost(canvas);</span><br><span class="line">        <span class="comment">//3. 再次锁定并取消锁定</span></span><br><span class="line">        canvas = holder.lockCanvas(<span class="keyword">new</span> Rect(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>));</span><br><span class="line">        holder.unlockCanvasAndPost(canvas);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">surfaceDestroyed</span><span class="params">(SurfaceHolder holder)</span></span></span><br><span class="line"><span class="function">&#125;)</span>;</span><br></pre></td></tr></table></figure>
+<p>SurfaceView 有两个子类<code>GLSurfaceView</code>和<code>VideoView</code>，可见视频图像亦是靠<code>Surface</code>机制来渲染。<code>SurfaceView</code>是一个专门负责绘制<code>Surface</code>内容的<code>View</code>对象，它最大的优点是使用单独线程完成绘制工作。</p>
+<p>通常每个窗口背后对应一个<code>Surface</code>，不同<code>Surface</code>的Z序列不同，在底层将这些<code>Surface</code>的内容合成；<code>Surface</code>可以理解成绘制内容数据。</p>
+<p>绘制工作主要是由SurfaceHolder来完成的。SurfaceHolder负责与 Surface 内容数据打交道，可以控制比如<code>Surface</code>尺寸，格式，像素并监听<code>Surface</code>的变化。</p>
+<p>一般而言，SurfaceView 进入前台时 Surface 内容被创建，转入后台则被销毁；这是Android系统内存管理的特征；在 Surface 内容被创建后可以通过 holder.lockCanvas(Rect dirty); 获得一个 canvas 对象，对 dirty 矩形区域内进行绘制；此时脏区内的 Surface 内容被锁定是线程安全的;使用 unlockCanvasAndPost(canvas) 方法释放锁定后，脏区内容将被系统渲染展示到屏幕上。<strong>但数据内容没有被清除；因此如果更改了绘制区域后，将绘制先前内容。因此使用holder.lockCanvas(new Rect(0, 0, 0, 0)) 锁定并取消锁定的方法清除内容。</strong></p>
+<h3 id="ViewTreeObserver"><a href="#ViewTreeObserver" class="headerlink" title="ViewTreeObserver"></a>ViewTreeObserver</h3><p>ViewTreeObserver 接口可以响应视图树的变化，其中最重要的一个接口就是 OnPreDrawListener</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">OnPreDrawListener</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onPreDraw</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>这个接口之所以重要在于它的执行时机非常好，处在布局之后，绘制之前，各项参数(如尺寸和位置)均已确定，正是使用各种 trick 的方法。</strong></p>
+<p>此外一个使用较多的接口是 OnGlobalLayoutListener ，执行时间在控件发生 visibility 的变化。</p>
+<h2 id="各种子控件"><a href="#各种子控件" class="headerlink" title="各种子控件"></a>各种子控件</h2><h3 id="Space-与-ViewStub"><a href="#Space-与-ViewStub" class="headerlink" title="Space 与 ViewStub"></a>Space 与 ViewStub</h3><p>Space 是一个典型的占位控件，它始终处于 INVISIBLE 状态，参与测量和布局，但 draw 方法为空。</p>
+<p>ViewStub 则处于 GONE 状态，这意味着它没有尺寸， draw 方法也为空。 直到执行 inflate() 方法载入其它控件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ViewStub stub = (ViewStub) findViewById(R.id.stub);</span><br><span class="line">View inflated = stub.inflate();</span><br></pre></td></tr></table></figure>
+<p>ViewStub 会将子布局加载到它的父布局中去，新的子布局将继承原 ID，同时让父布局移除自己。</p>
+<h3 id="FrameLayout"><a href="#FrameLayout" class="headerlink" title="FrameLayout"></a>FrameLayout</h3><p>FrameLayout 测量时以子控件的最大高度/宽度作为自己的尺寸。它的 LayoutParams 多了一个参数，并利用这个参数来对齐</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">int</span> gravity = UNSPECIFIED_GRAVITY;</span><br></pre></td></tr></table></figure>
+<p>在布局方法中根据子控件的 gravity 参数来对齐子控件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> layoutDirection = getLayoutDirection();</span><br><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> absoluteGravity = Gravity.getAbsoluteGravity(gravity, layoutDirection);</span><br><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> verticalGravity = gravity &amp; Gravity.VERTICAL_GRAVITY_MASK;</span><br></pre></td></tr></table></figure>
+<p>absoluteGravity 决定了子控件的 left 位置，verticalGravity 决定了子控件的 top 位置，计算如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> (absoluteGravity &amp; Gravity.HORIZONTAL_GRAVITY_MASK) &#123;</span><br><span class="line">    <span class="keyword">case</span> Gravity.CENTER_HORIZONTAL:</span><br><span class="line">        childLeft = parentLeft + (parentRight - parentLeft - width) / <span class="number">2</span> +</span><br><span class="line">        lp.leftMargin - lp.rightMargin;</span><br><span class="line">    <span class="keyword">case</span> Gravity.RIGHT:</span><br><span class="line">        childLeft = parentRight - width - lp.rightMargin;</span><br><span class="line">    <span class="keyword">case</span> Gravity.LEFT:</span><br><span class="line">        childLeft = parentLeft + lp.leftMargin;</span><br><span class="line">&#125;</span><br><span class="line">child.layout(childLeft, childTop, childLeft + width, childTop + height);</span><br></pre></td></tr></table></figure>
+<h4 id="ViewAnimator"><a href="#ViewAnimator" class="headerlink" title="ViewAnimator"></a>ViewAnimator</h4><p>ViewAnimator 是 FrameLayout 的子类，在切换布局时能够执行动画。这种效果是重写 addView 和 removeView 方法来实现的，其子类有 TextSwitcher，ImageSwitcher 和 ViewFlipper。</p>
+<p>ViewFlipper 能够自动播放，这是通过在 onAttachedToWindow 方法中启动线程循环达成的，有意思的是它还使用广播接收器处理了屏幕熄灭和用户划开屏幕保护锁的广播</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onAttachedToWindow</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onAttachedToWindow();</span><br><span class="line">    <span class="keyword">final</span> IntentFilter filter = <span class="keyword">new</span> IntentFilter();</span><br><span class="line">    filter.addAction(Intent.ACTION_SCREEN_OFF);</span><br><span class="line">    filter.addAction(Intent.ACTION_USER_PRESENT);</span><br><span class="line">    getContext().registerReceiverAsUser(mReceiver, android.os.Process.myUserHandle(),</span><br><span class="line">            filter, <span class="keyword">null</span>, getHandler());</span><br><span class="line">    <span class="keyword">if</span> (mAutoStart) &#123;</span><br><span class="line">        startFlipping();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDetachedFromWindow</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onDetachedFromWindow();</span><br><span class="line">    mVisible = <span class="keyword">false</span>;</span><br><span class="line">    getContext().unregisterReceiver(mReceiver);</span><br><span class="line">    updateRunning();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="HorizontalScrollView"><a href="#HorizontalScrollView" class="headerlink" title="HorizontalScrollView"></a>HorizontalScrollView</h3><p>HorizontalScrollView 是一个继承 FrameLayout 的水平滚动控件，只应有一个子控件，它的滚动被称之为覆盖滚动(<code>OverScroll</code>)，需要处理<strong>容器自身的尺寸小于它所容纳的子控件的尺寸</strong>的情况。</p>
+<p>覆盖滚动有三种类型</p>
+<ul>
+<li>OVER_SCROLL_NEVER 子控件永远被束缚在容器内</li>
+<li>OVER_SCROLL_ALWAYS 子控件永远能够滚动出容器外</li>
+<li>OVER_SCROLL_IF_CONTENT_SCROLLS 只有子控件大于容器才能发生</li>
+</ul>
+<p>1.测量方法：容器只处理水平滚动，在垂直方向上倾向于将子控件完全扩展，且以自身容器宽度作为子控件宽度。如果不想这么做，可以设置参数 FillViewport 为 false。</p>
+<p>2.拦截方法： 容器根据控件是否处于拖动状态决定是否拦截，只有处在MotionEvent.ACTION_MOVE 状态，滑动距离足够且触摸点在子控件内可以拦截此事件。发生拦截后，在事件处理方法中完成覆盖滑动。这一过程本质上是通过改变 mScrollX/mScrollY 的位置来实现的。</p>
+<p>a.是否能够进行覆盖滑动，由滑动方式和滑动范围决定。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> range = getScrollRange();<span class="comment">//计算滑动范围int </span></span><br><span class="line">overscrollMode = getOverScrollMode();<span class="comment">//计算覆盖滑动方式</span></span><br><span class="line"><span class="keyword">boolean</span> canOverscroll = overscrollMode == OVER_SCROLL_ALWAYS ||(overscrollMode == OVER_SCROLL_IF_CONTENT_SCROLLS &amp;&amp; range &gt; <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>b.覆盖滑动范围为子控件宽度与容器宽度的差值，计算如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Math.max(<span class="number">0</span>,child.getWidth() - (getWidth() - mPaddingLeft - mPaddingRight);</span><br></pre></td></tr></table></figure>
+<p>滑动范围为<strong>子控件的宽度-容器的内容宽度</strong>，而且如果此值为负，就无法滑动。因此<strong>只有子控件的宽度大于容器宽度才能产生滑动</strong>，这也是判断子控件能否滚动的依据。</p>
+<p>c.覆盖滑动的行为由 overScrollBy 完成</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//mOverscrollDistance 指的是触发边界效应的距离</span></span><br><span class="line">overScrollBy(deltaX, <span class="number">0</span>, mScrollX, <span class="number">0</span>, range, <span class="number">0</span>, mOverscrollDistance, <span class="number">0</span>, <span class="keyword">true</span>)</span><br></pre></td></tr></table></figure>
+<p>该方法采用 Scroller 来进行滑动，会修正新的 ScrollX 和 ScrollY 值，。</p>
+<p>4.<strong>翻页滑动</strong>和<strong>全页滑动</strong></p>
+<p><strong>翻页滑动(pageScroll)，点击 (shift+)space可以调用</strong>，这里的页宽就是容器的宽度，如果向左翻页<br>则左边界为<code>Math.max(0,getScrollX() - width)</code>，右边界为<code>right = mTempRect.left + width</code>。</p>
+<p><strong>全页滑动(fullScroll 包括 arrowScroll)，点击 (alt+)Pad key可以调用</strong>，如果向左翻页，左边界为0，右边界为<code>width</code>，即容器宽度。如果向右翻页，左右边界确定如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">View view = getChildAt(<span class="number">0</span>);</span><br><span class="line">mTempRect.right = view.getRight();</span><br><span class="line">mTempRect.left = mTempRect.right - width;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+      
+
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="xiang 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2017/08/06/android/View/动画二：布局容器动画(Transition)/" rel="next" title="动画二：布局容器动画(Transition)">
+                  <i class="fa fa-chevron-left"></i> 动画二：布局容器动画(Transition)
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2017/08/18/android/View/与Drawable相关的实践/" rel="prev" title="与Drawable相关的实践">
+                  与Drawable相关的实践 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#位置与尺寸"><span class="nav-text">位置与尺寸</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#layout-机制与-LayoutParams"><span class="nav-text">layout_* 机制与 LayoutParams</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#尺寸测量"><span class="nav-text">尺寸测量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#resolveSizeAndState"><span class="nav-text">resolveSizeAndState</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义测量方法"><span class="nav-text">自定义测量方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#布局机制"><span class="nav-text">布局机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#触摸机制"><span class="nav-text">触摸机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改触摸机制"><span class="nav-text">修改触摸机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实践：点击控件带扩张效果"><span class="nav-text">实践：点击控件带扩张效果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MotionEvent和手势"><span class="nav-text">MotionEvent和手势</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#滚动机制-Scroller"><span class="nav-text">滚动机制(Scroller)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#绘制机制与动画机制"><span class="nav-text">绘制机制与动画机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#EdgeEffect"><span class="nav-text">EdgeEffect</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SurfaceView"><span class="nav-text">SurfaceView</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ViewTreeObserver"><span class="nav-text">ViewTreeObserver</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#各种子控件"><span class="nav-text">各种子控件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Space-与-ViewStub"><span class="nav-text">Space 与 ViewStub</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FrameLayout"><span class="nav-text">FrameLayout</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ViewAnimator"><span class="nav-text">ViewAnimator</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HorizontalScrollView"><span class="nav-text">HorizontalScrollView</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/1.jpg"
+      alt="xiang">
+  <p class="site-author-name" itemprop="name">xiang</p>
+  <div class="site-description" itemprop="description">谨守而勿失，是谓反其真</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/liuxiangtian" title="GitHub &rarr; https://github.com/liuxiangtian" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="http://www.zhihu.com/people/liu-xiang-tian-74" title="zhihu &rarr; http://www.zhihu.com/people/liu-xiang-tian-74" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>zhihu</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘祥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">191k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:53</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script><script src="/js/bookmark.js?v=7.4.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN,ja,en,default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="属性动画(android.animation)插值器(Interpolator)Interpolator 是可以使用 XML 来定义和解析的，它的作用是根据输入产生一个 [0， 1]之间的值 123public interface TimeInterpolator &amp;#123;    float getInterpolation(float input); //输入和输出区间都是[0, 1] &amp;#">
+<meta property="og:type" content="article">
+<meta property="og:title" content="动画一：常规动画">
+<meta property="og:url" content="http://yoursite.com/2017/08/04/android/View/动画一：常规动画/index.html">
+<meta property="og:site_name" content="lxt">
+<meta property="og:description" content="属性动画(android.animation)插值器(Interpolator)Interpolator 是可以使用 XML 来定义和解析的，它的作用是根据输入产生一个 [0， 1]之间的值 123public interface TimeInterpolator &amp;#123;    float getInterpolation(float input); //输入和输出区间都是[0, 1] &amp;#">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://github.com/81813780/AVLoadingIndicatorView/raw/master/screenshots/avi.gif">
+<meta property="og:image" content="https://github.com/nntuyen/mkloader/raw/master/screenshot/screenshot.gif">
+<meta property="og:image" content="https://camo.githubusercontent.com/82e22c4fd86e8de5bcd0ccf4bdcc9dc1a0b7119f/687474703a2f2f7777312e73696e61696d672e636e2f6d773639302f37656630316663616777316632677a797973796772673230616e303568337a622e676966">
+<meta property="og:image" content="https://camo.githubusercontent.com/0856e588a240305d7699a94e1bd9781cbf7e53e1/687474703a2f2f7777312e73696e61696d672e636e2f6d773639302f376566303166636167773166326b66783531366c33673230623530356c6161332e676966">
+<meta property="og:image" content="https://cdn.dribbble.com/users/62319/screenshots/1945593/shot.gif">
+<meta property="og:image" content="https://github.com/liuguangqiang/RippleLayout/raw/master/arts/ripple2.gif">
+<meta property="og:image" content="https://github.com/geftimov/android-player/raw/master/art/sample_one.gif">
+<meta property="og:image" content="https://raw.githubusercontent.com/Krupen/FabulousFilter/master/concept.gif">
+<meta property="og:updated_time" content="2019-09-18T08:15:57.843Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="动画一：常规动画">
+<meta name="twitter:description" content="属性动画(android.animation)插值器(Interpolator)Interpolator 是可以使用 XML 来定义和解析的，它的作用是根据输入产生一个 [0， 1]之间的值 123public interface TimeInterpolator &amp;#123;    float getInterpolation(float input); //输入和输出区间都是[0, 1] &amp;#">
+<meta name="twitter:image" content="https://github.com/81813780/AVLoadingIndicatorView/raw/master/screenshots/avi.gif">
+  <link rel="canonical" href="http://yoursite.com/2017/08/04/android/View/动画一：常规动画/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>动画一：常规动画 | lxt</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lxt</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a class="book-mark-link book-mark-link-fixed" href="#"></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/04/android/View/动画一：常规动画/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiang">
+      <meta itemprop="description" content="谨守而勿失，是谓反其真">
+      <meta itemprop="image" content="/images/1.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lxt">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">动画一：常规动画
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2017-08-04 21:26:26" itemprop="dateCreated datePublished" datetime="2017-08-04T21:26:26+08:00">2017-08-04</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-18 16:15:57" itemprop="dateModified" datetime="2019-09-18T16:15:57+08:00">2019-09-18</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/View/" itemprop="url" rel="index"><span itemprop="name">View</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>11k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>10 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="属性动画-android-animation"><a href="#属性动画-android-animation" class="headerlink" title="属性动画(android.animation)"></a>属性动画(android.animation)</h2><h3 id="插值器-Interpolator"><a href="#插值器-Interpolator" class="headerlink" title="插值器(Interpolator)"></a>插值器(Interpolator)</h3><p>Interpolator 是可以使用 XML 来定义和解析的，它的作用是根据输入产生一个 [0， 1]之间的值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">TimeInterpolator</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">float</span> <span class="title">getInterpolation</span><span class="params">(<span class="keyword">float</span> input)</span></span>; <span class="comment">//输入和输出区间都是[0, 1] </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Interpolator 有各种子类，最简单的是线性的 LinearInterpolator ，各种子类的公式如下</p>
+<ul>
+<li>$LinearInterpolator : a(t) = t $</li>
+<li>$AccelerateInterpolator : a (t) = t*t $</li>
+<li>$DecelerateInterpolator : a (t) =1 - (1-t)*(1-t) $</li>
+<li>$AccelerateDecelerateInterpolator : a (t) =\frac{cos((t+1)*\pi }{2} + 0.5 $</li>
+<li>$AnticipateInterpolator : a(t) = t <em>t</em> ((tension + 1) * t - tension)$ 越来越快</li>
+<li>$BounceInterpolator ：$分段函数，呈弹跳效果</li>
+<li>$CycleInterpolator ： a (t) = sin(2<em>\pi</em>cycles<em>t) $ \</em>将时间映射成正弦曲线，呈振动式效果，这一点实际非常有用，如果时间给500ms，那么就是半周期，数值复0，适合与View的animate方法联合使用。*</li>
+<li>$LookupTableInterpolator : $通过查表来产生结果值</li>
+</ul>
+<blockquote>
+<p>插值器在属性动画中用于时间轴的变换。</p>
+</blockquote>
+<h3 id="估值器-TypeEvaluator"><a href="#估值器-TypeEvaluator" class="headerlink" title="估值器(TypeEvaluator)"></a>估值器(TypeEvaluator)</h3><p>TypeEvaluator 类用来根据起始值和时间坐标计算中间值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">TypeEvaluator</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">evaluate</span><span class="params">(<span class="keyword">float</span> fraction, T startValue, T endValue)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>典型的估值器实现如 IntEvaluator，RectEvaluator，ArgbEvaluator 等均是线性实现。</p>
+<p><strong>通过自定义估值器可以实现属性动画。例如自定义一个改变控件高度的属性动画</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1.创建估值器，注意要改的属性是 LayoutParams.height。</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Integer <span class="title">evaluate</span><span class="params">(<span class="keyword">float</span> fraction, Integer startValue, Integer endValue)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> num = <span class="keyword">super</span>.evaluate(fraction, startValue, endValue);</span><br><span class="line">  ViewGroup.LayoutParams params = view.getLayoutParams();</span><br><span class="line">  params.height = num;</span><br><span class="line">  v.setLayoutParams(params);</span><br><span class="line">  <span class="keyword">return</span> num;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//2.创建属性动画</span></span><br><span class="line">ValueAnimator.ofObject(<span class="keyword">new</span> MyEvalutor(<span class="keyword">this</span>), <span class="number">0f</span>, <span class="number">1f</span>).start();</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>使用估计器比添加 AnimatorUpdateListener 接口要简洁一些。</p>
+</blockquote>
+<h3 id="Property-与-PropertyValuesHolder"><a href="#Property-与-PropertyValuesHolder" class="headerlink" title="Property 与 PropertyValuesHolder"></a>Property 与 PropertyValuesHolder</h3><p>Property`类表示属性，所以它要表示键值对，对于键，必须是 String 类型，其值表示属性名；对于值，需要一个对象(Class：T) 来提供，数据类型为V，使用 get/set 方法可以从对象中读取和设置属性值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Property</span>&lt;<span class="title">T</span>, <span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String mName;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Class&lt;V&gt; mType;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(T object, V value)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> V <span class="title">get</span><span class="params">(T object)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以 View 中的”alpha”属性为例，View 对象提供 alpha 属性，其值的格式是 float。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> Property&lt;View, Float&gt; ALPHA = <span class="keyword">new</span> FloatProperty&lt;View&gt;(<span class="string">"alpha"</span>) &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setValue</span><span class="params">(View object, <span class="keyword">float</span> value)</span> </span>&#123;</span><br><span class="line">        object.setAlpha(value);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Float <span class="title">get</span><span class="params">(View object)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> object.getAlpha();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>PropertyValuesHolder 是对属性 Property 的包装，合成了Property ，属性名称以及属性值集合等，并通过反射(Method)来修改属性值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> PropertyValuesHolder <span class="title">ofInt</span><span class="params">(Property&lt;?, Integer&gt; property, <span class="keyword">int</span>... values)</span> </span>&#123; </span><br><span class="line">    <span class="comment">//Keyframe 是 time/value 的键值对</span></span><br><span class="line">    mKeyframes = KeyframeSet.ofInt(values); </span><br><span class="line">    mPropertyName = property.getName();</span><br><span class="line">    mProperty = property;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> IntPropertyValuesHolder(property, values);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>传入的多个属性值被转为 Keyframe 集合，且设置了属性名，值类型被确定为 int，通过 Property 对象可以应用属性值。只是缺少一个对象来提供和接受 int 类型的值。</strong></p>
+<ul>
+<li>PropertyValuesHolder 还可以用 Object 对象来构造。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> PropertyValuesHolder <span class="title">ofObject</span><span class="params">(String propertyName, TypeEvaluator evaluator,</span></span></span><br><span class="line"><span class="function"><span class="params">        Object... values)</span> </span>&#123;</span><br><span class="line">    PropertyValuesHolder pvh = <span class="keyword">new</span> PropertyValuesHolder(propertyName);</span><br><span class="line">    pvh.setObjectValues(values);</span><br><span class="line">    pvh.setEvaluator(evaluator);</span><br><span class="line">    <span class="keyword">return</span> pvh;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里对象将被转换为 ObjectKeyframe，只不过属性值由Object对象提供。</p>
+<p>PropertyValuesHolder 的重要职责是完成真正的步进计算</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">calculateValue</span><span class="params">(<span class="keyword">float</span> fraction)</span> </span>&#123;</span><br><span class="line">    Object value = mKeyframes.getValue(fraction);</span><br><span class="line">    mAnimatedValue = mConverter == <span class="keyword">null</span> ? value : mConverter.convert(value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="值动画-ValueAnimator-和对象动画-ObjectAnimator"><a href="#值动画-ValueAnimator-和对象动画-ObjectAnimator" class="headerlink" title="值动画(ValueAnimator)和对象动画(ObjectAnimator)"></a>值动画(ValueAnimator)和对象动画(ObjectAnimator)</h3><p>ValueAnimator 的主要域如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">long</span> mStartTime;</span><br><span class="line">PropertyValuesHolder[] mValues; <span class="comment">//属性集合</span></span><br><span class="line">HashMap&lt;String, PropertyValuesHolder&gt; mValuesMap;  <span class="comment">//属性查找表</span></span><br><span class="line">ArrayList&lt;AnimatorUpdateListener&gt; mUpdateListeners;</span><br></pre></td></tr></table></figure>
+<p>ValueAnimator 在构造时即是通过 PropertyValuesHolder 来完成的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ValueAnimator <span class="title">ofPropertyValuesHolder</span><span class="params">(PropertyValuesHolder... values)</span> </span>&#123;</span><br><span class="line">    ValueAnimator anim = <span class="keyword">new</span> ValueAnimator();</span><br><span class="line">    mValuesMap = <span class="keyword">new</span> HashMap&lt;String, PropertyValuesHolder&gt;(numValues);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; numValues; ++i) &#123;</span><br><span class="line">        PropertyValuesHolder valuesHolder = values[i];</span><br><span class="line">        mValuesMap.put(valuesHolder.getPropertyName(), valuesHolder);</span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="keyword">return</span> anim;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用 ofInt 方法构造的 PropertyValuesHolder 属性名为空。对于 ARGB 颜色而言需要 Evaluator。</p>
+<p>ObjectAnimator 比 ValueAnimator 就多了一个对象，可以使用反射来提供和接收数值。······················</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> WeakReference&lt;Object&gt; mTarget;</span><br></pre></td></tr></table></figure>
+<p>当属性动画启动后的处理如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PropertyValuesHolder[] mValues;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">animateValue</span><span class="params">(<span class="keyword">float</span> fraction)</span> </span>&#123;</span><br><span class="line">    fraction = mInterpolator.getInterpolation(fraction);</span><br><span class="line">    <span class="keyword">int</span> numValues = mValues.length;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; numValues; ++i) &#123;</span><br><span class="line">        mValues[i].calculateValue(fraction);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//mUpdateListeners 回调</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="状态列表动画-StateListAnimator"><a href="#状态列表动画-StateListAnimator" class="headerlink" title="状态列表动画(StateListAnimator)"></a>状态列表动画(StateListAnimator)</h3><p>StateListAnimator 这种动画可以使得 View 在状态切换时启动属性动画，你可以只有使用</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">com.lxt.toast.text.FadeText</span>    <span class="attr">android:stateListAnimator</span>=<span class="string">"@animator/test"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>也可以用代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setStateListAnimator(AnimatorInflater.loadStateListAnimator(getContext(), R.animator.test));</span><br></pre></td></tr></table></figure>
+<p>所用的 StateListAnimator 可以用XML来定义，标签是 selector。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">selector</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">android:state_pressed</span>=<span class="string">"true"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">set</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">objectAnimator</span> <span class="attr">android:propertyName</span>=<span class="string">"translationX"</span></span></span><br><span class="line"><span class="tag">                            <span class="attr">android:duration</span>=<span class="string">"1000"</span></span></span><br><span class="line"><span class="tag">                            <span class="attr">android:valueTo</span>=<span class="string">"200"</span></span></span><br><span class="line"><span class="tag">                            <span class="attr">android:valueType</span>=<span class="string">"floatType"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">set</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">item</span></span></span><br><span class="line"><span class="tag">          <span class="attr">android:state_pressed</span>=<span class="string">"false"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">set</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">objectAnimator</span> <span class="attr">android:propertyName</span>=<span class="string">"translationX"</span></span></span><br><span class="line"><span class="tag">                            <span class="attr">android:duration</span>=<span class="string">"1000"</span></span></span><br><span class="line"><span class="tag">                            <span class="attr">android:valueTo</span>=<span class="string">"0"</span></span></span><br><span class="line"><span class="tag">                            <span class="attr">android:valueType</span>=<span class="string">"floatType"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">set</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">selector</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="AnimatedVectorDrawableCompat"><a href="#AnimatedVectorDrawableCompat" class="headerlink" title="AnimatedVectorDrawableCompat"></a>AnimatedVectorDrawableCompat</h3><p>VectorDrawable 在XML解析时会将 path 字符串解析成 VFullPath 对象，包括 PathDataNode 数组和一些绘制信息，由此构建节点树，绘制时先将节点树绘制在缓存 Bitmap 上。</p>
+<p>这里谈谈它的动画效果类 AnimatedVectorDrawableCompat，如果要兼容低版本，在XML中使用 <code>app:srcCompat</code>来引用。</p>
+<p><strong>1.首先定义VectorDrawable，重点是给 path 标记 name</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">vector</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:width</span>=<span class="string">"24dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:height</span>=<span class="string">"24dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:viewportHeight</span>=<span class="string">"24.0"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:viewportWidth</span>=<span class="string">"24.0"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">path</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:name</span>=<span class="string">"end"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:fillColor</span>=<span class="string">"#FF000000"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:pathData</span>=<span class="string">"M12,12m-3.2,0a3.2,3.2 0,1 1,6.4 0a3.2,3.2 0,1 1,-6.4 0"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">path</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:name</span>=<span class="string">"star"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:fillColor</span>=<span class="string">"#FF000000"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:pathData</span>=<span class="string">"M9,2L7.17,4H4c-1.1,0 -2,0.9 -2,2v12c0,1.1 0.9,2 2,2h16c1.1,0 2,-0.9 2,-2V6c0,-1.1 -0.9,-2 -2,-2h-3.17L15,2H9zm3,15c-2.76,0 -5,-2.24 -5,-5s2.24,-5 5,-5 5,2.24 5,5 -2.24,5 -5,5z"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">vector</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><strong>2.定义属性动画，注意 trimPathStart 和 trimPathEnd 这两个属性</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">set</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">     <span class="attr">android:ordering</span>=<span class="string">"sequentially"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">objectAnimator</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:duration</span>=<span class="string">"1000"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:propertyName</span>=<span class="string">"trimPathStart"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:valueFrom</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:valueTo</span>=<span class="string">"0"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">objectAnimator</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:duration</span>=<span class="string">"1000"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:propertyName</span>=<span class="string">"trimPathEnd"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:valueFrom</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:valueTo</span>=<span class="string">"0"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">set</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><strong>3.合成动画Drawable</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">animated-vector</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>                 <span class="attr">android:drawable</span>=<span class="string">"@drawable/ic_menu_camera"</span>&gt;</span>    <span class="tag">&lt;<span class="name">target</span>        <span class="attr">android:name</span>=<span class="string">"star"</span>  //<span class="attr">path</span> 的 <span class="attr">name</span>        <span class="attr">android:animation</span>=<span class="string">"@animator/alpha"</span>/&gt;</span> // 使用的属性动画    <span class="tag">&lt;<span class="name">target</span>        <span class="attr">android:name</span>=<span class="string">"end"</span>        <span class="attr">android:animation</span>=<span class="string">"@animator/alpha"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">animated-vector</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>最后调用动画</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(AnimatedVectorDrawableCompat) fab.getDrawable().start();</span><br></pre></td></tr></table></figure>
+<h3 id="AnimatorSet"><a href="#AnimatorSet" class="headerlink" title="AnimatorSet"></a>AnimatorSet</h3><p>AnimatorSet 可以多个属性动画设置播放顺序，如顺序播放，并行播放以及延迟播放，其原理是形成这些动画之间的依赖关系。</p>
+<p>例如顺序播放的实现如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">playSequentially</span><span class="params">(Animator... items)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; items.length - <span class="number">1</span>; ++i) &#123;</span><br><span class="line">         play(items[i]).before(items[i + <span class="number">1</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>play 方法并不是播放，而是将 Animator 转为 Node 类，Node 定义了其父节点，兄弟节点和子节点集合，以便形成依赖关系</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span> <span class="keyword">implements</span> <span class="title">Cloneable</span> </span>&#123;</span><br><span class="line">    Animator mAnimation;</span><br><span class="line">    ArrayList&lt;Node&gt; mChildNodes = <span class="keyword">null</span>;</span><br><span class="line">    ArrayList&lt;Node&gt; mSiblings;</span><br><span class="line">    ArrayList&lt;Node&gt; mParents;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>before 方法会在儿子节点集合中添加代表下一个动画的 Node 节点。</p>
+<p>并行播放的实现如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">playTogether</span><span class="params">(Animator... items)</span> </span>&#123;</span><br><span class="line">    Builder builder = play(items[<span class="number">0</span>]);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; items.length; ++i) &#123;</span><br><span class="line">        builder.with(items[i]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>with 方法会在兄弟节点集合中添加代表下一个动画的 Node 节点。</p>
+<p>至于 after 方法自然就是添加到父节点集合中去了，此外 after 方法还能够设置延迟，这是通过插入一个时长为 delay 的空动画来实现的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">after</span><span class="params">(<span class="keyword">long</span> delay)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// setup dummy ValueAnimator just to run the clock</span></span><br><span class="line">    ValueAnimator anim = ValueAnimator.ofFloat(<span class="number">0f</span>, <span class="number">1f</span>);</span><br><span class="line">    anim.setDuration(delay);</span><br><span class="line">    after(anim);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在构建有向图的时候会使用DFS算法初始化依赖树，使用Build的这几个方法能够随心所欲的构建起动画播放顺序。</p>
+<h3 id="显露动画-RevealAnimator"><a href="#显露动画-RevealAnimator" class="headerlink" title="显露动画(RevealAnimator)"></a>显露动画(RevealAnimator)</h3><p>ViewAnimationUtils 这个工具类可以用来创建显露动画，这是经过优化的一种动画，可以产生波纹效果。它是一种属性动画，其扩展应用很广泛，这个留在实践部分讲。创建方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Animator <span class="title">createCircularReveal</span><span class="params">(View view,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> centerX,  <span class="keyword">int</span> centerY, <span class="keyword">float</span> startRadius, <span class="keyword">float</span> endRadius)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> RevealAnimator(view, centerX, centerY, startRadius, endRadius);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意波纹效果仅在View区域内。</p>
+</blockquote>
+<h2 id="补间动画-android-view-animation"><a href="#补间动画-android-view-animation" class="headerlink" title="补间动画(android.view.animation)"></a>补间动画(android.view.animation)</h2><p>系统定义的 Animation 确实只有四种，但完全可以通过自定义来扩展。自定义 Animation 需要重写下列方法，如直接改写控件尺寸</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">applyTransformation</span><span class="params">(<span class="keyword">float</span> interpolatedTime, Transformation t)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> newWidth = mStartWidth + (<span class="keyword">int</span>) ((mWidth - mStartWidth) * interpolatedTime);</span><br><span class="line">    mView.getLayoutParams().width = newWidth;</span><br><span class="line">    mView.requestLayout();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>系统定义的 Animation 如 AlphaAnimation 是通过 Transformation 类来完成变换的，不过其功能有限，这里通过引入 View 直接修改参数。</strong></p>
+<blockquote>
+<p>各种动画的参数值得注意，如 使用百分比。</p>
+</blockquote>
+<h3 id="布局动画-LayoutAnimationController"><a href="#布局动画-LayoutAnimationController" class="headerlink" title="布局动画(LayoutAnimationController)"></a>布局动画(LayoutAnimationController)</h3><p><strong>布局动画为 ViewGroup 所独有，它能够使得各个View依次按照延迟播放动画</strong>，其构建方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">LayoutAnimationController</span><span class="params">(Animation animation, <span class="keyword">float</span> delay)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>其参数在 View 的布局参数中，<code>AnimationParameters</code> 中包含动画的延迟，默认按照 View 的序号生成。</p>
+<p>实际通过延迟发送也能达到这种效果。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">double</span> delay = <span class="number">3</span> * <span class="number">500</span> * (i / size);</span><br><span class="line">    <span class="keyword">new</span> Handler().postDelayed(animation, delay);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="属性动画的常规使用套路"><a href="#属性动画的常规使用套路" class="headerlink" title="属性动画的常规使用套路"></a>属性动画的常规使用套路</h2><p><strong>某些控件的绘制依赖于一个参数 process(float) 的变化，对其使用属性动画是一个常规套路，能取得什么效果主要取决于 开发者的想象力。</strong><a href="https://github.com/81813780/AVLoadingIndicatorView" target="_blank" rel="noopener">AVLoadingIndicatorView</a>和<a href="https://github.com/nntuyen/mkloader" target="_blank" rel="noopener">MkLoader</a>库就是典型代表。</p>
+<p><img src="https://github.com/81813780/AVLoadingIndicatorView/raw/master/screenshots/avi.gif" alt="img"> <img src="https://github.com/nntuyen/mkloader/raw/master/screenshot/screenshot.gif" alt="img"></p>
+<ul>
+<li>以 ClassicSpinner 的实现为例，基本效果是画8个圆，动画效果是分别播放一个属性动画，但设置延迟，造成透明度不同。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ValueAnimator fadeAnimator = ValueAnimator.ofInt(<span class="number">126</span>, <span class="number">255</span>, <span class="number">126</span>);</span><br><span class="line">fadeAnimator.setRepeatCount(ValueAnimator.INFINITE);</span><br><span class="line">fadeAnimator.setDuration(<span class="number">1000</span>);</span><br><span class="line">fadeAnimator.setStartDelay(index * <span class="number">120</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这里将圆形抽象成Circle类，以便于使用动画。</p>
+</blockquote>
+<ul>
+<li><code>FishSpinner</code>的绘制是5个圆，依次旋转一定角度。动画效果为360度的旋转，视觉效果即通过延迟来达到。</li>
+</ul>
+<h3 id="更复杂的使用：分段绘制"><a href="#更复杂的使用：分段绘制" class="headerlink" title="更复杂的使用：分段绘制"></a>更复杂的使用：分段绘制</h3><p><strong>将几个 process 控制的绘制过程拼接起来，可以达到更炫的效果。</strong><a href="https://github.com/Ajian-studio/GADownloading" target="_blank" rel="noopener">GADownloading</a>和<a href="https://github.com/android-cjj/JJSearchViewAnim" target="_blank" rel="noopener">JJSearchViewAnim</a>是分段绘制的典型。</p>
+<p><img src="https://camo.githubusercontent.com/82e22c4fd86e8de5bcd0ccf4bdcc9dc1a0b7119f/687474703a2f2f7777312e73696e61696d672e636e2f6d773639302f37656630316663616777316632677a797973796772673230616e303568337a622e676966" alt="img"> <img src="https://camo.githubusercontent.com/0856e588a240305d7699a94e1bd9781cbf7e53e1/687474703a2f2f7777312e73696e61696d672e636e2f6d773639302f376566303166636167773166326b66783531366c33673230623530356c6161332e676966" alt="img"></p>
+<h2 id="暴露动画的应用"><a href="#暴露动画的应用" class="headerlink" title="暴露动画的应用"></a>暴露动画的应用</h2><p><a href="https://github.com/XunMengWinter/CircularAnim" target="_blank" rel="noopener">CircularAnim</a> 是一个扩展暴露动画的典型例子，<strong>要点在于计算中心点位置和始终半径。</strong></p>
+<p><img src="https://cdn.dribbble.com/users/62319/screenshots/1945593/shot.gif" alt="Login &amp; Home Screen ui ux invision app prototyping iphone material gif ae animation mobile login"></p>
+<p><strong>注意中心点位置是相对于 view 的坐标位置，可以在view区域之外。这样如果要以另一个View B为动画的中心，就需要计算B的中心点相对与View左上点的位置，并要确保动画半径容纳原 View。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span>[] mCL = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">2</span>];</span><br><span class="line">mContentLayout.getLocationOnScreen(mCL);</span><br><span class="line"><span class="keyword">int</span>[] mAL = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">2</span>];</span><br><span class="line">view.getLocationOnScreen(mAL);</span><br><span class="line"><span class="keyword">int</span> cX = mAL[<span class="number">0</span>] + view.getWidth()/<span class="number">2</span>-mCL[<span class="number">0</span>];</span><br><span class="line"><span class="keyword">int</span> cY = mAL[<span class="number">1</span>] + view.getHeight()/<span class="number">2</span>-mCL[<span class="number">1</span>];</span><br></pre></td></tr></table></figure>
+<p><strong>如果要实现全屏效果，可以在 DecorView 上添加一个 ImageView 来完成动画，ImageView 可以任意设置图片或颜色效果，要注意在动画结束后删除这个 ImageView 。</strong></p>
+<p>至于图中的效果，是通过隐藏一个ProgressBar来完成的，将TextView的收缩半径设置为ProgressBar的一半高度，动画完成后隐藏 TextView，显示 ProgressBar 即可。</p>
+<h3 id="更复杂的暴露动画效果：RippleLayout"><a href="#更复杂的暴露动画效果：RippleLayout" class="headerlink" title="更复杂的暴露动画效果：RippleLayout"></a><a href="https://github.com/liuguangqiang/RippleLayout" target="_blank" rel="noopener">更复杂的暴露动画效果：RippleLayout</a></h3><p>暴露动画实际也是属性动画，将它和其它属性动画结合能产生一些视觉效果。</p>
+<p><img src="https://github.com/liuguangqiang/RippleLayout/raw/master/arts/ripple2.gif" alt="RippleLayout"></p>
+<p>这里图片上的效果可以分成几部分</p>
+<p><strong>1.点击活动A的按钮，开始触发波纹效果，动画结束之后启动活动B</strong></p>
+<p><strong>2.活动B的布局分为上下两层，分别执行TransitionY动画。</strong></p>
+<p>与之类似，点击返回键，将反向播放内容布局动画和波纹动画。</p>
+<h3 id="入屏动画"><a href="#入屏动画" class="headerlink" title="入屏动画"></a><a href="https://github.com/geftimov/android-player" target="_blank" rel="noopener">入屏动画</a></h3><p><img src="https://github.com/geftimov/android-player/raw/master/art/sample_one.gif" alt="img"></p>
+<p>这是一个属性动画的封装库，能够流式的使用属性动画，但无法取消以前的动画，只能用作入屏动画。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">PropertyAction fabAction = PropertyAction.newPropertyAction(fab).scaleX(<span class="number">0</span>).scaleY(<span class="number">0</span>).duration(<span class="number">750</span>).build();</span><br><span class="line">Player.init().</span><br><span class="line">        animate(headerAction).</span><br><span class="line">        then().</span><br><span class="line">        animate(fabAction).</span><br><span class="line">        then().</span><br><span class="line">        animate(bottomAction).</span><br><span class="line">        play();</span><br></pre></td></tr></table></figure>
+<h3 id="FabulousFilter"><a href="#FabulousFilter" class="headerlink" title="FabulousFilter"></a><a href="https://github.com/Krupen/FabulousFilter" target="_blank" rel="noopener">FabulousFilter</a></h3><p><img src="https://raw.githubusercontent.com/Krupen/FabulousFilter/master/concept.gif" alt="img"></p>
+
+    </div>
+
+    
+    
+    
+      
+
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="xiang 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2017/07/26/android/View/与 ImageView 有关的知识点/" rel="next" title="与 ImageView 有关的知识点">
+                  <i class="fa fa-chevron-left"></i> 与 ImageView 有关的知识点
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2017/08/06/android/View/动画二：布局容器动画(Transition)/" rel="prev" title="动画二：布局容器动画(Transition)">
+                  动画二：布局容器动画(Transition) <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#属性动画-android-animation"><span class="nav-text">属性动画(android.animation)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#插值器-Interpolator"><span class="nav-text">插值器(Interpolator)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#估值器-TypeEvaluator"><span class="nav-text">估值器(TypeEvaluator)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Property-与-PropertyValuesHolder"><span class="nav-text">Property 与 PropertyValuesHolder</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#值动画-ValueAnimator-和对象动画-ObjectAnimator"><span class="nav-text">值动画(ValueAnimator)和对象动画(ObjectAnimator)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#状态列表动画-StateListAnimator"><span class="nav-text">状态列表动画(StateListAnimator)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AnimatedVectorDrawableCompat"><span class="nav-text">AnimatedVectorDrawableCompat</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AnimatorSet"><span class="nav-text">AnimatorSet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#显露动画-RevealAnimator"><span class="nav-text">显露动画(RevealAnimator)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补间动画-android-view-animation"><span class="nav-text">补间动画(android.view.animation)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#布局动画-LayoutAnimationController"><span class="nav-text">布局动画(LayoutAnimationController)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#属性动画的常规使用套路"><span class="nav-text">属性动画的常规使用套路</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#更复杂的使用：分段绘制"><span class="nav-text">更复杂的使用：分段绘制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#暴露动画的应用"><span class="nav-text">暴露动画的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#更复杂的暴露动画效果：RippleLayout"><span class="nav-text">更复杂的暴露动画效果：RippleLayout</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#入屏动画"><span class="nav-text">入屏动画</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FabulousFilter"><span class="nav-text">FabulousFilter</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/1.jpg"
+      alt="xiang">
+  <p class="site-author-name" itemprop="name">xiang</p>
+  <div class="site-description" itemprop="description">谨守而勿失，是谓反其真</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/liuxiangtian" title="GitHub &rarr; https://github.com/liuxiangtian" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="http://www.zhihu.com/people/liu-xiang-tian-74" title="zhihu &rarr; http://www.zhihu.com/people/liu-xiang-tian-74" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>zhihu</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘祥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">191k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:53</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script><script src="/js/bookmark.js?v=7.4.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

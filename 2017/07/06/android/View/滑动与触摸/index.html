@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN,ja,en,default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="滑动事件和触摸机制的结合有一定的套路，但也比较的复杂。其套路大概是在 ACTION_MOVE 动作时进行拖动，到了 ACTION_UP 动作进行释放，其中夹杂着一些处理动作坐标，id，速度，touchslop ，scroll 清理等琐碎的事件，但最核心和复杂的地方还是在于处理好触摸事件的传递。 ViewDragHelperViewDragHelper 类干预了容器的触摸事件机制，是一个非常好的研究">
+<meta property="og:type" content="article">
+<meta property="og:title" content="滑动与触摸">
+<meta property="og:url" content="http://yoursite.com/2017/07/06/android/View/滑动与触摸/index.html">
+<meta property="og:site_name" content="lxt">
+<meta property="og:description" content="滑动事件和触摸机制的结合有一定的套路，但也比较的复杂。其套路大概是在 ACTION_MOVE 动作时进行拖动，到了 ACTION_UP 动作进行释放，其中夹杂着一些处理动作坐标，id，速度，touchslop ，scroll 清理等琐碎的事件，但最核心和复杂的地方还是在于处理好触摸事件的传递。 ViewDragHelperViewDragHelper 类干预了容器的触摸事件机制，是一个非常好的研究">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2017/07/06/android/View/滑动与触摸/screenshot.png">
+<meta property="og:updated_time" content="2019-09-18T07:52:50.971Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="滑动与触摸">
+<meta name="twitter:description" content="滑动事件和触摸机制的结合有一定的套路，但也比较的复杂。其套路大概是在 ACTION_MOVE 动作时进行拖动，到了 ACTION_UP 动作进行释放，其中夹杂着一些处理动作坐标，id，速度，touchslop ，scroll 清理等琐碎的事件，但最核心和复杂的地方还是在于处理好触摸事件的传递。 ViewDragHelperViewDragHelper 类干预了容器的触摸事件机制，是一个非常好的研究">
+<meta name="twitter:image" content="http://yoursite.com/2017/07/06/android/View/滑动与触摸/screenshot.png">
+  <link rel="canonical" href="http://yoursite.com/2017/07/06/android/View/滑动与触摸/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>滑动与触摸 | lxt</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lxt</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a class="book-mark-link book-mark-link-fixed" href="#"></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/06/android/View/滑动与触摸/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiang">
+      <meta itemprop="description" content="谨守而勿失，是谓反其真">
+      <meta itemprop="image" content="/images/1.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lxt">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">滑动与触摸
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2017-07-06 21:26:26" itemprop="dateCreated datePublished" datetime="2017-07-06T21:26:26+08:00">2017-07-06</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-18 15:52:50" itemprop="dateModified" datetime="2019-09-18T15:52:50+08:00">2019-09-18</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/View/" itemprop="url" rel="index"><span itemprop="name">View</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>16k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>15 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>滑动事件和触摸机制的结合有一定的套路，但也比较的复杂。其套路大概是在 ACTION_MOVE 动作时进行拖动，到了 ACTION_UP 动作进行释放，其中夹杂着一些处理动作坐标，id，速度，touchslop ，scroll 清理等琐碎的事件，<strong>但最核心和复杂的地方还是在于处理好触摸事件的传递</strong>。</p>
+<h2 id="ViewDragHelper"><a href="#ViewDragHelper" class="headerlink" title="ViewDragHelper"></a>ViewDragHelper</h2><p>ViewDragHelper 类干预了容器的触摸事件机制，是一个非常好的研究对象。具体干预可以分为两个阶段</p>
+<ul>
+<li>拖动阶段：此时使用ViewCompat.offset 方法进行移动。</li>
+<li>释放阶段：非必须，依赖于 Scoller 类来实现。</li>
+</ul>
+<p>ViewDragHelper 的工作实际非常简单，即获取点击点下的子控件，并随着手指滑动它，手势离开时释放，Callback 可以提供一些参数和信息，也包括处理一些回调。</p>
+<p>在处理滑动的时候有两个细节要注意</p>
+<p><strong>1.如何判断和获取滑动的步进距离？</strong></p>
+<p>ACTION_MOVE事件下的实际步进距离 dx/dy 为两次动作的差值，一般都设定不能超过 touchslop。</p>
+<p>此外dx/dy 的取值不能按照真实值，而是以 touchslop 为准，以保持滑动过程的平稳。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//相当于给本来紊乱的数据流加了一个滑动滤波器，使其归于平稳</span></span><br><span class="line"><span class="keyword">if</span> (Math.abs(dx) &gt;= touchSlop) &#123;</span><br><span class="line">    dx = (dx &gt; <span class="number">0</span>) ? touchSlop : -touchSlop;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (Math.abs(dy) &gt;= touchSlop) &#123;</span><br><span class="line">    dy = (dy &gt; <span class="number">0</span>) ? touchSlop : -touchSlop;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>2.如何确定实际移动距离？</strong></p>
+<p>有了可用的步进距离，还需要看控件是不是实际需要移动这么多距离，移动时CapureView的位置有三个取值</p>
+<ul>
+<li><p>旧值 int oldLeft = toCapture.getLeft();</p>
+</li>
+<li><p>期望值 int targetLeft = oldLeft + (int) dx;</p>
+</li>
+<li><p><strong>实际值 int clampedX = mCallback.clampViewPositionHorizontal(oldLeft , dx);</strong></p>
+</li>
+</ul>
+<p>clampViewPositionHorizontal 方法是必须实现的，否则控件只能移动到(0，0)坐标处。</p>
+<h3 id="深入触摸事件处理的实现"><a href="#深入触摸事件处理的实现" class="headerlink" title="深入触摸事件处理的实现"></a>深入触摸事件处理的实现</h3><p>现在深入讨论下在如下简单使用的情况下，ViewDragHelper 是如何进行触摸事件处理的？</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onInterceptTouchEvent</span><span class="params">(MotionEvent ev)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> dragHelper.shouldInterceptTouchEvent(ev);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onTouchEvent</span><span class="params">(MotionEvent ev)</span> </span>&#123;</span><br><span class="line">    dragHelper.processTouchEvent(ev);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先明确拦截方法是以状态是否为拖动状态(即STATE_DRAGGING) 为判据的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">shouldInterceptTouchEvent</span><span class="params">(MotionEvent ev)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    <span class="keyword">return</span> mDragState == STATE_DRAGGING;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>正常点击(即状态为STATE_IDLE，点击动作为 ACTION_DOWN) 时，此方法并不去捕捉View，也不修改状态，自然也就拦截无效，事件向下传递；<strong>这时要想生效，只能祈祷下面的控件不要处理事件，使得事件能够传回到 onTouchEvent 方法中进行View的捕捉，并修改状态为 STATE_DRAGGING。</strong></p>
+<p><strong>这样当动作转为 ACTION_MOVE 后，拦截机制虽然判定为真，但却没有机会执行了，而是直接执行 onTouchEvent 方法进行拖动，直到释放为止。</strong></p>
+<p>这里有两个引申问题</p>
+<p><strong>1.实际上拦截方法什么都没干，去掉拦截方法，也一样能够实现拖动效果。如果子控件拦截了事件(如设置了监听器)，那么 ViewDragHelper 的这种简单使用方法就失效了，不会产生拖动效果。</strong></p>
+<p>2.那么拦截事件的意义是什么呢？</p>
+<p><strong>当释放控件或处在释放状态(即STATE_SETTLING)时，发生触摸时，拦截方法将发挥作用，此时会主动进行捕捉View和修改状态，触摸事件被拦截在这一层，其主要意义在于截断了子控件的事件处理</strong>。</p>
+<p><strong>此外在动作处于 ACTION_MOVE 时，也会尝试截断事件处理流程。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1.计算每一个手指</span></span><br><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> pointerCount = ev.getPointerCount();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; pointerCount; i++) &#123;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> pointerId = ev.getPointerId(i);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">float</span> x = ev.getX(i);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">float</span> y = ev.getY(i);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">float</span> dx = x - mInitialMotionX[pointerId];</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">float</span> dy = y - mInitialMotionY[pointerId];</span><br><span class="line">    <span class="keyword">final</span> View toCapture = findTopChildUnder((<span class="keyword">int</span>) x, (<span class="keyword">int</span>) y);</span><br><span class="line">    <span class="comment">//2，滑动距离要超过 TouchSlop</span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">boolean</span> pastSlop = toCapture != <span class="keyword">null</span> &amp;&amp; checkTouchSlop(toCapture, dx, dy);</span><br><span class="line">    <span class="keyword">if</span> (pastSlop) &#123;</span><br><span class="line">        <span class="comment">//3. 实际想要滑动的距离 newLeft和newTop</span></span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> oldLeft = toCapture.getLeft();</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> targetLeft = oldLeft + (<span class="keyword">int</span>) dx;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> newLeft = mCallback.clampViewPositionHorizontal(toCapture,</span><br><span class="line">                targetLeft, (<span class="keyword">int</span>) dx);</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> oldTop = toCapture.getTop();</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> targetTop = oldTop + (<span class="keyword">int</span>) dy;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> newTop = mCallback.clampViewPositionVertical(toCapture, targetTop,</span><br><span class="line">                (<span class="keyword">int</span>) dy);</span><br><span class="line">        <span class="comment">//4.水平和垂直滑动范围 horizontalDragRange和verticalDragRange</span></span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> horizontalDragRange = mCallback.getViewHorizontalDragRange(</span><br><span class="line">                toCapture);</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> verticalDragRange = mCallback.getViewVerticalDragRange(toCapture);</span><br><span class="line">        <span class="comment">//5. 屏蔽掉不能滑动的情况</span></span><br><span class="line">        <span class="keyword">if</span> ((horizontalDragRange == <span class="number">0</span> || horizontalDragRange &gt; <span class="number">0</span></span><br><span class="line">                &amp;&amp; newLeft == oldLeft) &amp;&amp; (verticalDragRange == <span class="number">0</span></span><br><span class="line">                || verticalDragRange &gt; <span class="number">0</span> &amp;&amp; newTop == oldTop)) &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//6.一旦某一个手指的动作符合标准，尝试捕捉View和拦截</span></span><br><span class="line">    <span class="keyword">if</span> (pastSlop &amp;&amp; tryCaptureViewForDrag(toCapture, pointerId)) &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这部分代码只在子控件获取到控制权时才发挥作用，其效果就是把控制权夺取回来。前面已经说过，如果子控件设置了点击事件监听器，ViewDragHelper 默认就无法拦截和处理了，你可以做以下配置解决这个问题，使得子控件的点击事件和滑动同时生效。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getViewHorizontalDragRange</span><span class="params">(View child)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getViewVerticalDragRange</span><span class="params">(View child)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>只要上述两个方法有一个不返还 0 就可以完成事件的截断。只是也要避免以下的极端情况</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">clampViewPositionHorizontal</span><span class="params">(View child, <span class="keyword">int</span> left, <span class="keyword">int</span> dx)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> left-dx;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>最后还应该注意到，这种简单实现中，onTouchEvent 方法则永远进行处理，这意味着其上的控件永远无法得到处理机会，除非提前使用拦截方法完成拦截。</p>
+</blockquote>
+<h3 id="释放后的滚动"><a href="#释放后的滚动" class="headerlink" title="释放后的滚动"></a>释放后的滚动</h3><p>当ACTION_UP和ACTION_CANCEL事件发生时，将进行控件的释放，即</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">releaseViewForPointerUp</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    mVelocityTracker.computeCurrentVelocity(<span class="number">1000</span>, mMaxVelocity);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">float</span> xvel = clampMag(</span><br><span class="line">            VelocityTrackerCompat.getXVelocity(mVelocityTracker, mActivePointerId),</span><br><span class="line">            mMinVelocity, mMaxVelocity);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">float</span> yvel = clampMag(</span><br><span class="line">            VelocityTrackerCompat.getYVelocity(mVelocityTracker, mActivePointerId),</span><br><span class="line">            mMinVelocity, mMaxVelocity);</span><br><span class="line">    dispatchViewReleased(xvel, yvel);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里将调用onViewReleased回调方法，并将状态设置回 STATE_IDLE。</p>
+<p>在回调方法里可以主动释放控件，该效果基于ScrollerCompat 实现，需要smoothSlideViewTo方法与continueSettling 方法配合使用。例如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//callback 中的回调方法</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onViewReleased</span><span class="params">(View releasedChild, <span class="keyword">float</span> xvel, <span class="keyword">float</span> yvel)</span> </span>&#123;</span><br><span class="line">    mHelper.smoothSlideViewTo(releasedChild, <span class="number">100</span>, <span class="number">300</span>); <span class="comment">//移动到一个点上</span></span><br><span class="line">    <span class="comment">//dragHelper.flingCapturedView(0, 200, 200, 400); 返回到一个区域内</span></span><br><span class="line">    invalidate();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//容器内</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">computeScroll</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   <span class="keyword">if</span> (mLeftDragger.continueSettling(<span class="keyword">true</span>)) &#123;</span><br><span class="line">       ViewCompat.postInvalidateOnAnimation(<span class="keyword">this</span>);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里 smoothSlideViewTo 方法实际是要 Scroller 实现的，其参数指定了滑动的终点，而起点则是View的左上角(left/top)，至于滑动的时间还与速度速度有关。</p>
+<p>这里提一下速度参数的获取和使用</p>
+<h4 id="VelocityTracker"><a href="#VelocityTracker" class="headerlink" title="VelocityTracker"></a><strong>VelocityTracker</strong></h4><p>VelocityTracker计算速度的流程如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1，带入动作 MotionEvent</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addMovement</span><span class="params">(MotionEvent event)</span></span>;</span><br><span class="line"><span class="comment">//2，配置时间单位 1000表示每秒速度，1表示每毫秒速度</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">computeCurrentVelocity</span><span class="params">(<span class="keyword">int</span> units)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">float</span> <span class="title">getYVelocity</span><span class="params">(<span class="keyword">int</span> id)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">float</span> <span class="title">getXVelocity</span><span class="params">(<span class="keyword">int</span> id)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>获取速度分量之后的使用与 scroller 有关，即作为滑动的一个参数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">fling</span><span class="params">(<span class="keyword">int</span> startX, <span class="keyword">int</span> startY, <span class="keyword">int</span> velocityX, <span class="keyword">int</span> velocityY, <span class="keyword">int</span> minX, <span class="keyword">int</span> maxX, <span class="keyword">int</span> minY, <span class="keyword">int</span> maxY)</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="额外的细节：边界处理和锁定"><a href="#额外的细节：边界处理和锁定" class="headerlink" title="额外的细节：边界处理和锁定"></a>额外的细节：边界处理和锁定</h3><p>因为四边区域是有交叉的，故而应该采用位运算的标记方式来表示它们。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> EDGE_LEFT = <span class="number">1</span> &lt;&lt; <span class="number">0</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> EDGE_RIGHT = <span class="number">1</span> &lt;&lt; <span class="number">1</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> EDGE_TOP = <span class="number">1</span> &lt;&lt; <span class="number">2</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> EDGE_BOTTOM = <span class="number">1</span> &lt;&lt; <span class="number">3</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> EDGE_ALL = EDGE_LEFT | EDGE_TOP | EDGE_RIGHT | EDGE_BOTTOM;</span><br></pre></td></tr></table></figure>
+<p>如何判断点击点(x,y)处于四边之内呢？</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">getEdgesTouched</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> result = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (x &lt; mParentView.getLeft() + mEdgeSize) result |= EDGE_LEFT;</span><br><span class="line">    <span class="keyword">if</span> (y &lt; mParentView.getTop() + mEdgeSize) result |= EDGE_TOP;</span><br><span class="line">    <span class="keyword">if</span> (x &gt; mParentView.getRight() - mEdgeSize) result |= EDGE_RIGHT;</span><br><span class="line">    <span class="keyword">if</span> (y &gt; mParentView.getBottom() - mEdgeSize) result |= EDGE_BOTTOM;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在触摸事件处理时，ACTION_MOVE 动作只处理点击点在控件内的事件，此时是无法使用边界的；只有在 ACTION_DOWN 动作时才能进行拦截，处理代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> edgesTouched = mInitialEdgesTouched[pointerId];</span><br><span class="line"><span class="keyword">if</span> ((edgesTouched &amp; mTrackingEdges) != <span class="number">0</span>) &#123;</span><br><span class="line">    mCallback.onEdgeTouched(edgesTouched &amp; mTrackingEdges, pointerId);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里首先要配置 mTrackingEdges 参数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">viewDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_ALL);</span><br></pre></td></tr></table></figure>
+<p>而后在回调方法中进行捕捉View</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onEdgeTouched</span><span class="params">(<span class="keyword">int</span> edgeFlags, <span class="keyword">int</span> pointerId)</span> </span>&#123;</span><br><span class="line">    dragHelper.tryCaptureViewForDrag(getChildAt(<span class="number">0</span>), pointerId);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样就改变了事件处理的流程，截断了事件的向下传递，改为容器自己处理。</p>
+<h3 id="ViewDragHelper的实践：SwipeBackLayout"><a href="#ViewDragHelper的实践：SwipeBackLayout" class="headerlink" title="ViewDragHelper的实践：SwipeBackLayout"></a>ViewDragHelper的实践：SwipeBackLayout</h3><img src="/2017/07/06/android/View/滑动与触摸/screenshot.png">
+<blockquote>
+<p>同类型的库还有<a href="https://github.com/anzewei/ParallaxBackLayout" target="_blank" rel="noopener">ParallaxBackLayout</a>。</p>
+</blockquote>
+<p>使用 ViewDragHelper 可以快速实现一些容器，例如抽屉控件等，这里介绍一个经典的库 SwipeBackLayout，其效果是使得 Activity 能够滑动关闭，达到这种效果需要三步。</p>
+<p>1.使用 ViewDragHelper 定义 SwipeBackLayout，其内部只有一个子控件就是 Activity 的 content 控件。</p>
+<p>2.在DecorView中插入 SwipeBackLayout 布局，并将原来Activity 的 content 控件加入到此布局中去。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">ViewGroup decor = (ViewGroup) activity.getWindow().getDecorView();</span><br><span class="line">ViewGroup decorChild = (ViewGroup) decor.getChildAt(<span class="number">0</span>);</span><br><span class="line">TypedArray a = activity.getTheme().obtainStyledAttributes(<span class="keyword">new</span> <span class="keyword">int</span>[]&#123;</span><br><span class="line">        android.R.attr.windowBackground</span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">int</span> background = a.getResourceId(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">a.recycle();</span><br><span class="line">decorChild.setBackgroundResource(background);</span><br><span class="line"><span class="comment">//decor删去内容控件，添加 SwipeBackLayout，SwipeBackLayout再添加 内容控件</span></span><br><span class="line">decor.removeView(decorChild);</span><br><span class="line">addView(decorChild);</span><br><span class="line">setContentView(decorChild);</span><br><span class="line">decor.addView(<span class="keyword">this</span>);</span><br></pre></td></tr></table></figure>
+<p>到此为止，内容控件可以被捕捉和滑动了。</p>
+<p><strong>3.实现透明效果</strong></p>
+<p>将 window 的背景改为透明</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mActivity.getWindow().setBackgroundDrawable(<span class="keyword">new</span> ColorDrawable(Color.TRANSPARENT));</span><br></pre></td></tr></table></figure>
+<p>正常情况下背景将变成黑色，如果不使用该方法则默认的windowBackground颜色是白色。此时需要采用 translucent 模式，修改主题为</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"AppTheme"</span> <span class="attr">parent</span>=<span class="string">"Theme.AppCompat.Light.DarkActionBar"</span>&gt;</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowIsTranslucent"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="嵌套滑动-NestedScroll"><a href="#嵌套滑动-NestedScroll" class="headerlink" title="嵌套滑动(NestedScroll)"></a>嵌套滑动(NestedScroll)</h2><p>嵌套滑动机制解决<strong>主控件</strong>的滑动带动<strong>副控件</strong>做跟随滑动的问题，这其实是很不可思议的一件事，因为事件触摸机制会截断事件的处理，正常情况下一次只能滑动一个控件。</p>
+<p>使用嵌套滑动时主要实现主控件的逻辑，即 NestedScrollingParent 接口中的方法，一般是进行主控件的滑动。</p>
+<p><strong>在一次嵌套滑动事件中，二者处于问答式交互，其一般流程如下</strong></p>
+<p>1.调用 startNestedScroll() 方法，子控件会在控件树上不断上溯寻找能够响应嵌套滑动事件的父容器，一旦确定会调用父控件的 onStartNestedScroll 方法和 onNestedScrollAccepted 方法判断是否响应，一旦父控件响应就会启动嵌套滑动。</p>
+<p>2.执行 dispatchNestedPreScroll 方法，触发父控件中的嵌套滑动事件回调，此时可以滑动父控件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//dx表示限定的滑动距离，consumed记录父容器消费的滑动距离，offsetInWindow距离在屏幕上移动的距离</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">dispatchNestedPreScroll</span><span class="params">(<span class="keyword">int</span> dx, <span class="keyword">int</span> dy, <span class="keyword">int</span>[] consumed, <span class="keyword">int</span>[] offsetInWindow)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//1.如果开启嵌套滑动，且父控件存在，且滑动有效</span></span><br><span class="line">    mView.getLocationInWindow(offsetInWindow);</span><br><span class="line">    <span class="keyword">int</span> startX = offsetInWindow[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">int</span> startY = offsetInWindow[<span class="number">1</span>];</span><br><span class="line">    </span><br><span class="line">    consumed[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">    consumed[<span class="number">1</span>] = <span class="number">0</span>;  </span><br><span class="line">    <span class="comment">//2.执行父控件回调</span></span><br><span class="line">    ViewParentCompat.onNestedPreScroll(mNestedScrollingParent, mView, dx, dy, consumed);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//3.在滑动前后计算了子控件在屏幕上的偏移位置 offsetInWindow，</span></span><br><span class="line">    <span class="comment">//这和父控件的消费量 consumed 是有所差别的，最后返回的结果是父控件是否滑动了</span></span><br><span class="line">    mView.getLocationInWindow(offsetInWindow);</span><br><span class="line">    offsetInWindow[<span class="number">0</span>] -= startX;</span><br><span class="line">    offsetInWindow[<span class="number">1</span>] -= startY; </span><br><span class="line">    <span class="keyword">return</span> consumed[<span class="number">0</span>] != <span class="number">0</span> || consumed[<span class="number">1</span>] != <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里如果<code>consumed</code>数组中的值不为0，整个方法返回<code>true</code>，表示父控件消费了滑动事件。</p>
+<p>3.最后一轮对话 dispatchNestedScroll 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//dxConsumed 是子控件滑动的消费，dxUnconsumed则是留给父容器的未消费距离</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">dispatchNestedScroll</span><span class="params">(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,</span></span></span><br><span class="line"><span class="function"><span class="params">        offsetInWindow)</span></span>;</span><br></pre></td></tr></table></figure>
+<p><strong>要使用嵌套滑动，要在触摸事件方法中进行，以便启动该机制；其次要设置父容器的嵌套处理方法。</strong>例如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNestedPreScroll</span><span class="params">(View target, <span class="keyword">int</span> dx, <span class="keyword">int</span> dy, <span class="keyword">int</span>[] consumed)</span></span>&#123;</span><br><span class="line">    consumed[<span class="number">1</span>] = dy/<span class="number">2</span>;</span><br><span class="line">    ViewCompat.offsetTopAndBottom(<span class="keyword">this</span>, consumed[<span class="number">1</span>]);    <span class="comment">//父容器消费一半距离</span></span><br><span class="line">    ViewCompat.offsetTopAndBottom(target, -consumed[<span class="number">1</span>]); <span class="comment">//抵消子控件跟随父容器的滚动</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNestedScroll</span><span class="params">(View target, <span class="keyword">int</span> dxConsumed, <span class="keyword">int</span> dyConsumed,</span></span></span><br><span class="line"><span class="function"><span class="params">                           <span class="keyword">int</span> dxUnconsumed, <span class="keyword">int</span> dyUnconsumed)</span></span>&#123;</span><br><span class="line">    ViewCompat.offsetTopAndBottom(<span class="keyword">this</span>, dyUnconsumed); <span class="comment">//父容器滚动另一半内部滚动距离</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>就会得到一个2倍的视差滚动效果，子控件的滚动速度是父控件的一半。</p>
+<p>下面我们先研究 ScrollView 和 NestedScrollView 中是如何使用嵌套滑动的。</p>
+<h2 id="ScrollView"><a href="#ScrollView" class="headerlink" title="ScrollView"></a>ScrollView</h2><p>ScrollView 类是一个研究滑动与触摸的绝佳例子，它拦截触摸事件进行上下滚动，而且能够响应嵌套滑动事件。</p>
+<p>ScrollView 的拦截是以 mIsBeingDragged 位来判定的，这里有一些简化步骤。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onInterceptTouchEvent</span><span class="params">(MotionEvent ev)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> action = ev.getAction();</span><br><span class="line">    <span class="comment">//1.如果 ACTION_MOVE 且 mIsBeingDragged 直接拦截</span></span><br><span class="line">    <span class="keyword">if</span> ((action == MotionEvent.ACTION_MOVE) &amp;&amp; (mIsBeingDragged)) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    <span class="comment">//2.先正常拦截，避免阻塞子控件中的事件，只有</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">super</span>.onInterceptTouchEvent(ev)) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    <span class="comment">//3.不能滑动，不拦截</span></span><br><span class="line">    <span class="keyword">if</span> (getScrollY() == <span class="number">0</span> &amp;&amp; !canScrollVertically(<span class="number">1</span>)) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  </span><br><span class="line">    <span class="comment">//,,,,,,</span></span><br><span class="line">    <span class="keyword">return</span> mIsBeingDragged;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们首先说说，在 ACTION_DOWN 和 ACTION_UP 里进行的初始化和回收工作，注意这两个动作里一定是不进行拦截的。</p>
+<p><strong>1.动作 ACTION_DOWN 发生时要注意清理旧的滚动以及开启嵌套滑动。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mScroller.computeScrollOffset();       </span><br><span class="line">mIsBeingDragged = !mScroller.isFinished();<span class="comment">//3.如果滑动完成了，不拦截；仍在滑动，拦截处理</span></span><br><span class="line">startNestedScroll(SCROLL_AXIS_VERTICAL);  <span class="comment">//4.请求嵌套滑动</span></span><br></pre></td></tr></table></figure>
+<p>这里按下时控件在滑动中，会拦截事件进行处理，主要是停止正在进行的滑动，并记录数据</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1.禁止父容器拦截事件，停止滚动，记录数据</span></span><br><span class="line"><span class="keyword">if</span> ((mIsBeingDragged = !mScroller.isFinished())) &#123;</span><br><span class="line">    getParent().requestDisallowInterceptTouchEvent(<span class="keyword">true</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (!mScroller.isFinished()) &#123;</span><br><span class="line">    mScroller.abortAnimation(); </span><br><span class="line">&#125;</span><br><span class="line">mLastMotionY = (<span class="keyword">int</span>) ev.getY();</span><br><span class="line">mActivePointerId = ev.getPointerId(<span class="number">0</span>);</span><br><span class="line">startNestedScroll(SCROLL_AXIS_VERTICAL);</span><br></pre></td></tr></table></figure>
+<p>要注意的是，这时 mIsBeingDragged 的值为 false，不会发生拦截，事件将向下传递，如果没有人处理，则在 onTouchEvent 方法是这样处理的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ((mIsBeingDragged = !mScroller.isFinished())) &#123;</span><br><span class="line">    getParent().requestDisallowInterceptTouchEvent(<span class="keyword">true</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (!mScroller.isFinished()) &#123;</span><br><span class="line">    mScroller.abortAnimation();</span><br><span class="line">&#125;</span><br><span class="line">startNestedScroll(SCROLL_AXIS_VERTICAL);</span><br></pre></td></tr></table></figure>
+<p>mIsBeingDragged 的值是 mScroller 是否还在滚动。</p>
+<p><strong>2.动作 ACTION_UP 发生时，不进行拦截，但又要完成释放回弹和停止嵌套滑动的动作。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mIsBeingDragged = <span class="keyword">false</span>;</span><br><span class="line"><span class="keyword">if</span> (mScroller.springBack(mScrollX, mScrollY, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, getScrollRange())) &#123;</span><br><span class="line">    postInvalidateOnAnimation();</span><br><span class="line">&#125;</span><br><span class="line">stopNestedScroll();</span><br></pre></td></tr></table></figure>
+<p><strong>3.最主要的事件处理发生在 动作ACTION_MOVE 中，此时将发生拦截。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1.根据判定条件进行拦截</span></span><br><span class="line"><span class="keyword">if</span> (yDiff &gt; mTouchSlop &amp;&amp; (getNestedScrollAxes() &amp; SCROLL_AXIS_VERTICAL) == <span class="number">0</span>) &#123;</span><br><span class="line">    mIsBeingDragged = <span class="keyword">true</span>;</span><br><span class="line">    mLastMotionY = y; <span class="comment">//更新 mLastMotionY</span></span><br><span class="line">    initVelocityTrackerIfNotExists(); <span class="comment">//更新 VelocityTracker</span></span><br><span class="line">    mVelocityTracker.addMovement(ev);</span><br><span class="line">    mNestedYOffset = <span class="number">0</span>;</span><br><span class="line">    getParent().requestDisallowInterceptTouchEvent(<span class="keyword">true</span>); <span class="comment">//一旦拦截，不许父控件拦截</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>包含嵌套滑动的滚动处理，首先交给父控件进行嵌套滑动，而后子控件自己滚动，最后再交给父控件一次</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> y = (<span class="keyword">int</span>) ev.getY(activePointerIndex);</span><br><span class="line"><span class="keyword">int</span> deltaY = mLastMotionY - y;</span><br><span class="line"><span class="keyword">if</span> (dispatchNestedPreScroll(<span class="number">0</span>, deltaY, mScrollConsumed, mScrollOffset)) &#123;</span><br><span class="line">    deltaY -= mScrollConsumed[<span class="number">1</span>]; <span class="comment">//1.deltaY 减去嵌套滑动已消费的距离</span></span><br><span class="line">    vtev.offsetLocation(<span class="number">0</span>, mScrollOffset[<span class="number">1</span>]); </span><br><span class="line">    mNestedYOffset += mScrollOffset[<span class="number">1</span>];<span class="comment">//2.mNestedYOffset 记录嵌套滑动已消费的距离</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (!mIsBeingDragged &amp;&amp; Math.abs(deltaY) &gt; mTouchSlop) &#123;</span><br><span class="line">    getParent().requestDisallowInterceptTouchEvent(<span class="keyword">true</span>);</span><br><span class="line">    mIsBeingDragged = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">if</span> (deltaY &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        deltaY -= mTouchSlop;     <span class="comment">//3.控制 deltaY 的数值，使其滑动均匀可控</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        deltaY += mTouchSlop;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (mIsBeingDragged) &#123;</span><br><span class="line">    mLastMotionY = y - mScrollOffset[<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> oldY = mScrollY;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> range = getScrollRange();</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> overscrollMode = getOverScrollMode();</span><br><span class="line">    <span class="comment">//4.处理自己的滚动</span></span><br><span class="line">    <span class="keyword">if</span> (overScrollBy(<span class="number">0</span>, deltaY, <span class="number">0</span>, mScrollY, <span class="number">0</span>, range, <span class="number">0</span>, mOverscrollDistance, <span class="keyword">true</span>)</span><br><span class="line">            &amp;&amp; !hasNestedScrollingParent()) &#123;</span><br><span class="line">        mVelocityTracker.clear();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//5.再次发起嵌套滚动 </span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> scrolledDeltaY = mScrollY - oldY;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> unconsumedY = deltaY - scrolledDeltaY;</span><br><span class="line">    <span class="keyword">if</span> (dispatchNestedScroll(<span class="number">0</span>, scrolledDeltaY, <span class="number">0</span>, unconsumedY, mScrollOffset)) &#123;</span><br><span class="line">        mLastMotionY -= mScrollOffset[<span class="number">1</span>];</span><br><span class="line">        vtev.offsetLocation(<span class="number">0</span>, mScrollOffset[<span class="number">1</span>]);</span><br><span class="line">        mNestedYOffset += mScrollOffset[<span class="number">1</span>];</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (canOverscroll) &#123;</span><br><span class="line">        <span class="comment">//6.如果父控件没有消费，则处理覆盖滚动</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="覆盖滚动"><a href="#覆盖滚动" class="headerlink" title="覆盖滚动"></a>覆盖滚动</h4><p>覆盖滚动的触发条件是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> overscrollMode = getOverScrollMode();</span><br><span class="line"><span class="keyword">boolean</span> canOverscroll = overscrollMode == OVER_SCROLL_ALWAYS ||</span><br><span class="line">        (overscrollMode == OVER_SCROLL_IF_CONTENT_SCROLLS &amp;&amp; range &gt; <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>这里给出的 getScrollRange 为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Math.max(<span class="number">0</span>, child.getHeight() - (getHeight() - mPaddingBottom - mPaddingTop));</span><br></pre></td></tr></table></figure>
+<p>覆盖滚动的效果是靠 EdgeGlow 实现的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> pulledToY = getScrollY() + deltaY;</span><br><span class="line"><span class="keyword">if</span> (pulledToY &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    mEdgeGlowTop.onPull((<span class="keyword">float</span>) deltaY / getHeight(), ev.getX() / getWidth());</span><br><span class="line">    <span class="keyword">if</span> (!mEdgeGlowBottom.isFinished()) &#123;</span><br><span class="line">        mEdgeGlowBottom.onRelease();</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (pulledToY &gt; range) &#123;</span><br><span class="line">    mEdgeGlowBottom.onPull((<span class="keyword">float</span>) deltaY / getHeight(), <span class="number">1</span>.f - ev.getX() / getWidth());</span><br><span class="line">    <span class="keyword">if</span> (!mEdgeGlowTop.isFinished()) &#123;</span><br><span class="line">        mEdgeGlowTop.onRelease();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (!mEdgeGlowTop.isFinished() || !mEdgeGlowBottom.isFinished()) &#123;</span><br><span class="line">    postInvalidateOnAnimation();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="嵌套滑动的实践：-NestedScrollView"><a href="#嵌套滑动的实践：-NestedScrollView" class="headerlink" title="嵌套滑动的实践： NestedScrollView"></a>嵌套滑动的实践： NestedScrollView</h4><p>ScrollView 实际已经与 NestedScrollView 大致上一样了，它同时可以作为嵌套滑动的父容器和子控件。我们主要关注它作为父控件时是如何应答的:</p>
+<p>1.能够相应的类型是垂直滑动</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onStartNestedScroll</span><span class="params">(View child, View target, <span class="keyword">int</span> nestedScrollAxes)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (nestedScrollAxes &amp; ViewCompat.SCROLL_AXIS_VERTICAL) != <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而且自己作为子控件将事件继续向上分发</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNestedScrollAccepted</span><span class="params">(View child, View target, <span class="keyword">int</span> nestedScrollAxes)</span> </span>&#123;</span><br><span class="line">    mNestedScrollAxes = axes;</span><br><span class="line">    startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2.第一轮问答</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNestedPreScroll</span><span class="params">(View target, <span class="keyword">int</span> dx, <span class="keyword">int</span> dy, <span class="keyword">int</span>[] consumed)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//此时 consumed 为 null</span></span><br><span class="line">    mChildHelper.dispatchNestedPreScroll(dx, dy, consumed, <span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从 onNestedPreScroll 方法的实现上看，当它作为父容器要响应嵌套滑动时，它会将事件转发给它的子控件。</p>
+<p>3.第二轮问答</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNestedScroll</span><span class="params">(View target, <span class="keyword">int</span> dxConsumed, <span class="keyword">int</span> dyConsumed, <span class="keyword">int</span> dxUnconsumed, <span class="keyword">int</span> dyUnconsumed)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> oldScrollY = getScrollY();</span><br><span class="line">    scrollBy(<span class="number">0</span>, dyUnconsumed);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> myConsumed = getScrollY() - oldScrollY;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> myUnconsumed = dyUnconsumed - myConsumed;</span><br><span class="line">    mChildHelper.dispatchNestedScroll(<span class="number">0</span>, myConsumed, <span class="number">0</span>, myUnconsumed, <span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>注意在第二轮问答时 NestedScrollView 控件本身发生了滚动，距离为传入的参数 dyUnconsumed，这是发起者消费后的余量。</strong>消费距离实际就是 dyUnconsumed，而未消费距离为0。此后将这一数据向子控件继续分发。</p>
+
+    </div>
+
+    
+    
+    
+      
+
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="xiang 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2017/05/29/android/系统/Broadcast/" rel="next" title="Broadcast">
+                  <i class="fa fa-chevron-left"></i> Broadcast
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2017/07/23/android/View/与 TextView 相关的知识点/" rel="prev" title="与 TextView 相关的知识点">
+                  与 TextView 相关的知识点 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ViewDragHelper"><span class="nav-text">ViewDragHelper</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#深入触摸事件处理的实现"><span class="nav-text">深入触摸事件处理的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#释放后的滚动"><span class="nav-text">释放后的滚动</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#VelocityTracker"><span class="nav-text">VelocityTracker</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#额外的细节：边界处理和锁定"><span class="nav-text">额外的细节：边界处理和锁定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ViewDragHelper的实践：SwipeBackLayout"><span class="nav-text">ViewDragHelper的实践：SwipeBackLayout</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#嵌套滑动-NestedScroll"><span class="nav-text">嵌套滑动(NestedScroll)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ScrollView"><span class="nav-text">ScrollView</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#覆盖滚动"><span class="nav-text">覆盖滚动</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#嵌套滑动的实践：-NestedScrollView"><span class="nav-text">嵌套滑动的实践： NestedScrollView</span></a></li></ol></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/1.jpg"
+      alt="xiang">
+  <p class="site-author-name" itemprop="name">xiang</p>
+  <div class="site-description" itemprop="description">谨守而勿失，是谓反其真</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/liuxiangtian" title="GitHub &rarr; https://github.com/liuxiangtian" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="http://www.zhihu.com/people/liu-xiang-tian-74" title="zhihu &rarr; http://www.zhihu.com/people/liu-xiang-tian-74" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>zhihu</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘祥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">191k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:53</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script><script src="/js/bookmark.js?v=7.4.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

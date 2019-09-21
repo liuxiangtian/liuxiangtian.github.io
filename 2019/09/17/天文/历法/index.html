@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN,ja,en,default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="历法历法是根据天象(主要是日月)规律，计算时间(即年月日长度)，以判断季节变化的法则。 历法的中心问题：年和月制定历法所凭借的依据不外乎太阳和月亮的运动规律。日是最容易观测的确定一个时间间隔，凡经历过一个日升月落即为一日。这似乎是确定无疑的，但要为一日确定一个起点，却又并不容易。古人逐渐发现可以通过直立杆的投影来解决这一问题，将一天之内投影最短的时刻定为正午，这样两个正午之间的时刻就是一日。 连续">
+<meta property="og:type" content="article">
+<meta property="og:title" content="历法">
+<meta property="og:url" content="http://yoursite.com/2019/09/17/天文/历法/index.html">
+<meta property="og:site_name" content="lxt">
+<meta property="og:description" content="历法历法是根据天象(主要是日月)规律，计算时间(即年月日长度)，以判断季节变化的法则。 历法的中心问题：年和月制定历法所凭借的依据不外乎太阳和月亮的运动规律。日是最容易观测的确定一个时间间隔，凡经历过一个日升月落即为一日。这似乎是确定无疑的，但要为一日确定一个起点，却又并不容易。古人逐渐发现可以通过直立杆的投影来解决这一问题，将一天之内投影最短的时刻定为正午，这样两个正午之间的时刻就是一日。 连续">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-09-17T11:46:39.609Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="历法">
+<meta name="twitter:description" content="历法历法是根据天象(主要是日月)规律，计算时间(即年月日长度)，以判断季节变化的法则。 历法的中心问题：年和月制定历法所凭借的依据不外乎太阳和月亮的运动规律。日是最容易观测的确定一个时间间隔，凡经历过一个日升月落即为一日。这似乎是确定无疑的，但要为一日确定一个起点，却又并不容易。古人逐渐发现可以通过直立杆的投影来解决这一问题，将一天之内投影最短的时刻定为正午，这样两个正午之间的时刻就是一日。 连续">
+  <link rel="canonical" href="http://yoursite.com/2019/09/17/天文/历法/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>历法 | lxt</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lxt</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a class="book-mark-link book-mark-link-fixed" href="#"></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/17/天文/历法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiang">
+      <meta itemprop="description" content="谨守而勿失，是谓反其真">
+      <meta itemprop="image" content="/images/1.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lxt">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">历法
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-09-17 17:30:30 / 修改时间：19:46:39" itemprop="dateCreated datePublished" datetime="2019-09-17T17:30:30+08:00">2019-09-17</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/天文/" itemprop="url" rel="index"><span itemprop="name">天文</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>4.2k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>4 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="历法"><a href="#历法" class="headerlink" title="历法"></a>历法</h1><p>历法是根据天象(主要是日月)规律，计算时间(即年月日长度)，以判断季节变化的法则。</p>
+<h3 id="历法的中心问题：年和月"><a href="#历法的中心问题：年和月" class="headerlink" title="历法的中心问题：年和月"></a>历法的中心问题：年和月</h3><p>制定历法所凭借的依据不外乎太阳和月亮的运动规律。<strong>日</strong>是最容易观测的确定一个时间间隔，凡经历过一个日升月落即为一日。这似乎是确定无疑的，但要为一日确定一个起点，却又并不容易。古人逐渐发现可以通过直立杆的投影来解决这一问题，将一天之内投影最短的时刻定为正午，这样两个正午之间的时刻就是一日。</p>
+<p>连续观测正午时刻直立杆的投影长度，就能够发现它是周期循环，这一循环的发现导致<strong>“年”</strong>的产生。此外还导致最初两个节气的产生：人们将投影长度最短的那一天叫做一年的<strong>夏至</strong>，最长的那一天叫做一年的<strong>冬至</strong>。</p>
+<p>对投影的观测实际是间接观测太阳，与之相比，月相的观测更加简单直接。月亮的盈亏也是一种周期循环，这导致<strong>“月”</strong>的产生。</p>
+<p>现在我们知道，太阳直射点的变化周期，即一个回归年为365.2421897日，月亮绕地球运行的周期，即朔望月，大约29.530588日。二者都不是整数，且不能整除，使得一个回归年不能平摊成整数个朔望月。这导致太阴历法和太阳历法都有一定的缺陷。</p>
+<h3 id="太阳历和太阴历的缺陷"><a href="#太阳历和太阴历的缺陷" class="headerlink" title="太阳历和太阴历的缺陷"></a>太阳历和太阴历的缺陷</h3><p>就太阴历而言，它以月相周期定月，12个朔望月为一年，这样一年约354或355日，这样每年会短缺11日左右。只要16个阴历年左右，就会差距到180多天，即半年左右，就会发生6月下雪、腊月天旱、冬夏倒置的毛病，对农业生产没有指导意义。太阴历的这种弊端之由来在于完全忽视了回归年，而回归年又是四季的依据。在文明开始之初，因为月亮便于观测，太阴历曾被广泛采用，但随着使用过程中的问题暴漏，逐渐被放弃。</p>
+<p>就太阳历而言，它以回归周期定年，不依据月相，分一年为12个月，有大小月之分，<strong>这个“月”和朔望月完全无关</strong>。太阳历比太阴历问题少，它符合四季规律，但是月相的变化与月完全不能合拍。此外对于古人而言，回归年并不是整数日，这意味着随着年的累计，太阴历上的问题也会到来，只不过速度比较慢而已。</p>
+<p>古埃及因为尼罗河泛滥的原因，非常重视天文学和历法的制定。他们在7千年前，已经把回归年定为365天。然而这个时间与真实的回归年相差0.24天，这意味着每100个回归年之后，历法上便少计24天，大约700多年后，就会出现与太阴历相同的冬夏颠倒的情况。这一情形需要再过700多年才能纠正。循环周期长达1461年。</p>
+<h3 id="连分数与闰年"><a href="#连分数与闰年" class="headerlink" title="连分数与闰年"></a>连分数与闰年</h3><p>连分数的意义在于把实数(如5.0989)变成<strong>纯粹的数学形式</strong>。与小数表示形式相比，连分数可以进行<strong>截断逼近</strong>。例如</p>
+<script type="math/tex; mode=display">
+\pi = 3 + \frac{1}{7+\frac{1}{15+\frac{1}{\frac{1}{1+\frac{1}{292+\dots}}}}} \approx \frac{3}{1}\approx \frac{22}{7}\approx \frac{333}{105}</script><p>把回归年数写成连分数形式</p>
+<script type="math/tex; mode=display">
+.2421897 = \frac{10463}{43200} = \frac{1}{4+\frac{1}{7+\frac{1}{1+\frac{1}{3+\frac{1}{5+\frac{1}{64}}}}}} \approx \frac{1}{4}, \frac{1}{4+\frac{1}{7}}=\frac{7}{29}, \frac{1}{4+\frac{1}{7+\frac{1}{1}}}=\frac{8}{33}</script><p>这里是前三次逼近结果，由此我们可以知道<strong>如何通过置闰的方式解决回归年周期问题</strong>。回归年取近似值$\frac{1}{4}$ 意味着每 4 年太阳历会比回归年少 1 天，因此要每4年置闰一天。这是第一步的近似。更精确的近似是$\frac{7}{29}$ ，即每 29 年太阳历会比回归年少 7 天，因此经过 29 个太阳历年后需要外加上 7 天之后才能开始下一回归年。对于第三个分数，就是每 33 年后需要加 8 天，也等于 99 年加 24 天。</p>
+<p>如果取第一级截断近似，就是每 4 年一个闰年，闰年里将 2 月变为 29 日来增加一天。这个数值略大于回归年，会产生每年 0.008 天的差距，这样100年近似于1天，大约2万2千年之后进入冬夏颠倒的混乱期。这个误差人们还是不能忍受，于是要每过一百年减去 1 天来进行补偿，即<strong>百年不设闰</strong>。这样每年的差距实际只有 0.0002 天的差距，混乱周期扩大到百万年级别，可以认为是非常精确了。</p>
+<p>这里还有最后一个问题：近似是 99 年加 24 天，实际采用百年不设闰，二者是有差别的。每隔 400 年，添加了天数为 24 <em> 4 天，这样差距为 0.002 天，仍然很大。所以设置<em>*每 400 年置闰</em></em>，差距变为 0.00031 天，接近 $\frac{8}{33}$ 的效果。</p>
+<h3 id="农历闰月"><a href="#农历闰月" class="headerlink" title="农历闰月"></a>农历闰月</h3><p><strong>农历是一种阴阳历，年采用回归年，月采用朔望月</strong>，因此需要安排闰月来调整。公历则无此需要，因此公历的月不会与月相变化相吻合。</p>
+<p>在一个回归年年，每年的月数是 12.36826, 写成连分数为</p>
+<script type="math/tex; mode=display">
+\frac{365.2422}{29.5306} = 12+\frac{108750}{295306} 
+= \frac{1}{2+\frac{1}{1+\frac{1}{2+\frac{1}{2+\frac{1}{1+\frac{1}{3}}}}}} \approx \frac{1}{2}, \frac{1}{2+\frac{1}{1}}=\frac{3}{8}, \frac{1}{2+\frac{1}{1+\frac{1}{2+\frac{1}{2}}}}=\frac{7}{19}</script><p>这里 $\frac{7}{19} = 0.36842$ 已经非常接近，每年会产生 0.00016 个月的差距。此即 <strong>19年7闰</strong>。</p>
+<h3 id="历史上的历法"><a href="#历史上的历法" class="headerlink" title="历史上的历法"></a>历史上的历法</h3><p>公元前45年罗马皇帝儒略·凯撒在埃及天文学家协助下创立的儒略历，设置四年一闰。从前面的描述我们知道儒略历并不非常精确，4个回归年的零数积累在一起，为23时15分4秒，还不足一日，尚差44分56秒。由于累积误差随着时间越来越大，根据前面的推算，到 1582年改历那天，<strong>儒略历在1600年里产生大约 10 天的误差</strong>。</p>
+<p>1582年罗马教皇格里高利十三世制订格里高利历，也叫公历。“四年一闰”每400年就将相差三日。为此，每400年必须少闰三次。设置97个闰年。<strong>公历亦称阳历</strong>，与中国传统<strong>农历(阴阳历)</strong>不同。</p>
+<p><strong>改历前后的历史事件和文件有造成混乱的可能。</strong></p>
+<p>中国历史上一共产生过102部历法，如夏历、商历、周历、西汉太初历、隋唐大衍历和皇极历等。汉代之前的历法就采用阴阳历，即“古六历”（黄帝、颛顼、夏、殷、周、鲁）中的《颛顼历》，以365又1/4日为一回归年，以29又499/940日为一朔望月， 19年中置7个闰月。由于这种古历计算不够精密，常出现月初朔日，但实际天空中却有圆满的月光；月中望日，夜晚却并没有月亮。为了改变这种不对照的现象， 司马迁主持制订《太初历》。</p>
+<p>汉朝初年沿用秦朝的历法颛顼历，以农历的十月为一年之始，因历法与天象运行正朔失合，司马迁在公元前104年（汉武帝元封七年）上书，“言历纪坏废，宜改正朔”。汉武帝“乃诏迁用邓平所造八十一分律历，罢尤疏远者十七家”。并将元封七年改为太初元年。</p>
+<p>《<strong>太初历</strong>》测算出一朔望月等于29又81分之43日，故又称为“81分律历”。以冬至所在之月为11月，改秦历以10月为岁首的错误，<strong>以正月为岁首，12月底为岁末</strong>，并首次将24节气订入该历法，与春种、秋收、夏忙、冬闲的农业节奏合拍，春生夏长，秋收冬藏，四季顺昌。落下闳在预见《太初历》不足之处曾指出：“日后八百岁，此历差一日，当有圣人定之。”（实际上仅一百余年即误差一日）。<strong>落下闳</strong>计算《太初历》即采用前述“<strong>连分数</strong>”的数学原理。</p>
+<h4 id="正朔"><a href="#正朔" class="headerlink" title="正朔"></a>正朔</h4><p>正朔是历法定年定月之基础。<strong>正者，岁之始也，朔者，月之始也。</strong>一年的第一个月称作<strong>正月</strong>，一月的第一日称作<strong>朔日</strong>。上古之时，计算历法与授时被认为是与上天沟通的重要形式，只有部落领袖和统治者才有权进行。甚至于直到清代，私习天文都被认为是有谋反之意。改年号与颁历法仍然是皇帝体现权力的重要手段。旧时历书称为皇历，盖因历书必由皇帝所颁。</p>
+<p>因为正朔是天子权力象征，所以在王朝更迭之际，奉何正朔也同时表明了政治取向。例如，孔子在《春秋》中，每年之初必称“某年春王正月”，《公羊传》：“春者何？岁之始也。王者孰谓？谓文王也。曷为先言王而后言正月？王正月也。何言乎王正月？大一统也。”也就是说，鲁尊周文王所定之正朔，以示鲁忠于周。而因鲁桓公弑君而立，桓公三年至八年，及十一年至十七年，《春秋》只称“某年春正月”，曰桓无王也。</p>
+<p>秦历十月开始一年, 自汉武帝正式使用年号，颁布太初历，改用夏正以后，后世两千多年的帝王一般只改年号而不改正朔，只有武则天，太平天国等改正朔。很多文献都称，今日所用之华夏历法就是夏历，但现行华夏历法已有演变，事实上今日之历法只是沿用了夏正，而没有用夏朔。夏以天明为朔，商以鸡鸣为朔，周以夜半为朔，体现了计时的进步；</p>
+<h3 id="节气"><a href="#节气" class="headerlink" title="节气"></a>节气</h3><p>中国古代利用土圭实测日晷，将每年日影最长定为“日至”（又称日长至，即太极图中四象的太阴、长至、冬至），日影最短为“日短至”（又称短至、夏至）。在春秋两季各有一日的昼夜时间长短相等，便定为“春分”和“秋分”，人类各民族多有此四。在商朝时只有四个节气（四象，即四季），到了周朝时发展到了八个（八卦），到秦汉年间，二十四节气已完全确立。公元前104年，由邓平等制定的《太初历》，正式将二十四节气订于历法，明确了二十四节气的天文位置。</p>
+<p>二十四节气每一个分别相应于太阳在黄道上每运动15°所到达之位置。二十四节气又分为12个节气和12个中气，一一相间。<strong>二十四节气反映了太阳周年视运动，所以其西历日期近乎固定</strong>，上半年的节气在6日，中气在21日，下半年的节气在8日，中气在23日，前后不差1～2日。二十四节气的命名反应了季节和气候的变化。立春、春分、立夏、夏至、立秋、秋分、立冬、冬至，又称八位，是区分公转运动对于地球影响的八个关键节点；</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">春雨惊春清谷天；</span><br><span class="line">夏满芒夏暑相连；</span><br><span class="line">秋处露秋寒霜降；</span><br><span class="line">冬雪雪冬小大寒。</span><br><span class="line">每月两节不变更；</span><br><span class="line">最多相差一两天；</span><br><span class="line">上半年来六廿一； // 上半年的节气在6日，中气在21日</span><br><span class="line">下半年来八廿三。 // 下半年的节气在8日，中气在23日</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+      
+
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="xiang 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/09/17/工具/Typora/" rel="next" title="Typora">
+                  <i class="fa fa-chevron-left"></i> Typora
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2019/09/17/计算机/数据结构/哈希表/" rel="prev" title="Hash Table">
+                  Hash Table <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#历法"><span class="nav-text">历法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#历法的中心问题：年和月"><span class="nav-text">历法的中心问题：年和月</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#太阳历和太阴历的缺陷"><span class="nav-text">太阳历和太阴历的缺陷</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#连分数与闰年"><span class="nav-text">连分数与闰年</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#农历闰月"><span class="nav-text">农历闰月</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#历史上的历法"><span class="nav-text">历史上的历法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#正朔"><span class="nav-text">正朔</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#节气"><span class="nav-text">节气</span></a></li></ol></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/1.jpg"
+      alt="xiang">
+  <p class="site-author-name" itemprop="name">xiang</p>
+  <div class="site-description" itemprop="description">谨守而勿失，是谓反其真</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/liuxiangtian" title="GitHub &rarr; https://github.com/liuxiangtian" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="http://www.zhihu.com/people/liu-xiang-tian-74" title="zhihu &rarr; http://www.zhihu.com/people/liu-xiang-tian-74" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>zhihu</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘祥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">191k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:53</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script><script src="/js/bookmark.js?v=7.4.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+    
+      
+<script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path['mhchem'] = '//cdn.jsdelivr.net/npm/mathjax-mhchem@3';
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        extensions: ['[mhchem]/mhchem.js'],
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+  
+
+  
+
+  
+
+</body>
+</html>

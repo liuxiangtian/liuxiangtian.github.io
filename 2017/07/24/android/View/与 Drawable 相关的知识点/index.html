@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN,ja,en,default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="DrawableDrawable 是绘制的基础单元，但它没有事件机制，不想 View 那么复杂。Drawable 的基本机制或属性包括  使用 Bound 和 Padding 确定绘制的范围 , 且 Drawable 必须确定 Bound 使用 Outline 确定轮廓，默认情况下与 Bound 相同 使用 State 记录状态 使用 Level(0-10000) 赋予一定的动态性，如定义变化中的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="与 Drawable 相关的知识点">
+<meta property="og:url" content="http://yoursite.com/2017/07/24/android/View/与 Drawable 相关的知识点/index.html">
+<meta property="og:site_name" content="lxt">
+<meta property="og:description" content="DrawableDrawable 是绘制的基础单元，但它没有事件机制，不想 View 那么复杂。Drawable 的基本机制或属性包括  使用 Bound 和 Padding 确定绘制的范围 , 且 Drawable 必须确定 Bound 使用 Outline 确定轮廓，默认情况下与 Bound 相同 使用 State 记录状态 使用 Level(0-10000) 赋予一定的动态性，如定义变化中的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2017/07/24/android/View/与%20Drawable%20相关的知识点/sc.gif">
+<meta property="og:image" content="http://yoursite.com/2017/07/24/android/View/与%20Drawable%20相关的知识点/crop_inside.png">
+<meta property="og:updated_time" content="2019-09-18T06:49:20.624Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="与 Drawable 相关的知识点">
+<meta name="twitter:description" content="DrawableDrawable 是绘制的基础单元，但它没有事件机制，不想 View 那么复杂。Drawable 的基本机制或属性包括  使用 Bound 和 Padding 确定绘制的范围 , 且 Drawable 必须确定 Bound 使用 Outline 确定轮廓，默认情况下与 Bound 相同 使用 State 记录状态 使用 Level(0-10000) 赋予一定的动态性，如定义变化中的">
+<meta name="twitter:image" content="http://yoursite.com/2017/07/24/android/View/与%20Drawable%20相关的知识点/sc.gif">
+  <link rel="canonical" href="http://yoursite.com/2017/07/24/android/View/与 Drawable 相关的知识点/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>与 Drawable 相关的知识点 | lxt</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lxt</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a class="book-mark-link book-mark-link-fixed" href="#"></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/24/android/View/与 Drawable 相关的知识点/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiang">
+      <meta itemprop="description" content="谨守而勿失，是谓反其真">
+      <meta itemprop="image" content="/images/1.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lxt">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">与 Drawable 相关的知识点
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2017-07-24 14:28:29" itemprop="dateCreated datePublished" datetime="2017-07-24T14:28:29+08:00">2017-07-24</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-18 14:49:20" itemprop="dateModified" datetime="2019-09-18T14:49:20+08:00">2019-09-18</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/View/" itemprop="url" rel="index"><span itemprop="name">View</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>11k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>10 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Drawable"><a href="#Drawable" class="headerlink" title="Drawable"></a>Drawable</h2><p>Drawable 是绘制的基础单元，但它没有事件机制，不想 View 那么复杂。Drawable 的基本机制或属性包括</p>
+<ul>
+<li><strong>使用 Bound 和 Padding 确定绘制的范围</strong> , 且 <strong>Drawable 必须确定 Bound</strong></li>
+<li>使用 Outline 确定轮廓，默认情况下与 Bound 相同</li>
+<li><strong>使用 State 记录状态</strong></li>
+<li><strong>使用 Level(0-10000) 赋予一定的动态性，如定义变化中的进度条等</strong></li>
+<li>使用 Callback 回调接口实现动画效果，与 View 的 invalidate() 方法配合使用</li>
+<li><strong>绘制机制，需要实现抽象的 draw 方法</strong></li>
+</ul>
+<p>例如子类 BitmapDrawable 的绘制方法是绘制 Bitmap，且通过Bitmap来确定 Bound 和 Outline，其额外的属性(如抗锯齿等)均通过设置 Paint 对象和 Shader 对象来生效。</p>
+<p>再比如子类 ColorDrawable 的本质是使用指定颜色绘制矩形。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">    mPaint.setColor(mColorState.mUseColor);</span><br><span class="line">    canvas.drawRect(getBounds(), mPaint);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这些 Drawable 也可以用 XML 文件定义的，系统最终要使用 XML解析器将其解析成 Drawable 对象。</p>
+</blockquote>
+<p>关于绘制，Drawable 还有以下效果设置</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@IntRange</span>(from=<span class="number">0</span>,to=<span class="number">255</span>) <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getAlpha</span><span class="params">()</span></span>;		<span class="comment">//1.透明度</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setXfermode</span><span class="params">(@Nullable Xfermode mode)</span></span>;   <span class="comment">//2. Xfermode</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">setColorFilter</span><span class="params">(@Nullable ColorFilter colorFilter)</span></span>;   <span class="comment">//3.ColorFilter</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTint</span><span class="params">(@ColorInt <span class="keyword">int</span> tintColor)</span></span>;   <span class="comment">//4.染色</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTintList</span><span class="params">(@Nullable ColorStateList tint)</span>   <span class="comment">//4.染色 ColorStateList</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setHotspot</span><span class="params">(<span class="keyword">float</span> x, <span class="keyword">float</span> y)</span></span>;   <span class="comment">//5.热点</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setHotspotBounds</span><span class="params">(<span class="keyword">int</span> left, <span class="keyword">int</span> top, <span class="keyword">int</span> right, <span class="keyword">int</span> bottom)</span></span>;  <span class="comment">//5.热点区域 </span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@Nullable</span> <span class="function">Region <span class="title">getTransparentRegion</span><span class="params">()</span></span>;   <span class="comment">//6.透明区域</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="meta">@PixelFormat</span>.<span class="function">Opacity <span class="keyword">int</span> <span class="title">getOpacity</span><span class="params">()</span></span>;    <span class="comment">//7.设置像素格式，如是否包含表示透明度的bit</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@NonNull</span> <span class="function">Drawable <span class="title">getCurrent</span><span class="params">()</span></span>;    <span class="comment">//8.在 Drawable 容器中获取 Drawable</span></span><br></pre></td></tr></table></figure>
+<h3 id="GradientDrawable与ShapeDrawable"><a href="#GradientDrawable与ShapeDrawable" class="headerlink" title="GradientDrawable与ShapeDrawable"></a>GradientDrawable与ShapeDrawable</h3><p>GradientDrawable 可以绘制四种类型，并带有渐变和圆角特征，它与ShapeDrawable类似。</p>
+<p>ShapeDrawable 即绘制“形状”，其绘制实际是“形状”对象(Shape)来代理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Rect r = getBounds();</span><br><span class="line">    <span class="keyword">final</span> ShapeState state = mShapeState;</span><br><span class="line">    <span class="keyword">final</span> Paint paint = state.mPaint;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> count = canvas.save();</span><br><span class="line">    canvas.translate(r.left, r.top);</span><br><span class="line">    shape.draw(canvas, paint);</span><br><span class="line">    canvas.restoreToCount(count);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Shape 的基本形状是 RectShape ，其绘制实现如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(Canvas canvas, Paint paint)</span> </span>&#123;</span><br><span class="line">    canvas.drawRect(mRect, paint);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果设置了 corners 标签，则使用子类 PaintDrawable 来解析</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setCornerRadii</span><span class="params">(<span class="keyword">float</span>[] radii)</span> </span>&#123;</span><br><span class="line">    setShape(<span class="keyword">new</span> RoundRectShape(radii, <span class="keyword">null</span>, <span class="keyword">null</span>));</span><br><span class="line">    invalidateSelf();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>可见四角是通过圆角矩形这个形状(RoundRectShape)来实现的， 这个将在 Path 中详细讲。</strong></p>
+<h3 id="DrawableWrapper"><a href="#DrawableWrapper" class="headerlink" title="DrawableWrapper"></a>DrawableWrapper</h3><p>DrawableWrapper 表示对单个 Drawable 的包装，类似于装饰器模式。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">DrawableWrapper</span> <span class="keyword">extends</span> <span class="title">Drawable</span> <span class="keyword">implements</span> <span class="title">Drawable</span>.<span class="title">Callback</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> DrawableWrapperState mState;</span><br><span class="line">    <span class="keyword">private</span> Drawable mDrawable;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对 DrawableWrapper 的设置实际上都在处理被包装的 Drawable，包括最终的绘制</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(@NonNull Canvas canvas)</span> </span>&#123;</span><br><span class="line">    mDrawable.draw(canvas);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>InsetDrawable 实际是通过 padding 来实现缩进的。</li>
+<li>ScaleDrawable 实际会按照比例重新计算 Bound</li>
+<li>RotateDrawable 很容易想到旋转是通过 canvas 来实现的。</li>
+<li><strong>ClipDrawable 主要要指定剪切的方向和 level，其绘制与 level 有关，需要该值计算出边界，再用canvas 的 clipRect() 方法来裁剪它。</strong></li>
+</ul>
+<h3 id="DrawableContainer"><a href="#DrawableContainer" class="headerlink" title="DrawableContainer"></a>DrawableContainer</h3><p>DrawableContainer 表示 Drawable 的集合，但只显示一张，同样是装饰器模式。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">        mCurrDrawable.draw(canvas);</span><br><span class="line">        mLastDrawable.draw(canvas);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>关于如何在众多 Drawable 中选择一张，DrawableContainer 有如下子类</p>
+<ol>
+<li><strong>LevelListDrawable</strong></li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">level-list</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">android:drawable</span>=<span class="string">"@drawable/checked"</span> <span class="attr">android:minLevel</span>=<span class="string">"0"</span> <span class="attr">android:maxLevel</span>=<span class="string">"100"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">android:drawable</span>=<span class="string">"@drawable/checked"</span> <span class="attr">android:minLevel</span>=<span class="string">"100"</span> <span class="attr">android:maxLevel</span>=<span class="string">"200"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">level-list</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>LevelListDrawable 中挑选的标准是 level 值的大小，每一个 Drawable 对象指定一个范围，显示 level 值落入范围的 Drawable 对象。</p>
+<ol>
+<li><strong>StateListDrawable</strong> 同理显示状态相符的 Drawable 对象。</li>
+<li><strong>AnimationDrawabl</strong>e 即帧动画，用多个 Drawable 对象产生动画效果。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    mAnimating = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">if</span> (!mRunning) &#123;</span><br><span class="line">        selectDrawable(frame); </span><br><span class="line">        scheduleSelf(<span class="keyword">this</span>, SystemClock.uptimeMillis() + mAnimationState.mDurations[frame]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里帧会进行帧的步进，并触发 drawable 的动画刷新机制，直到播放完成。</p>
+<h3 id="LayerDrawable"><a href="#LayerDrawable" class="headerlink" title="LayerDrawable"></a>LayerDrawable</h3><p>LayerDrawable 维持一个 Drawable 数组，并全部显示，但下标最大的那个显示最完全，构造方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">LayerDrawable</span><span class="params">(@NonNull Drawable[] layers)</span></span></span><br></pre></td></tr></table></figure>
+<p>绘制方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> ChildDrawable[] array = mLayerState.mChildren;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> N = mLayerState.mNum;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; N; i++) &#123;</span><br><span class="line">        <span class="keyword">final</span> Drawable dr = array[i].mDrawable;</span><br><span class="line">        <span class="keyword">if</span> (dr != <span class="keyword">null</span>) &#123;</span><br><span class="line">            dr.draw(canvas);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样可以通过为某一层设置 Padding 来进行层叠显示，如果设置合理，可以显示全部的 Drawable 。</p>
+<h4 id="TransitionDrawable"><a href="#TransitionDrawable" class="headerlink" title="TransitionDrawable"></a><strong>TransitionDrawable</strong></h4><p><strong>TransitionDrawable 是一个仅有两层的LayerDrawable，可以在切换时播放动画，一般用作切换动画。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">startTransition</span><span class="params">(<span class="keyword">int</span> durationMillis)</span> </span>&#123;</span><br><span class="line">    mFrom = <span class="number">0</span>;</span><br><span class="line">    mTo = <span class="number">255</span>;</span><br><span class="line">    mAlpha = <span class="number">0</span>;</span><br><span class="line">    mDuration = mOriginalDuration = durationMillis;</span><br><span class="line">    mReverse = <span class="keyword">false</span>;</span><br><span class="line">    mTransitionState = TRANSITION_STARTING;</span><br><span class="line">    invalidateSelf();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法设置的动画是关于透明度的，且起始值是255和0，如果要启用交叉透明效果，首先设置</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setCrossFadeEnabled</span><span class="params">(<span class="keyword">boolean</span> enabled)</span></span></span><br></pre></td></tr></table></figure>
+<p>在绘制方法 draw 中通过时间的流逝计算 alpha 值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">float</span> normalized = (<span class="keyword">float</span>)(SystemClock.uptimeMillis() - mStartTimeMillis) / mDuration;</span><br><span class="line">done = normalized &gt;= <span class="number">1.0f</span>;</span><br><span class="line">normalized = Math.min(normalized, <span class="number">1.0f</span>);</span><br><span class="line">mAlpha = (<span class="keyword">int</span>) (mFrom  + (mTo - mFrom) * normalized);</span><br></pre></td></tr></table></figure>
+<p>如果时间流逝完，就将第1张显示出来，且停止刷新和动画，否则显示第0张。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (done) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!crossFade || alpha == <span class="number">0</span>) &#123;</span><br><span class="line">        array[<span class="number">0</span>].mDrawable.draw(canvas);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (alpha == <span class="number">0xFF</span>) &#123;</span><br><span class="line">        array[<span class="number">1</span>].mDrawable.draw(canvas);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果时间没有流逝完，配置二者的透明度，并继续刷新出动画效果。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">array[<span class="number">0</span>].mDrawable.setAlpha(<span class="number">255</span> - alpha);</span><br><span class="line">array[<span class="number">1</span>].mDrawable.setAlpha(alpha);</span><br></pre></td></tr></table></figure>
+<h4 id="RippleDrawable"><a href="#RippleDrawable" class="headerlink" title="RippleDrawable"></a>RippleDrawable</h4><p>最简单的添加 Ripple 效果的方法是采用如下属性</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">android:background="?attr/selectableItemBackground"</span><br></pre></td></tr></table></figure>
+<p>RippleDrawable 的XML标签为 ripple。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ripple</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:color</span>=<span class="string">"@color/colorAccent"</span>             //触摸波纹颜色</span></span><br><span class="line"><span class="tag">    <span class="attr">android:radius</span>=<span class="string">"30dp"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">android:drawable</span>=<span class="string">"@android:color/white"</span>  //蒙版颜色</span></span><br><span class="line"><span class="tag">          <span class="attr">android:id</span>=<span class="string">"@android:id/mask"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">android:drawable</span>=<span class="string">"@color/colorPrimary"</span> /&gt;</span> //View 默认颜色</span><br><span class="line"><span class="tag">&lt;/<span class="name">ripple</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>注意这里有三种颜色，注意<strong>ripple下的color标签将被解析成 ColorStateList 类，这样 RippleDrawable 将可以对状态改变做出波纹效果的响应</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">RippleDrawable</span><span class="params">(@NonNull ColorStateList color, @Nullable Drawable content,</span></span></span><br><span class="line"><span class="function"><span class="params">        @Nullable Drawable mask)</span> </span>&#123;</span><br><span class="line">    addLayer(content, <span class="keyword">null</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    addLayer(mask, <span class="keyword">null</span>, android.R.id.mask, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从构造方法可以看出，子类 RippleDrawable 包含两个 Drawable：content 和 mask，后者的 id 是 android.R.id.mask。</p>
+<p>当状态改变发生时，将构建 RippleForeground[] 和 RippleBackground 以备绘制。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">onStateChange</span><span class="params">(<span class="keyword">int</span>[] stateSet)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">boolean</span> changed = <span class="keyword">super</span>.onStateChange(stateSet);</span><br><span class="line">    <span class="keyword">boolean</span> enabled = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">boolean</span> pressed = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">boolean</span> focused = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">boolean</span> hovered = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> state : stateSet) &#123;</span><br><span class="line">        <span class="keyword">if</span> (state == R.attr.state_enabled) &#123;</span><br><span class="line">            enabled = <span class="keyword">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (state == R.attr.state_focused) &#123;</span><br><span class="line">            focused = <span class="keyword">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (state == R.attr.state_pressed) &#123;</span><br><span class="line">            pressed = <span class="keyword">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (state == R.attr.state_hovered) &#123;</span><br><span class="line">            hovered = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    setRippleActive(enabled &amp;&amp; pressed);</span><br><span class="line">    setBackgroundActive(hovered || focused || (enabled &amp;&amp; pressed), focused || hovered);</span><br><span class="line">    <span class="keyword">return</span> changed;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>draw 绘制的方法先绘制内容，而后绘制 ripple 效果。</p>
+<p>1.绘制内容是正常的 Drawable 绘制，但避免绘制 mask 这一层</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">drawContent</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Draw everything except the mask.</span></span><br><span class="line">    <span class="keyword">final</span> ChildDrawable[] array = mLayerState.mChildren;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> count = mLayerState.mNum;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (array[i].mId != R.id.mask) &#123;</span><br><span class="line">            array[i].mDrawable.draw(canvas);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2.绘制背景以及 Ripple 效果。</p>
+<p>Ripple 效果是使用 Shader 来实现的，并将 mask 层绘制到同尺寸的 Bitmap 上去。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> color = mState.mColor.getColorForState(getState(), Color.BLACK);</span><br><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> halfAlpha = (Color.alpha(color) / <span class="number">2</span>) &lt;&lt; <span class="number">24</span>;</span><br><span class="line"><span class="keyword">final</span> Paint p = getRipplePaint();</span><br><span class="line">p.setColor(halfAlpha);</span><br><span class="line">p.setShader(mMaskShader);</span><br><span class="line">mBackground.draw(canvas, p);</span><br><span class="line">mRipple.draw(canvas, p);</span><br></pre></td></tr></table></figure>
+<h2 id="重新认识-Canvas，Path和Paint"><a href="#重新认识-Canvas，Path和Paint" class="headerlink" title="重新认识 Canvas，Path和Paint"></a>重新认识 Canvas，Path和Paint</h2><h3 id="Canvas"><a href="#Canvas" class="headerlink" title="Canvas"></a>Canvas</h3><p>Canvas 记录绘制命令，使用下列方法能够将命令入栈</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">save</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+<p>而后再将命令出栈，这样就恢复到了 save 时的状态，其中的命令和状态改变就被丢弃</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">restore</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+<p>Canvas 的各种命令不再多说，只谈一个应该注意的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">clipRect</span><span class="params">(@NonNull Rect rect)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">clipRect</span><span class="params">(@NonNull Rect rect, @NonNull Region.Op op)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>这个方法将截取某个区域来显示，其中 Op 表示区域间的叠加方式。</p>
+<p>依靠 canvas.clipRect 方法实现的一个典型的例子是 <a href="https://github.com/hongyangAndroid/ColorTrackView" target="_blank" rel="noopener">ColorTrackView</a></p>
+<img src="/2017/07/24/android/View/与%20Drawable%20相关的知识点/sc.gif">
+<p>核心代码非常简单如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">canvas.drawText(<span class="string">"秦时明月汉时关"</span>, centerX, centerY, mPaint);</span><br><span class="line">canvas.clipRect(<span class="number">0</span>, <span class="number">0</span>, getBounds().width()*ratio, getBounds().height());</span><br><span class="line">canvas.drawText(<span class="string">"秦时明月汉时关"</span>, centerX, centerY, mColorPaint);</span><br><span class="line">invalidateSelf();</span><br></pre></td></tr></table></figure>
+<h3 id="Path"><a href="#Path" class="headerlink" title="Path"></a>Path</h3><p>Canvas 的另一个方法 clipPath 能实现的效果更多</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">clipPath</span><span class="params">(@NonNull Path path)</span></span></span><br></pre></td></tr></table></figure>
+<img src="/2017/07/24/android/View/与%20Drawable%20相关的知识点/crop_inside.png">
+<p>上图中的 ArcNavigationView 就是通过创造 Path 绘制出来的，利用这一点可以将控件改造成任意形状，这里以经典的圆形图片为例，只需要重写绘制方法就可以了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">    canvas.clipPath(mPath);</span><br><span class="line">    <span class="keyword">super</span>.onDraw(canvas);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>唯一值得注意的是 Path 的建立位置是不能放在构造方法中的，这个时刻是不能获得控件尺寸的，因此应该将其放在 layout 方法中</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onLayout</span><span class="params">(<span class="keyword">boolean</span> changed, <span class="keyword">int</span> left, <span class="keyword">int</span> top, <span class="keyword">int</span> right, <span class="keyword">int</span> bottom)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onLayout(changed, left, top, right, bottom);</span><br><span class="line">    <span class="keyword">if</span>(changed)&#123;</span><br><span class="line">        mPath = <span class="keyword">new</span> Path();</span><br><span class="line">        <span class="keyword">int</span> width = getWidth();</span><br><span class="line">        <span class="keyword">int</span> height = getHeight();</span><br><span class="line">        <span class="keyword">int</span> radius = Math.min(width/<span class="number">2</span>, height/<span class="number">2</span>);</span><br><span class="line">        mPath.addCircle(getWidth()/<span class="number">2</span>, getHeight()/<span class="number">2</span>, radius, Path.Direction.CW);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Path 的构建方法包括</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">moveTo</span><span class="params">(<span class="keyword">float</span> x, <span class="keyword">float</span> y)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">lineTo</span><span class="params">(<span class="keyword">float</span> x, <span class="keyword">float</span> y)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">quadTo</span><span class="params">(<span class="keyword">float</span> x1, <span class="keyword">float</span> y1, <span class="keyword">float</span> x2, <span class="keyword">float</span> y2)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cubicTo</span><span class="params">(<span class="keyword">float</span> x1, <span class="keyword">float</span> y1, <span class="keyword">float</span> x2, <span class="keyword">float</span> y2, <span class="keyword">float</span> x3, <span class="keyword">float</span> y3)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">arcTo</span><span class="params">(<span class="keyword">float</span> left, <span class="keyword">float</span> top, <span class="keyword">float</span> right, <span class="keyword">float</span> bottom, <span class="keyword">float</span> startAngle, <span class="keyword">float</span> sweepAngle, <span class="keyword">boolean</span> forceMoveTo)</span></span></span><br></pre></td></tr></table></figure>
+<p>Path 也可以通过添加形状来构建</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addRect</span><span class="params">(<span class="keyword">float</span> left, <span class="keyword">float</span> top, <span class="keyword">float</span> right, <span class="keyword">float</span> bottom, Direction dir)</span> <span class="comment">// 使用OP.UNION</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addOval</span><span class="params">(<span class="keyword">float</span> left, <span class="keyword">float</span> top, <span class="keyword">float</span> right, <span class="keyword">float</span> bottom, Direction dir)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addCircle</span><span class="params">(<span class="keyword">float</span> x, <span class="keyword">float</span> y, <span class="keyword">float</span> radius, Direction dir)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addArc</span><span class="params">(<span class="keyword">float</span> left, <span class="keyword">float</span> top, <span class="keyword">float</span> right, <span class="keyword">float</span> bottom, <span class="keyword">float</span> start, <span class="keyword">float</span> sweep)</span>  </span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addRoundRect</span><span class="params">(<span class="keyword">float</span> left, <span class="keyword">float</span> top, <span class="keyword">float</span> right, <span class="keyword">float</span> bottom, <span class="keyword">float</span> rx, <span class="keyword">float</span> ry, Direction dir)</span>  </span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addPath</span><span class="params">(Path src, <span class="keyword">float</span> dx, <span class="keyword">float</span> dy)</span></span></span><br></pre></td></tr></table></figure>
+<p><strong>Path 内部包含区域(Region)，如何合并两个 Path 包括如下方式</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Op &#123;</span><br><span class="line">    DIFFERENCE, <span class="comment">// PathA - PathB</span></span><br><span class="line">    INTERSECT, <span class="comment">// 二者的交集</span></span><br><span class="line">    UNION, <span class="comment">// PathA + PathB</span></span><br><span class="line">    XOR, <span class="comment">// UNION - INTERSECT</span></span><br><span class="line">    REVERSE_DIFFERENCE <span class="comment">// PathB - PathA</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Path 的另一个主要方法是路径偏移</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">offset</span><span class="params">(<span class="keyword">float</span> dx, <span class="keyword">float</span> dy)</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="Paint"><a href="#Paint" class="headerlink" title="Paint"></a>Paint</h3><p>1.获取文字区域 Rect</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getTextBounds</span><span class="params">(String text, <span class="keyword">int</span> start, <span class="keyword">int</span> end, Rect bounds)</span></span></span><br></pre></td></tr></table></figure>
+<p>2.获取文字路径 Path</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getTextPath</span><span class="params">(String text, <span class="keyword">int</span> start, <span class="keyword">int</span> end, <span class="keyword">float</span> x, <span class="keyword">float</span> y, Path path)</span></span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>使用画笔获取文字路径后，可以使用 Path 的偏移方法调整其位置。</p>
+</blockquote>
+<p>3.画笔的众多 flag 效果，如添加下划线效果</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUnderlineText</span><span class="params">(<span class="keyword">boolean</span> underlineText)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> STRIKE_THRU_TEXT_FLAG </span>= <span class="number">0x10</span>;</span><br></pre></td></tr></table></figure>
+<p>4.字体参数 FontMetrics，使用 ascent+descent 可以获得偏移量</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">FontMetrics</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">float</span>   top;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">float</span>   ascent; <span class="comment">//baseline到字顶，负值</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">float</span>   descent; <span class="comment">//baseline到字底，正值</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">float</span>   bottom;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">float</span>   leading;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>5.获得文本宽度</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">float</span> <span class="title">measureText</span><span class="params">(String text)</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> measureText(text, <span class="number">0</span>, text.length());</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//设置最大文本宽度</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">breakText</span><span class="params">(String text, <span class="keyword">boolean</span> measureForwards, loat maxWidth, <span class="keyword">float</span>[] measuredWidth)</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+      
+
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="xiang 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2017/07/23/android/View/与 TextView 相关的知识点/" rel="next" title="与 TextView 相关的知识点">
+                  <i class="fa fa-chevron-left"></i> 与 TextView 相关的知识点
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2017/07/26/android/View/与 ImageView 有关的知识点/" rel="prev" title="与 ImageView 有关的知识点">
+                  与 ImageView 有关的知识点 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Drawable"><span class="nav-text">Drawable</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#GradientDrawable与ShapeDrawable"><span class="nav-text">GradientDrawable与ShapeDrawable</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DrawableWrapper"><span class="nav-text">DrawableWrapper</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DrawableContainer"><span class="nav-text">DrawableContainer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LayerDrawable"><span class="nav-text">LayerDrawable</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#TransitionDrawable"><span class="nav-text">TransitionDrawable</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RippleDrawable"><span class="nav-text">RippleDrawable</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重新认识-Canvas，Path和Paint"><span class="nav-text">重新认识 Canvas，Path和Paint</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Canvas"><span class="nav-text">Canvas</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Path"><span class="nav-text">Path</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Paint"><span class="nav-text">Paint</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/1.jpg"
+      alt="xiang">
+  <p class="site-author-name" itemprop="name">xiang</p>
+  <div class="site-description" itemprop="description">谨守而勿失，是谓反其真</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/liuxiangtian" title="GitHub &rarr; https://github.com/liuxiangtian" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="http://www.zhihu.com/people/liu-xiang-tian-74" title="zhihu &rarr; http://www.zhihu.com/people/liu-xiang-tian-74" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>zhihu</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘祥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">191k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:53</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script><script src="/js/bookmark.js?v=7.4.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

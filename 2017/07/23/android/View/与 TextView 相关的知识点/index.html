@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN,ja,en,default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="TextView以及其子类先说两个小知识 1.TextView 实现跑马灯效果 123456&amp;lt;TextView    android:singleLine=&quot;true&quot;            // 必须    android:marqueeRepeatLimit=&quot;marquee_forever&quot;  //是否永远循环    android:focusable=&quot;true&quot;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="与 TextView 相关的知识点">
+<meta property="og:url" content="http://yoursite.com/2017/07/23/android/View/与 TextView 相关的知识点/index.html">
+<meta property="og:site_name" content="lxt">
+<meta property="og:description" content="TextView以及其子类先说两个小知识 1.TextView 实现跑马灯效果 123456&amp;lt;TextView    android:singleLine=&quot;true&quot;            // 必须    android:marqueeRepeatLimit=&quot;marquee_forever&quot;  //是否永远循环    android:focusable=&quot;true&quot;">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2017/07/23/android/View/与%20TextView%20相关的知识点/demo7.gif">
+<meta property="og:image" content="http://yoursite.com/2017/07/23/android/View/与%20TextView%20相关的知识点/fade.gif">
+<meta property="og:image" content="http://yoursite.com/2017/07/23/android/View/与%20TextView%20相关的知识点/typer.gif">
+<meta property="og:image" content="http://yoursite.com/2017/07/23/android/View/与%20TextView%20相关的知识点/rainbow.gif">
+<meta property="og:image" content="http://yoursite.com/2017/07/23/android/View/与%20TextView%20相关的知识点/demo3.gif">
+<meta property="og:image" content="http://yoursite.com/2017/07/23/android/View/与%20TextView%20相关的知识点/demo6.gif">
+<meta property="og:image" content="http://yoursite.com/2017/07/23/android/View/与%20TextView%20相关的知识点/shimmer.gif">
+<meta property="og:image" content="http://yoursite.com/2017/07/23/android/View/与%20TextView%20相关的知识点/expanded.png">
+<meta property="og:image" content="http://yoursite.com/2017/07/23/android/View/与%20TextView%20相关的知识点/screenshot.png">
+<meta property="og:updated_time" content="2019-09-18T06:38:01.164Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="与 TextView 相关的知识点">
+<meta name="twitter:description" content="TextView以及其子类先说两个小知识 1.TextView 实现跑马灯效果 123456&amp;lt;TextView    android:singleLine=&quot;true&quot;            // 必须    android:marqueeRepeatLimit=&quot;marquee_forever&quot;  //是否永远循环    android:focusable=&quot;true&quot;">
+<meta name="twitter:image" content="http://yoursite.com/2017/07/23/android/View/与%20TextView%20相关的知识点/demo7.gif">
+  <link rel="canonical" href="http://yoursite.com/2017/07/23/android/View/与 TextView 相关的知识点/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>与 TextView 相关的知识点 | lxt</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lxt</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a class="book-mark-link book-mark-link-fixed" href="#"></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/23/android/View/与 TextView 相关的知识点/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiang">
+      <meta itemprop="description" content="谨守而勿失，是谓反其真">
+      <meta itemprop="image" content="/images/1.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lxt">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">与 TextView 相关的知识点
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2017-07-23 14:28:29" itemprop="dateCreated datePublished" datetime="2017-07-23T14:28:29+08:00">2017-07-23</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-18 14:38:01" itemprop="dateModified" datetime="2019-09-18T14:38:01+08:00">2019-09-18</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/View/" itemprop="url" rel="index"><span itemprop="name">View</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>9.4k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>9 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="TextView以及其子类"><a href="#TextView以及其子类" class="headerlink" title="TextView以及其子类"></a>TextView以及其子类</h2><p>先说两个小知识</p>
+<p><strong>1.TextView 实现跑马灯效果</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:singleLine</span>=<span class="string">"true"</span>            // 必须</span></span><br><span class="line"><span class="tag">    <span class="attr">android:marqueeRepeatLimit</span>=<span class="string">"marquee_forever"</span>  //是否永远循环</span></span><br><span class="line"><span class="tag">    <span class="attr">android:focusable</span>=<span class="string">"true"</span>             // 必须</span></span><br><span class="line"><span class="tag">    <span class="attr">android:focusableInTouchMode</span>=<span class="string">"true"</span>  // 必须 </span></span><br><span class="line"><span class="tag">    <span class="attr">android:ellipsize</span>=<span class="string">"marquee"</span>"/&gt;</span>       // 必须</span><br></pre></td></tr></table></figure>
+<p><strong>2.TextView 的字体设置</strong><br>字体设置可以在 fonts.xml 文件中查找，其定义如下</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">family</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">nameset</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>cursive<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">nameset</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">fileset</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">file</span>&gt;</span>DancingScript-Regular.ttf<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">file</span>&gt;</span>DancingScript-Bold.ttf<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">fileset</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">family</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>使用时指定名称就可以了</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">app:family="casual"  //这是一个 string 类型的属性</span><br></pre></td></tr></table></figure>
+<p>读取该值后可以创建字体</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Typeface.create(mFamily, Typeface.NORMAL)</span><br></pre></td></tr></table></figure>
+<h3 id="TextView的绘制：Layout"><a href="#TextView的绘制：Layout" class="headerlink" title="TextView的绘制：Layout"></a>TextView的绘制：Layout</h3><p>TextView 在绘制时会先绘制四边的 drawable 。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">android:drawableLeft="@drawable/left"</span><br><span class="line">android:drawableTop="@drawable/top"</span><br><span class="line">android:drawableBottom="@drawable/bottom"</span><br><span class="line">android:drawableRight="@drawable/right"</span><br></pre></td></tr></table></figure>
+<p>其余的绘制工作就交给 Layout 类了，正常情况下采用 StaticLayout，而 EditText 采用 DynamicLayout。</p>
+<p>Layout 负责文本的布局和绘制，绘制效果取决于构造它的诸多参数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> text the text to render</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> paint the default paint for the layout.  Styles can override</span></span><br><span class="line"><span class="comment"> * various attributes of the paint.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> width the wrapping width for the text.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> align whether to left, right, or center the text.  Styles can</span></span><br><span class="line"><span class="comment"> * override the alignment.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> spacingMult factor by which to scale the font size to get the</span></span><br><span class="line"><span class="comment"> * default line spacing</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> spacingAdd amount to add to the default line spacing</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="title">Layout</span><span class="params">(CharSequence text, TextPaint paint,</span></span></span><br><span class="line"><span class="function"><span class="params">                 <span class="keyword">int</span> width, Alignment align, TextDirectionHeuristic textDir,</span></span></span><br><span class="line"><span class="function"><span class="params">                 <span class="keyword">float</span> spacingMult, <span class="keyword">float</span> spacingAdd)</span></span></span><br></pre></td></tr></table></figure>
+<p>绘制方法包括两步，即按行绘制文本即行背景。</p>
+<p>Layout 有很多获取和设置布局的信息，如</p>
+<p><strong>1.获得某画笔类TextPaint下的文本宽度</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">float</span> <span class="title">getDesiredWidth</span><span class="params">(CharSequence source, <span class="keyword">int</span> start, <span class="keyword">int</span> end, TextPaint paint)</span></span></span><br></pre></td></tr></table></figure>
+<p><strong>2.获得文本行数以及某一行的信息</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getLineCount</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getLineTop</span><span class="params">(<span class="keyword">int</span> line)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getLineDescent</span><span class="params">(<span class="keyword">int</span> line)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">int</span> <span class="title">getLineStart</span><span class="params">(<span class="keyword">int</span> line)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>实际上完全可以覆盖掉默认的绘制方法，利用Layout实现绘制效果，如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//super.onDraw(canvas);</span></span><br><span class="line">    Layout layout = getLayout();</span><br><span class="line">    <span class="keyword">int</span> count = layout.getLineCount();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</span><br><span class="line">        <span class="keyword">float</span> lineLeft = layout.getLineLeft(i);</span><br><span class="line">        <span class="keyword">float</span> lineBaseline = layout.getLineBaseline(i);</span><br><span class="line">        String lineText = getText().subSequence(lineStart, lineEnd).toString();</span><br><span class="line">        canvas.drawText(lineText, lineLeft, lineBaseline, getPaint());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这个效果和默认的绘制效果至少看上去完全一致(实际丢失了对marquee标记的处理)，使用 Layout 还能够达成更多效果。</p>
+</blockquote>
+<h3 id="EditText"><a href="#EditText" class="headerlink" title="EditText"></a>EditText</h3><p>EditText 实际上完完全全就是 TextView，只不过它采用的样式如下</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"Widget.EditText"</span>&gt;</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"focusable"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"focusableInTouchMode"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"clickable"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"background"</span>&gt;</span>?attr/editTextBackground<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textAppearance"</span>&gt;</span>?attr/textAppearanceMediumInverse<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColor"</span>&gt;</span>?attr/editTextColor<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"gravity"</span>&gt;</span>center_vertical<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"breakStrategy"</span>&gt;</span>simple<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"hyphenationFrequency"</span>&gt;</span>normal<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>其背景 drawable 在正常状态下是白色的.9图（@drawable/textfield_default），通过设置如下属性 TextView 亦可以选择文本供剪贴板使用</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">android:textIsSelectable="true"</span><br></pre></td></tr></table></figure>
+<p>TextView 和 EditText 所得的文本为 EditText 类，这是一个继承了很多文本处理接口的类，功能强大，例如可以设置过滤器 InputFilter，数字输入框，号码框就是靠其实现的。</p>
+<blockquote>
+<p>AutoCompleteTextView 继承 EditText ，本是一个带 PopupWindow(带 ListView) 的 EditText，获取焦点时显示 PopupWindow。</p>
+</blockquote>
+<h3 id="Button"><a href="#Button" class="headerlink" title="Button"></a>Button</h3><p>Button 实际上也完完全全就是 TextView，只不过它使用了默认的样式，改变了外观，所采用的样式可以在 themes 文件中找到，如下</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"Widget.Button"</span>&gt;</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"background"</span>&gt;</span>@drawable/btn_default<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"focusable"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"clickable"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textAppearance"</span>&gt;</span>?attr/textAppearanceSmallInverse<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColor"</span>&gt;</span>@color/primary_text_light<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"gravity"</span>&gt;</span>center_vertical|center_horizontal<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>其中影响按钮外观最大的就是背景 Drawable，默认情况下为一个 SelectDrawable，在正常状态下是灰色的.9图(位于res\drawable-mdpi.btn_default_normal.9.png)，并在不同的状态/主题下采用不同颜色的.9图。</p>
+<p><strong>android 默认提供了很多按钮的 style</strong>，如</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">style="?android:attr/imageButtonStyle"</span><br></pre></td></tr></table></figure>
+<h4 id="CompoundButton"><a href="#CompoundButton" class="headerlink" title="CompoundButton"></a>CompoundButton</h4><p>CompoundButton 是一种特殊的 Button，从功能上将它只有两种状态，即是否 isChecked；从实现上看，它采用了新 Drawable 来表示 checked 状态，并重写了 onDraw 方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">	<span class="comment">//1.首先绘制 TextView 和 背景 Drawable</span></span><br><span class="line">    <span class="keyword">super</span>.onDraw(canvas);</span><br><span class="line">    buttonDrawable.setBounds(left, top, right, bottom);</span><br><span class="line">    <span class="comment">//2.再绘制 buttonDrawable，注意这里的 trick，要处理 scrollX/scrollY</span></span><br><span class="line">    <span class="keyword">if</span> (buttonDrawable != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> scrollX = mScrollX;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> scrollY = mScrollY;</span><br><span class="line">        <span class="keyword">if</span> (scrollX == <span class="number">0</span> &amp;&amp; scrollY == <span class="number">0</span>) &#123;</span><br><span class="line">            buttonDrawable.draw(canvas);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            canvas.translate(scrollX, scrollY);</span><br><span class="line">            buttonDrawable.draw(canvas);</span><br><span class="line">            canvas.translate(-scrollX, -scrollY);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因此我们知道改变 CompoundButton 既可以改变其外观，在XML上属性为</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">android:button="@null" // 即buttonDrawable为空</span><br></pre></td></tr></table></figure>
+<p>在 java 代码上</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setButtonDrawable</span><span class="params">(@DrawableRes <span class="keyword">int</span> resId)</span></span></span><br></pre></td></tr></table></figure>
+<p>子类 CheckBox玩玩全全就是 CompoundButton，另一个子类 Switch 则较为复杂。</p>
+<p>发生点击事件后处理如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">performClick</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    toggle();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">super</span>.performClick();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">toggle</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    setChecked(!mChecked);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="Switch"><a href="#Switch" class="headerlink" title="Switch"></a>Switch</h4><p>Switch 上除了 button 参数，另有两个 drawable，底层的叫 “track”，上层的叫“thumb”，上层面积是底层的一半左右，通过遮盖和移位来表示 checked 状态。此外 checked 时的文本叫做 “textOn”，而反之叫做 “textOff”。</p>
+<blockquote>
+<p>注意此时 Button Drawable 依然有效。</p>
+</blockquote>
+<p>在实现上，除了重写 onDraw 方法外，还要处理 “thumb” 区域的触摸事件，以完成状态切换。</p>
+<p>因为“thumb” 是飘在 “track”上左右移动的，因此切换的动画是用属性动画完成的。</p>
+<h2 id="一些与-Text-相关的库"><a href="#一些与-Text-相关的库" class="headerlink" title="一些与 Text 相关的库"></a>一些与 Text 相关的库</h2><h3 id="集大成者-HTextView"><a href="#集大成者-HTextView" class="headerlink" title="集大成者 : HTextView"></a><a href="https://github.com/hanks-zyh/HTextView" target="_blank" rel="noopener"><strong>集大成者 : HTextView</strong></a></h3><p>HTextView 这个库实现的效果华丽，代码的风格和扩展性也非常好，而且作者将不同的效果仅仅分包，引入某种效果的体积极小，实在是不可多得的优质库。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">HTextView</span> <span class="keyword">extends</span> <span class="title">TextView</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">setProgress</span><span class="params">(<span class="keyword">float</span> progress)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">animateText</span><span class="params">(CharSequence text)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="/2017/07/23/android/View/与%20TextView%20相关的知识点/demo7.gif">
+<p>1.Line 效果实质是在文本之外定点，描边，画线，这是附加性质的绘制。</p>
+<img src="/2017/07/23/android/View/与%20TextView%20相关的知识点/fade.gif">
+<p>2.Fade 效果是自发绘制文本，这里要利用 TextView 中 Layout 这个类。首先**均匀的挑出透明的字符位置，组成 alphaList。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">drawFrame</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">    Layout layout = mHTextView.getLayout();</span><br><span class="line">    <span class="keyword">int</span> gapIndex = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; layout.getLineCount(); i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> lineStart = layout.getLineStart(i);</span><br><span class="line">        <span class="keyword">int</span> lineEnd = layout.getLineEnd(i);</span><br><span class="line">        <span class="keyword">float</span> lineLeft = layout.getLineLeft(i);</span><br><span class="line">        <span class="keyword">float</span> lineBaseline = layout.getLineBaseline(i);</span><br><span class="line">        String lineText = mText.subSequence(lineStart, lineEnd).toString();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> c = <span class="number">0</span>; c &lt; lineText.length(); c++) &#123;</span><br><span class="line">            <span class="keyword">int</span> alpha = alphaList.get(gapIndex);</span><br><span class="line">            mPaint.setAlpha((<span class="keyword">int</span>) ((<span class="number">255</span> - alpha) * progress + alpha));</span><br><span class="line">            String str = lineText.substring(j, j+<span class="number">1</span>);</span><br><span class="line">            canvas.drawText(str, lineLeft, lineBaseline, mPaint);</span><br><span class="line">            lineLeft += getPaint().measureText(str);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这里要准确测量每一个字符的宽度。</p>
+</blockquote>
+<img src="/2017/07/23/android/View/与%20TextView%20相关的知识点/typer.gif">
+<p>3.打字机效果的实现十分简单</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setProgress</span><span class="params">(<span class="keyword">float</span> progress)</span> </span>&#123;</span><br><span class="line">    setText(mText.subSequence(<span class="number">0</span>, (<span class="keyword">int</span>) (mText.length() * progress)));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="/2017/07/23/android/View/与%20TextView%20相关的知识点/rainbow.gif">
+<p>4.彩虹效果：通过操作Shader的矩阵完成染色。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mMatrix == <span class="keyword">null</span>) &#123;</span><br><span class="line">        mMatrix = <span class="keyword">new</span> Matrix();</span><br><span class="line">    &#125;</span><br><span class="line">    mTranslate += colorSpeed;</span><br><span class="line">    mMatrix.setTranslate(mTranslate, <span class="number">0</span>);</span><br><span class="line">    mLinearGradient.setLocalMatrix(mMatrix);</span><br><span class="line">    <span class="keyword">super</span>.onDraw(canvas);</span><br><span class="line">    postInvalidateDelayed(<span class="number">100</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="/2017/07/23/android/View/与%20TextView%20相关的知识点/demo3.gif">
+<p>5.Scale 效果：利用 Layout 重新定义了绘制方法，以重绘新旧字符串。重复的字符移位，其余的收缩。以下两种情况亦然。</p>
+<img src="/2017/07/23/android/View/与%20TextView%20相关的知识点/demo6.gif">
+<h3 id="Shimmer"><a href="#Shimmer" class="headerlink" title="Shimmer"></a><a href="https://github.com/facebook/shimmer-android" target="_blank" rel="noopener">Shimmer</a></h3><img src="/2017/07/23/android/View/与%20TextView%20相关的知识点/shimmer.gif">
+<p>一般情况下闪光效果和 HTextView 一样是采用渐变的效果达成的，对画笔进行设置，使渐变的位置发生偏移，即产生闪光效果。这里只需要改变 Paint 取像素的方式即可</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mGradient.setLocalMatrix(mMatrix);</span><br><span class="line">getPaint().setShader(mGradient);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这里将原生画笔的像素提供方式改变了，它只与绘制的内容文本有关，与背景没有干扰。如果要取消闪光效果，可以将其设为null。</p>
+</blockquote>
+<p>但要达到较好的效果还需要</p>
+<p>1.仔细的设置渐变的参数，渐变的设置如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mGradient = <span class="keyword">new</span> LinearGradient(getWidth(), <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,</span><br><span class="line">        <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;</span><br><span class="line">                getCurrentTextColor(), </span><br><span class="line">                <span class="number">0xFFFFFFFF</span>, </span><br><span class="line">                getCurrentTextColor()&#125;,</span><br><span class="line">        <span class="keyword">new</span> <span class="keyword">float</span>[]&#123;<span class="number">0</span>, <span class="number">0.5f</span>, <span class="number">1</span>&#125;, </span><br><span class="line">        Shader.TileMode.CLAMP);</span><br></pre></td></tr></table></figure>
+<p>2.处理矩阵的变化已达到动画效果。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mMatrix.setTranslate((mProcess-<span class="number">0.5f</span>)*getMeasuredWidth(), <span class="number">0</span>);<span class="comment">//这里要回退半个屏幕距离，和渐变的设置有关</span></span><br><span class="line">mMGradient.setLocalMatrix(mMatrix);</span><br><span class="line"><span class="keyword">super</span>.onDraw(canvas);</span><br></pre></td></tr></table></figure>
+<p><strong>facebook的这个 Shimmer 库可贵的是将闪光效果扩展到布局上去了，其实他的做法也是通过Shader，但首先要将 布局内容转为 Bitmap，再在绘制 Bitmap 的时候应用上述这一套。</strong></p>
+<h3 id="ReadMoreTextView"><a href="#ReadMoreTextView" class="headerlink" title="ReadMoreTextView"></a><a href="https://github.com/bravoborja/ReadMoreTextView" target="_blank" rel="noopener">ReadMoreTextView</a></h3><img src="/2017/07/23/android/View/与%20TextView%20相关的知识点/expanded.png">
+<p>这里文本设置两种模式：显示完全和保留显示(最多显示240字)；</p>
+<p>ReadMoreTextView 是利用 ClickSpan 来设置最后的提示文本，<a href="https://github.com/Manabu-GT/ExpandableTextView" target="_blank" rel="noopener">ExpandableTextView</a>这个库则是另外的思路，它本质上是一个 Linear 布局，需要重新计算尺寸，以及在点击事件发生时播放动画。相比之下前者的实现更简洁，但在切换时没有实现动画效果。</p>
+<p>实现这个效果，我们要重写如下方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setText</span><span class="params">(CharSequence text, BufferType type)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.setText(getDisplayText(text), type);</span><br><span class="line">    setMovementMethod(LinkMovementMethod.getInstance());<span class="comment">//使得TextView能够响应动作</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用 SpannableStringBuilder 来改造原来的 text</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> CharSequence <span class="title">getDisplayText</span><span class="params">(<span class="keyword">final</span> CharSequence text)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> len = text.length();</span><br><span class="line">    <span class="keyword">if</span> (len &lt; <span class="number">240</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> text;</span><br><span class="line">    &#125;</span><br><span class="line">    SpannableStringBuilder builder = generateText(text, isShowMore);</span><br><span class="line">    builder.setSpan(<span class="keyword">new</span> ClickableSpan() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View widget)</span> </span>&#123;</span><br><span class="line">                isShowMore = !isShowMore;</span><br><span class="line">                setText(text);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);</span><br><span class="line">    &#125; ;</span><br><span class="line">    <span class="keyword">return</span> builder;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="字体设置"><a href="#字体设置" class="headerlink" title="字体设置"></a><a href="https://github.com/chrisjenx/Calligraphy" target="_blank" rel="noopener">字体设置</a></h3><img src="/2017/07/23/android/View/与%20TextView%20相关的知识点/screenshot.png">
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">TextView</span> <span class="attr">fontPath</span>=<span class="string">"fonts/MyFont.ttf"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这里 TextView 可以使用新的标签，这是通过代理 Context 来实现的，这里主要是改造 LayoutInflater 。改造 Factory2 和 Factory完成。</p>
+
+    </div>
+
+    
+    
+    
+      
+
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="xiang 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2017/07/06/android/View/滑动与触摸/" rel="next" title="滑动与触摸">
+                  <i class="fa fa-chevron-left"></i> 滑动与触摸
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2017/07/24/android/View/与 Drawable 相关的知识点/" rel="prev" title="与 Drawable 相关的知识点">
+                  与 Drawable 相关的知识点 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#TextView以及其子类"><span class="nav-text">TextView以及其子类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#TextView的绘制：Layout"><span class="nav-text">TextView的绘制：Layout</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EditText"><span class="nav-text">EditText</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Button"><span class="nav-text">Button</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#CompoundButton"><span class="nav-text">CompoundButton</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Switch"><span class="nav-text">Switch</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一些与-Text-相关的库"><span class="nav-text">一些与 Text 相关的库</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#集大成者-HTextView"><span class="nav-text">集大成者 : HTextView</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Shimmer"><span class="nav-text">Shimmer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ReadMoreTextView"><span class="nav-text">ReadMoreTextView</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字体设置"><span class="nav-text">字体设置</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/1.jpg"
+      alt="xiang">
+  <p class="site-author-name" itemprop="name">xiang</p>
+  <div class="site-description" itemprop="description">谨守而勿失，是谓反其真</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/liuxiangtian" title="GitHub &rarr; https://github.com/liuxiangtian" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="http://www.zhihu.com/people/liu-xiang-tian-74" title="zhihu &rarr; http://www.zhihu.com/people/liu-xiang-tian-74" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>zhihu</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘祥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">191k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:53</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script><script src="/js/bookmark.js?v=7.4.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

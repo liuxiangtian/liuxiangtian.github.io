@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN,ja,en,default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="启动流程使用 Context 启动活动的方法如下 1void startActivity(Intent intent); 其实际流程如图俄罗斯瓷娃娃一样，分别经过ContextImpl，Instrumentation和AMS的处理。 1。首先是 ContextImpl 类，它委托给了Instrumentation 类，自己仅仅检查线程和 flag 参数。 12345678910111213@Ove">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Activity">
+<meta property="og:url" content="http://yoursite.com/2017/05/18/android/系统/Activity/index.html">
+<meta property="og:site_name" content="lxt">
+<meta property="og:description" content="启动流程使用 Context 启动活动的方法如下 1void startActivity(Intent intent); 其实际流程如图俄罗斯瓷娃娃一样，分别经过ContextImpl，Instrumentation和AMS的处理。 1。首先是 ContextImpl 类，它委托给了Instrumentation 类，自己仅仅检查线程和 flag 参数。 12345678910111213@Ove">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://hukai.me/images/articles/diagram_backstack.png">
+<meta property="og:updated_time" content="2019-09-17T15:11:27.673Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Activity">
+<meta name="twitter:description" content="启动流程使用 Context 启动活动的方法如下 1void startActivity(Intent intent); 其实际流程如图俄罗斯瓷娃娃一样，分别经过ContextImpl，Instrumentation和AMS的处理。 1。首先是 ContextImpl 类，它委托给了Instrumentation 类，自己仅仅检查线程和 flag 参数。 12345678910111213@Ove">
+<meta name="twitter:image" content="http://hukai.me/images/articles/diagram_backstack.png">
+  <link rel="canonical" href="http://yoursite.com/2017/05/18/android/系统/Activity/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Activity | lxt</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lxt</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a class="book-mark-link book-mark-link-fixed" href="#"></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/18/android/系统/Activity/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiang">
+      <meta itemprop="description" content="谨守而勿失，是谓反其真">
+      <meta itemprop="image" content="/images/1.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lxt">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Activity
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2017-05-18 11:26:26" itemprop="dateCreated datePublished" datetime="2017-05-18T11:26:26+08:00">2017-05-18</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-17 23:11:27" itemprop="dateModified" datetime="2019-09-17T23:11:27+08:00">2019-09-17</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/android/系统/" itemprop="url" rel="index"><span itemprop="name">系统</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>13k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>12 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="启动流程"><a href="#启动流程" class="headerlink" title="启动流程"></a>启动流程</h2><p>使用 Context 启动活动的方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">startActivity</span><span class="params">(Intent intent)</span></span>;</span><br></pre></td></tr></table></figure>
+<p><strong>其实际流程如图俄罗斯瓷娃娃一样，分别经过ContextImpl，Instrumentation和AMS的处理。</strong></p>
+<p>1。首先是 ContextImpl 类，它委托给了Instrumentation 类，自己仅仅检查线程和 flag 参数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">startActivity</span><span class="params">(Intent intent, Bundle options)</span> </span>&#123;</span><br><span class="line">    warnIfCallingFromSystemProcess();</span><br><span class="line">    <span class="keyword">if</span> ((intent.getFlags()&amp;Intent.FLAG_ACTIVITY_NEW_TASK) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> AndroidRuntimeException(</span><br><span class="line">                <span class="string">"Calling startActivity() from outside of an Activity "</span></span><br><span class="line">                + <span class="string">" context requires the FLAG_ACTIVITY_NEW_TASK flag."</span></span><br><span class="line">                + <span class="string">" Is this really what you want?"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    mMainThread.getInstrumentation().execStartActivity(</span><br><span class="line">            getOuterContext(), mMainThread.getApplicationThread(), <span class="keyword">null</span>,</span><br><span class="line">            (Activity) <span class="keyword">null</span>, intent, -<span class="number">1</span>, options);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>这里应该注意如果不是从 Activity 中启动活动，则需要添加 FLAG_ACTIVITY_NEW_TASK 标记，否则将抛出异常。</strong></p>
+<p>活动启动的结果用 Instrumentation.ActivityResult 类表示，其定义如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> mResultCode;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Intent mResultData;</span><br></pre></td></tr></table></figure>
+<p>而后将对该结果进行检测处理，采用主线程 Handler 机制进行，发生消息为 H.SEND_RESULT ，响应方法为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">handleSendResult</span><span class="params">(ResultData res)</span></span></span><br></pre></td></tr></table></figure>
+<p>该方法中将分发处理结果( dispatchActivityResult )，并调用 onActivityResult(requestCode, resultCode, data) 方法。</p>
+<p>2。其次是 Instrumentation 类，它委托给AMS来完成，自己只检查下结果，验证活动是否能够正确启动。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">ActivityResult <span class="title">execStartActivity</span><span class="params">(...)</span></span>&#123;</span><br><span class="line">    IApplicationThread whoThread = (IApplicationThread) contextThread;     </span><br><span class="line">    <span class="keyword">int</span> result = ActivityManagerNative.getDefault().startActivity(...);    </span><br><span class="line">    checkStartActivityResult(result, intent);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如结果是 ActivityManager.START_CLASS_NOT_FOUND 会爆出常见异常</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Unable to find explicit activity <span class="class"><span class="keyword">class</span> </span>; have you declared <span class="keyword">this</span> activity in your AndroidManifest.xml?<span class="string">"</span></span><br></pre></td></tr></table></figure>
+<p>3。最后是AMS ，启动活动会经过一系列复杂的流转，涉及到活动栈的处理等，但最终会回到 ActivityThread 类中来。</p>
+<p>在 ActivityThread的 main 方法中，启动了主线程的 Looper 循环。启动活动将发送一个 LAUNCH_ACTIVITY 消息，而后使用内部类 H 来处理该消息。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ActivityClientRecord r = (ActivityClientRecord) msg.obj;</span><br><span class="line">handleLaunchActivity(r, <span class="keyword">null</span>);</span><br></pre></td></tr></table></figure>
+<p>handleLaunchActivity 方法将完成 WindowManager 初始化，并利用反射创建活动对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">handleLaunchActivity</span><span class="params">(ActivityClientRecord r, Intent customIntent)</span> </span>&#123;	</span><br><span class="line">    <span class="comment">//1. WindowManager初始化    </span></span><br><span class="line">    WindowManagerGlobal.initialize();    </span><br><span class="line">    Activity a = performLaunchActivity(r, customIntent);    </span><br><span class="line">    <span class="keyword">if</span> (a != <span class="keyword">null</span>) &#123;        </span><br><span class="line">        handleResumeActivity(r.token, <span class="keyword">false</span>, r.isForward);    </span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;        </span><br><span class="line">        ActivityManagerNative.getDefault().finishActivity(r.tokene);    </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>performLaunchActivity 方法创建活动，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Activity <span class="title">performLaunchActivity</span><span class="params">(ActivityClientRecord r, Intent customIntent)</span></span>&#123;	</span><br><span class="line">    Activity activity = mInstrumentation.newActivity(...);        </span><br><span class="line">    Application app = r.packageInfo.makeApplication(<span class="keyword">false</span>, mInstrumentation);	</span><br><span class="line">    Context appContext = createBaseContextForActivity(r, activity);	</span><br><span class="line">    Configuration config = <span class="keyword">new</span> Configuration(mCompatConfiguration);        </span><br><span class="line">    activity.attach(...);                    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中 attach 方法创建了 Window 的实例。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">attach</span><span class="params">(Context context)</span></span>&#123;</span><br><span class="line">    mWindow = <span class="keyword">new</span> PhoneWindow(<span class="keyword">this</span>);    </span><br><span class="line">    mWindow.setCallback(<span class="keyword">this</span>);	</span><br><span class="line">    mWindow.setUiOptions(info.uiOptions);	</span><br><span class="line">    mWindow.setWindowManager()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果活动创建失败，则结束；如果成功，handleResumeActivity 方法会将 DecorView 对象渲染到窗口 PhoneWindow 上去，但注意<strong>此时该控件是不可见的</strong>。如果启动成功，在处理结果的时候后将可见性改为可见。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">handleResumeActivity</span><span class="params">(IBinder token, ...)</span></span>&#123;	</span><br><span class="line">    ActivityClientRecord r = performResumeActivity(token, clearHide);	</span><br><span class="line">    Activity a = r.activity;	</span><br><span class="line">    r.window = r.activity.getWindow();    </span><br><span class="line">    View decor = r.window.getDecorView();    </span><br><span class="line">    decor.setVisibility(View.INVISIBLE);    </span><br><span class="line">    ViewManager wm = a.getWindowManager();    </span><br><span class="line">    WindowManager.LayoutParams l = r.window.getAttributes();    </span><br><span class="line">    a.mDecor = decor;    </span><br><span class="line">    l.type = WindowManager.LayoutParams.TYPE_BASE_APPLICATION;    </span><br><span class="line">    <span class="keyword">if</span> (a.mVisibleFromClient) &#123;         </span><br><span class="line">        a.mWindowAdded = <span class="keyword">true</span>;         </span><br><span class="line">        wm.addView(decor, l);    </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为 AMS 是单例实现，Hook 掉 AMS 非常容易，详情见<a href="http://weishu.me/2016/03/07/understand-plugin-framework-ams-pms-hook/" target="_blank" rel="noopener">weishu的文章</a></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Class amsClass = Class.forName(<span class="string">"android.app.ActivityManagerNative"</span>);</span><br><span class="line">Method getDefaultMethod = amsClass.getDeclaredMethod(<span class="string">"getDefault"</span>);</span><br><span class="line">Object iActivityManager = getDefaultMethod.invoke(<span class="keyword">null</span>);</span><br><span class="line">Field gDefaultField = amsClass.getDeclaredField(<span class="string">"gDefault"</span>);</span><br><span class="line">gDefaultField.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">Object gDefaultSingleton = gDefaultField.get(<span class="keyword">null</span>);</span><br><span class="line">Class&lt;?&gt; singletonClass = Class.forName(<span class="string">"android.util.Singleton"</span>);</span><br><span class="line">Field mInstanceField = singletonClass.getDeclaredField(<span class="string">"mInstance"</span>);</span><br><span class="line">mInstanceField.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">Class&lt;?&gt; iActivityManagerInterface = Class.forName(<span class="string">"android.app.IActivityManager"</span>);</span><br><span class="line">Object mInstance = Proxy.newProxyInstance(gDefaultSingleton.getClass().getClassLoader(),        <span class="keyword">new</span> Class[]&#123;</span><br><span class="line">    iActivityManagerInterface&#125;,<span class="keyword">new</span> ActivityManagerHandler(iActivityManager));</span><br><span class="line">mInstanceField.set(gDefaultSingleton, mInstance);</span><br></pre></td></tr></table></figure>
+<h2 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h2><p>在理解了启动流程后，更容易理解生命周期，正常的启动和退出流程是</p>
+<p>启动(post 方法等为碎片而存在)：</p>
+<blockquote>
+<p>onCreate –&gt; onStart –&gt; onPostCreate –&gt; onResume –&gt; onPostResume –&gt; onAttachedToWindow</p>
+</blockquote>
+<p>退出：</p>
+<blockquote>
+<p>onPause –&gt; onStop –&gt; onDestroy –&gt; onDetachedFromWindow</p>
+</blockquote>
+<p>如果中途切换其它 App</p>
+<blockquote>
+<p>onPause –&gt; <strong>onSaveInstanceState</strong> –&gt; onStop</p>
+</blockquote>
+<p>恢复页面</p>
+<blockquote>
+<p><strong>onRestart</strong> –&gt; onStart –&gt; onResume –&gt; onPostResume</p>
+</blockquote>
+<p>使用adb命令回收Activity(adb shell am force-stop [包名])，与正常退出一致。</p>
+<p>如果使用下列方法<strong>旋转屏幕(可以靠重力感应完成，会销毁和重建活动)</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);</span><br></pre></td></tr></table></figure>
+<p>则生命周期如下，这里调用保存和恢复方法，也可以在onCreate方法中恢复。</p>
+<blockquote>
+<p>onPause –&gt; <strong>onSaveInstanceState</strong> –&gt; onStop –&gt; onDestroy –&gt; onDetachedFromWindow–&gt;</p>
+<p><strong>onCreate</strong> –&gt; onStart –&gt; <strong>onRestoreInstanceState</strong> –&gt; onResume –&gt; onAttachedToWindow</p>
+</blockquote>
+<p><strong>这和使用 recreate()方法效果一样。</strong></p>
+<p>做如下配置可以避免重建，只执行 onConfig 方法</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">android:configChanges="keyboard|screenSize|orientation"</span><br></pre></td></tr></table></figure>
+<p><strong>此外启动栈内已存在的活动将会调用 onNewIntent 方法。</strong></p>
+<h3 id="保存和恢复"><a href="#保存和恢复" class="headerlink" title="保存和恢复"></a><a href="https://github.com/frankiesardo/icepick" target="_blank" rel="noopener">保存和恢复</a></h3><p>活动的保存和恢复是向下分发的，碎片和View都受到影响。如 View会构建一个BaseSavedState对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> Parcelable <span class="title">onSaveInstanceState</span><span class="params">()</span> </span>&#123;    </span><br><span class="line">    mPrivateFlags |= PFLAG_SAVE_STATE_CALLED;    </span><br><span class="line">    <span class="keyword">if</span> (mStartActivityRequestWho != <span class="keyword">null</span>) &#123;        </span><br><span class="line">        BaseSavedState state = <span class="keyword">new</span> BaseSavedState(AbsSavedState.EMPTY_STATE);        </span><br><span class="line">        state.mStartActivityRequestWhoSaved = mStartActivityRequestWho;        </span><br><span class="line">        <span class="keyword">return</span> state;    </span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="keyword">return</span> BaseSavedState.EMPTY_STATE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用时获取并扩展该对象，写入数据即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SavedState</span> <span class="keyword">extends</span> <span class="title">BaseSavedState</span> </span>&#123;    </span><br><span class="line">    CharSequence text;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="任务栈"><a href="#任务栈" class="headerlink" title="任务栈"></a>任务栈</h2><p>Activity 的启动跳转关系与<strong>Task（任务）和 Back Stack（回退栈）</strong>紧密相连，<code>Task</code> 是一个<strong>Framework</strong>层概念，<strong>专指在程序运行时一组相互关联的activity的集合，负责控制界面的跳转和返回</strong>。<strong>Back Stack</strong>则是实现 Task 所用的数据结构，拥有栈的特点.</p>
+<p>下面三个属性会影响<strong>Task</strong>和<strong>Back Stack</strong>的状态。</p>
+<ul>
+<li><strong>活动的启动模式</strong></li>
+<li><strong>taskAffinity属性</strong></li>
+<li><strong>intent的flag属性</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">android:launchMode=<span class="string">"standard"</span></span><br><span class="line">android:taskAffinity=<span class="string">"con.incredible"</span></span><br><span class="line">intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);</span><br></pre></td></tr></table></figure>
+<p>简单说来</p>
+<ul>
+<li>启动模式为<strong>standard</strong>或<strong>singleTop</strong>时，Activity 一般在同一个栈中。</li>
+<li>启动模式为<strong>singleTask</strong>或<strong>singleInstance</strong>时，一般会产生新的任务栈。</li>
+</ul>
+<h3 id="Task和Back-Stack"><a href="#Task和Back-Stack" class="headerlink" title="Task和Back Stack"></a><strong>Task和Back Stack</strong></h3><p>默认情况下，某个<strong>Application</strong>中所有<strong>activity</strong>都处在同一个<strong>Task</strong>中。但二者并没有严格的约束条件，这里有两种情况：</p>
+<ul>
+<li>两个<strong>Application</strong>中的<strong>activity</strong>可以处在同一个<strong>Task</strong>中。即 <strong>task 是可以跨应用的，这正是task存在的一个重要原因</strong>。</li>
+<li>一个<strong>Application</strong>中的<strong>activity</strong>也可以处于多个<strong>Task</strong>中。</li>
+</ul>
+<p>例如在应用中的一个Activity A中使用系统邮件，会启动系统邮件程序的一个Activity B。这两个activity是存在于不同app中的，但是被系统放在一个task中,这样能保证程序回退到原有程序中。</p>
+<p>设备Home界面是大多数tasks的起始点。<strong>当用户点击程序在Home上的启动图标时，这个程序的task就转入前台。如果程序没有打开，那么之前不存在task，一个新的task将被创建并且程序的”main” 活动将被打开并被推入栈中；如果程序已经打开，则已经存在Task，就恢复显示栈顶的活动。</strong></p>
+<p><strong>当目前的activity启动另外一个activity时，新的activity被压入栈中作为栈顶并且获取到了focus。前面的那个activity则进入stopped状态，此时系统会保留它的UI状态以便恢复。当用户点击back按钮时，栈顶的activity从栈顶退出并被destroyed，之前处于stopped状态的activity则进入resume状态(其保存的UI状态得到恢复).</strong></p>
+<p><img src="http://hukai.me/images/articles/diagram_backstack.png" alt="1"></p>
+<p>如果用户持续点击back按钮，那么在栈中的每一个activity都会做退栈并显示之前activity的动作, 直到用户退回到Home界面(或者是用户开始task的地方)。<strong>当所有的activities都从栈中被移除之后，这个task也就消失了。</strong></p>
+<p>一个task是一个紧密结合的单元，处于后台的task中的所有活动都处于stopped状态，只有task转移到前台，栈顶的活动显示。<strong>众多tasks都可以一并在后台被Hold住，然而系统为了恢复内存而有可能销毁这些栈中的activities。</strong></p>
+<p><strong>此时activity的状态信息则会丢失. 但系统仍然为那个activity在back stack中保留了位置, 但是当这个activity成为栈顶activity时, 系统必须recreate它(而不是resume它)，这时需要使用者主动实现onSaveInstanceState()回调方法来保存恢复所需的信息。</strong></p>
+<blockquote>
+<p>在activity中调用 moveTaskToBack (boolean nonRoot)方法即可将activity 退到后台，注意不是finish()退出。</p>
+</blockquote>
+<h3 id="启动模式"><a href="#启动模式" class="headerlink" title="启动模式"></a><a href="http://ltlovezh.com/2016/08/28/Activity启动模式一/" target="_blank" rel="noopener">启动模式</a></h3><p><strong>每个活动的创建有两步：以下对四种启动模式的分析都从这两步进行</strong></p>
+<p>1.判断是否创建新任务栈，即<strong>新Task</strong>。<br>2.判断是否创建新活动，即<strong>新 Activity</strong>。</p>
+<p><strong>活动如何创建</strong>主要受两个因素影响：<strong>taskAffinity属性</strong>与<strong>启动模式</strong>。</p>
+<p>a.taskAffinity 属性意味着 activity 更倾向归属于哪一个task，可以认为它指定了<strong>activity</strong>所在的<strong>task</strong>名称，这一属性是活动处在不同的<code>Task</code>中的<strong>必要不充分条件</strong>。使用<strong>taskAffinity</strong>属性的一些原则是：</p>
+<p>1.如果不设置某活动的<strong>taskAffinity</strong>属性，则该属性值与启动它的活动相同。第一个活动的该属性为应用的包名。<br>2.<strong>taskAffinity</strong>属性并不能唯一决定活动所在的栈，还要受到<strong>启动模式</strong>影响。</p>
+<p><strong>举例</strong>:假设某个APP内的活动启动顺序为：<strong>a-b-c-d</strong>。如果采用默认配置，则abcd四个活动都将处在名称为包名的 Task 中。</p>
+<p><strong>b.启动模式</strong><br>设置活动和 Task 的关系。<strong>一共有四种启动模式：为</strong>standard<strong>，</strong>singleTop<strong>，</strong>singleTask<strong>，</strong>singleInstance。</p>
+<h4 id="Standard-默认模式"><a href="#Standard-默认模式" class="headerlink" title="Standard(默认模式)"></a><strong>Standard(默认模式)</strong></h4><p>1.taskAffinity 属性无效。即使设置也并不会创建新 Task ，活动所处的 task 与启动它的活动永远保持一致。</p>
+<p>2.活动的创建百无禁忌，不需要任何检查就创建新的活动实例，因为<strong>能够重复创建活动实例</strong>。</p>
+<h4 id="SingleTop"><a href="#SingleTop" class="headerlink" title="SingleTop"></a><strong>SingleTop</strong></h4><ol>
+<li>taskAffinity 属性同样无效。</li>
+</ol>
+<p>2.与标准模式的区别在于第二步， SingleTop 模式对活动的创建做了一个<strong>较弱的约束</strong>，即<strong>不允许创建与栈顶重复的活动实例</strong>。会检查<strong>活动返回栈的栈顶活动</strong>是否是待启动的活动类，如果是则不会创建活动实例。</p>
+<p>如当前活动栈是<code>a-b-c-d</code>。如果再启动<code>d</code>，仍是<code>a-b-c-d</code>；启动<code>a</code>，将是<code>a-b-c-d-a</code>。</p>
+<h4 id="SingleTask"><a href="#SingleTask" class="headerlink" title="SingleTask"></a><strong>SingleTask</strong></h4><p>前两种模式中， taskAffinity 属性都是无效的，不会对新活动所处的 task 产生影响。 singleTask 模式下， taskAffinity 属性终于获得用武的机会，将对<strong>task</strong>产生影响。</p>
+<p>1.在新活动<strong>c</strong>创建时，先查看是否存在与其<strong>taskAffinity</strong>属性相同的<strong>task</strong>。</p>
+<ul>
+<li>如果存在，不会创建新<strong>task</strong>。</li>
+<li>如果不存在，则创建以<strong>taskAffinity</strong>属性为名的新<strong>task</strong>。</li>
+</ul>
+<p>如果不设置<strong>taskAffinity</strong>属性，则该属性值与启动它的活动一致，此时不会产生新的<strong>task</strong>。</p>
+<p>2.再在选中的<strong>task</strong>中查找有无活动<strong>c</strong>实例。</p>
+<ul>
+<li><strong>有则将该task中c实例之上的活动全部出栈，使得该实例处在栈顶;</strong></li>
+<li>没有则在栈顶上新建活动<code>c</code>.</li>
+</ul>
+<h4 id="SingleInstance"><a href="#SingleInstance" class="headerlink" title="SingleInstance"></a><strong>SingleInstance</strong></h4><p>SingleInstance 模式中，<strong>taskAffinity 属性再次失效</strong>，活动总会在新 Task 中启动。</p>
+<p>1.不管怎么设置<strong>taskAffinity</strong>属性，活动总是会在<strong>新的任务task</strong>中运行。</p>
+<p>2.以 SingleInstance 模式启动的活动<strong>在整个系统中是单例的</strong>。如果单例 task 中存在了一个实例，那么会把已存在的任务调度到前台，<strong>且会调用该Activity的onNewIntent方法</strong>。</p>
+<p>以 SingleInstance 模式启动的 Activity <strong>具有独占性</strong>，即它会<strong>独自占用一个task</strong>，<strong>被他开启的任何 Activity 都会运行在其他task中</strong>, 这一点与 singletask 模式有所区别。</p>
+<h4 id="使用技巧-如何退出APP"><a href="#使用技巧-如何退出APP" class="headerlink" title="使用技巧:如何退出APP?"></a>使用技巧:如何退出APP?</h4><p>性能分析工具 dumpsys可以查看感兴任务栈信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">//1. 列出dumpsys所有支持命令</span><br><span class="line">adb shell dumpsys | grep <span class="string">"DUMP OF SERVICE"</span></span><br><span class="line">adb shell dumpsys activity  //检测Activity任务栈</span><br></pre></td></tr></table></figure>
+<p>命令得到的信息很多，可以获取</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ACTIVITY MANAGER RECENT TASKS (dumpsys activity recents)  </span><br><span class="line">Recent tasks:  </span><br><span class="line">* Recent #0: TaskRecord&#123;33618f06 #10871 A=com.lxt.toast U=0 sz=2&#125;  * </span><br><span class="line">Recent #1: TaskRecord&#123;38898108 #10872 A=com.qihoo360.mobilesafe U=0 sz=0&#125;ACTIVITY MANAGER ACTIVITIES (dumpsys activity activities)Display #0 (activities from top to bottom):  </span><br><span class="line">Stack #1:    Task id #10871      TaskRecord&#123;33618f06 #10871 A=com.lxt.toast U=0 sz=2&#125;      Intent &#123; act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.lxt.toast/.MainActivity &#125;        </span><br><span class="line">Hist #1: ActivityRecord&#123;30b1cfcf u0 com.lxt.toast/.Main2Activity t10871&#125;        </span><br><span class="line">Hist #0: ActivityRecord&#123;224a2c28 u0 com.lxt.toast/.MainActivity t10871&#125;    </span><br><span class="line">Task id #10868      TaskRecord&#123;32f0d2c6 #10868 A=com.android.settings U=0 sz=1&#125;  mFocusedActivity: ActivityRecord&#123;30b1cfcf u0 com.lxt.toast/.Main2Activity t10871&#125;  mFocusedStack=ActivityStack&#123;16b5b2d9 stackId=1, 51 tasks&#125; mLastFocusedStack=ActivityStack&#123;16b5b2d9 stackId=1, 51 tasks&#125;  mCurTaskId=10872</span><br></pre></td></tr></table></figure>
+<p>singleTask 这个模式有一个重要应用，即所谓的“<strong>优雅的退出APP</strong>”。<strong>将第一个活动设置为singleTask 模式，则在其他活动中向首活动跳转将会将该栈内部的所有活动出栈。</strong></p>
+<p>如果某APP中启动活动顺序是A–&gt;B—&gt;C—&gt;D，要从D中退出整个APP。原理是将活动A设置为singleTask 模式，并在该活动中跳转到启动活动A，则A之上的活动将全部出栈，最终结束A即可。</p>
+<p>这么做的思路和原理是正确的，但是必须保证ABCD都处在同一个任务栈下才有效。<strong>A只能将和它相同的栈内的活动出栈，而不能将其他任务栈中的活动出栈</strong>。</p>
+<blockquote>
+<p>更简单的操作是直接使用finishAffinity()方法，<strong>注意该方法会销毁栈</strong>。</p>
+</blockquote>
+<h3 id="Intent"><a href="#Intent" class="headerlink" title="Intent"></a>Intent</h3><p>Intent 译作“意图”，表示一个对某类数据待执行的操作，可以用来启动安卓的三大组件活动，服务和广播。因为 Intent 将用在跨进程通信中，所以它是一个 Parcelable 类。</p>
+<p>Intent 的基本信息包括 action 和 data。 Action 表示动作类型，Data 指定动作操作的数据 Uri。 例如 ACTION_VIEW 是默认动作，表示展示数据给用户，而展示何种数据由类型决定，展示的内容由 Uri 指定，下例表示展示文本数据。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Intent intent = <span class="keyword">new</span> Intent(ACTION_VIEW);</span><br><span class="line">intent.setType(<span class="string">"text/plain"</span>);</span><br><span class="line">startActivity(intent);</span><br></pre></td></tr></table></figure>
+<p>发出此 Intent 后，设备内部能够匹配此意图的应用会出现在列表中，即数据展示方式由设备已有的程序决定。<strong>隐式 Intent 的解析机制依赖 IntentFilter ，安卓组件通过设置 IntentFilter 确定自己所能匹配的 Intent 。</strong></p>
+<p>Intent 的补充信息包括Categories(对动作信息进行补充)，Type(指定数据的<strong>MIME</strong>类型)，Extras(提供<strong>额外信息</strong>)，</p>
+<p>当发出 Intent 后会对 PackageManager 做查询，在 AndroidManifest.xml 配置文件上寻找能够完成匹配的安卓组件。组件中 IntentFilter 所定义的信息要全部一致才算匹配成功，如果定义了多个 category ，至少要匹配其中一个。</p>
+<p>安卓组件也可以定义多个 intent-filter ，此时只要有一个匹配成功就能启动组件。</p>
+<p>如果设备内没有能够响应 Intent 的程序，则会抛出异常，因此为安全起见可用如下方法预先判断下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;ResolveInfo&gt; resolveInfos = getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>PackageManager.MATCH_DEFAULT_ONLY表示只匹配设置了CATEGORY_DEFAULT的活动。</p>
+</blockquote>
+<p>标记位 Flags 控制动作的执行方式，它与具体的组件有关。最常见的标记位多是与活动组件由关的，以<code>FLAG_ACTIVITY</code>开头。</p>
+<p><strong>1.FLAG_ACTIVITY_SINGLE_TOP</strong>表示<strong>SINGLE_TOP</strong>启动方式</p>
+<p><strong>2.FLAG_ACTIVITY_NO_ANIMATION</strong>防止活动启动时使用转场动画。</p>
+<p><strong>3.FLAG_ACTIVITY_TASK_ON_HOME</strong> 活动将在主屏幕所在栈上新栈，此时点击后退，将回退到主屏幕上。</p>
+<p><strong>4.FLAG_ACTIVITY_CLEAR_TASK</strong> 此前的活动栈将销毁，所启动的活动将成为新栈的根，需要配合<code>FLAG_ACTIVITY_NEW_TASK</code>使用。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);</span><br><span class="line">intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);</span><br></pre></td></tr></table></figure>
+<h4 id="PendingIntent"><a href="#PendingIntent" class="headerlink" title="PendingIntent"></a>PendingIntent</h4><p><code>PendingIntent</code>表示一个<strong>延时意图</strong>，亦是<code>Parcelable</code>对象，<strong>因为是跨进程实现，即便启动进程销毁，IIntentSender对象依然存在在另一个进程中。这造成一个问题，使用该对象时如果进程已经有一个PendingIntent对象存在，应该如何处理？</strong></p>
+<p><strong>1.不管怎样首先要判断两个PendingIntent是否相等？</strong></p>
+<p>一个错误是创建多个仅仅”extra”不同的<code>PendingIntent</code>对象，这些实际上相同的。使用下列方法可以进行相等性判断</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Intent#filterEquals(Intent)</span><br></pre></td></tr></table></figure>
+<p><strong>2.发送时如果要创建不同的PendingIntent对象，可以更改getActivity方法中的请求码。</strong></p>
+<p><strong>3.发送时如果要创建相同的PendingIntent对象，可以使用FLAG_UPDATE_CURRENT /FLAG_CANCEL_CURRENT标记位。</strong></p>
+<ul>
+<li><code>FLAG_ONE_SHOT</code> <code>PendingIntent</code>只使用一次</li>
+<li><code>FLAG_NO_CREATE</code> <code>PendingIntent</code>如果不存在，不再创建</li>
+<li><code>FLAG_CANCEL_CURRENT</code> 如果<code>PendingIntent</code>存在，取消创建新的 ，如果发送的intent仅仅在extra 数据不同，可以使用该标记位创建新的</li>
+<li><code>FLAG_UPDATE_CURRENT</code> 如果<code>PendingIntent</code>存在，替代它的<code>extra data</code></li>
+</ul>
+<h2 id="几个常用的API"><a href="#几个常用的API" class="headerlink" title="几个常用的API"></a>几个常用的API</h2><p>关于栈</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getTaskId</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isTaskRoot</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">moveTaskToBack</span><span class="params">(<span class="keyword">boolean</span> nonRoot)</span> <span class="comment">//隐藏栈，实际是是回到桌面</span></span></span><br></pre></td></tr></table></figure>
+<p>创建和关闭</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">recreate</span><span class="params">()</span>；  </span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">finish</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">finishAffinity</span><span class="params">()</span><span class="comment">//关闭同一个栈内的活动public void finishAfterTransition() //等待动画完成</span></span></span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+      
+
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="xiang 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2017/05/06/android/View/文字效果(Spannable)/" rel="next" title="文字效果(Spannable)">
+                  <i class="fa fa-chevron-left"></i> 文字效果(Spannable)
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2017/05/24/android/系统/Window/" rel="prev" title="Window">
+                  Window <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#启动流程"><span class="nav-text">启动流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生命周期"><span class="nav-text">生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#保存和恢复"><span class="nav-text">保存和恢复</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#任务栈"><span class="nav-text">任务栈</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Task和Back-Stack"><span class="nav-text">Task和Back Stack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动模式"><span class="nav-text">启动模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Standard-默认模式"><span class="nav-text">Standard(默认模式)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SingleTop"><span class="nav-text">SingleTop</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SingleTask"><span class="nav-text">SingleTask</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SingleInstance"><span class="nav-text">SingleInstance</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用技巧-如何退出APP"><span class="nav-text">使用技巧:如何退出APP?</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Intent"><span class="nav-text">Intent</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#PendingIntent"><span class="nav-text">PendingIntent</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#几个常用的API"><span class="nav-text">几个常用的API</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/1.jpg"
+      alt="xiang">
+  <p class="site-author-name" itemprop="name">xiang</p>
+  <div class="site-description" itemprop="description">谨守而勿失，是谓反其真</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/liuxiangtian" title="GitHub &rarr; https://github.com/liuxiangtian" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="http://www.zhihu.com/people/liu-xiang-tian-74" title="zhihu &rarr; http://www.zhihu.com/people/liu-xiang-tian-74" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>zhihu</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘祥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">191k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:53</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script><script src="/js/bookmark.js?v=7.4.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
